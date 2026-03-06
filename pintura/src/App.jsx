@@ -1,3 +1,44 @@
+import { useState } from "react"
+import Card from "./components/Card"
+import LoginForm from "./components/LoginForm"
+import RegisterForm from "./components/RegisterForm"
+import ForgotPasswordForm from "./components/ForgotPasswordForm"
+
+export default function App(){
+
+  const [page,setPage] = useState("login")
+
+  return(
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+
+      <Card>
+
+        {page === "login" &&
+          <LoginForm
+            onRegisterClick={()=>setPage("register")}
+            onForgotClick={()=>setPage("forgot")}
+          />
+        }
+
+        {page === "register" &&
+          <RegisterForm
+            onLoginClick={()=>setPage("login")}
+          />
+        }
+
+        {page === "forgot" &&
+          <ForgotPasswordForm
+            onLoginClick={()=>setPage("login")}
+          />
+        }
+
+      </Card>
+
+    </div>
+  )
+}
+
+{/*
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
@@ -16,6 +57,9 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
+        <div className="App">
+        <AuthForm />
+        </div>
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
@@ -33,3 +77,4 @@ function App() {
 }
 
 export default App
+*/}
