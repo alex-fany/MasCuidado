@@ -55,7 +55,7 @@ export default function RegisterForm({onLoginClick}) {
         className="text-blue-600 text-sm"
         onClick={onLoginClick}
       >
-        ¿ya tienes cuenta? Inicia Sesión
+        ¿Ya tienes cuenta? Inicia Sesión
       </button>
 
     </form>

@@ -14,7 +14,9 @@ export default function LoginForm({onRegisterClick, onForgotClick}) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:gap-4 md:gap-6">
+
+      <h1 className="text-3xl font-bold text-center">+Cuidado</h1>
 
       <h2 className="text-2xl font-bold text-center">Iniciar sesión</h2>
 

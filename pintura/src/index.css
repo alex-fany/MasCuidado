@@ -27,9 +27,32 @@ a:hover {
 body {
   margin: 0;
   display: flex;
+  justify-content: center;
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  animation: rotate-bg-color 10s infinite;
+}
+
+@keyframes rotate-bg-color {
+  0% {
+    background-color: rgba(160, 255, 123, 0.8);
+  }
+  20% {
+    background-color: rgba(123, 255, 123, 0.8);
+  }
+  40% {
+    background-color: rgba(130, 255, 201, 0.8);
+  }
+  60% {
+    background-color: rgba(123, 255, 207, 0.8);
+  }
+  80% {
+    background-color: rgba(130, 255, 201, 0.8);
+  }
+  100% {
+    background-color: rgba(160, 255, 123, 0.8);
+  }
 }
 
 h1 {
