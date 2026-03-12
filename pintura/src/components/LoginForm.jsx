@@ -16,7 +16,7 @@ export default function LoginForm({onRegisterClick, onForgotClick}) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 sm:gap-4 md:gap-6">
 
-      <h1 className="text-3xl font-bold text-center">+Cuidado</h1>
+      <h1 className="text-3xl font-[Helvetica] font-bold text-center text-green-500 text-shadow-lg/10">+Cuidado</h1>
 
       <h2 className="text-2xl font-bold text-center">Iniciar sesión</h2>
 
@@ -50,7 +50,7 @@ export default function LoginForm({onRegisterClick, onForgotClick}) {
 
         <button
           type="button"
-          className="text-blue-600"
+          className="text-blue-600 shadow-lg"
           onClick={onForgotClick}
         >
           ¿Olvidaste tu contraseña?
@@ -58,7 +58,7 @@ export default function LoginForm({onRegisterClick, onForgotClick}) {
 
         <button
           type="button"
-          className="text-blue-600"
+          className="text-blue-600 shadow-lg"
           onClick={onRegisterClick}
         >
           Registrarse

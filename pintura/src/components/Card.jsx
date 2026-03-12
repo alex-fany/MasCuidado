@@ -1,6 +1,6 @@
 export default function Card({children}) {
   return (
-    <div className="bg-white/70
+    <div className="bg-white/85
       shadow-lg 
       rounded-xl 
       p-4 sm:p-5 md:p-6 lg:p-8

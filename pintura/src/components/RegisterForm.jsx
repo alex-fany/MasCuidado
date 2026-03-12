@@ -71,7 +71,7 @@ export default function RegisterForm({onLoginClick}) {
 
       <button
         type="button"
-        className="text-blue-600 text-sm"
+        className="text-blue-600 text-sm shadow-lg"
         onClick={onLoginClick}
       >
         ¿Ya tienes cuenta? Inicia Sesión
