@@ -21,7 +21,9 @@
 <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white"> <!-- Imágenes de logos de las tecnologías, lenguajes, herramientas, etc -->
 <img src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E">
 <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
-<img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=Jira&logoColor=white">
+<a href="https://triangulo-cuidado-pai8.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiZDlkNGYyMmIxZGE4NDYyOGJmY2JkODVhMGY3YWE0NjQiLCJwIjoiaiJ9">
+  <img src="https://img.shields.io/badge/Jira-0052CC?style=for-the-badge&logo=Jira&logoColor=white">
+</a>
 <img src="https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white">
 <a href="https://www.figma.com/design/Ndr2j8wVpSkjH6LUAZoggM/Modular?node-id=0-1&t=Xp6G8n685mGDaT73-1">
   <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">
@@ -31,13 +33,18 @@
 <img src="https://img.shields.io/badge/Visual_Studio_Code-0078D4?style=for-the-badge&logo=visual%20studio%20code&logoColor=white">
 <img src="https://img.shields.io/badge/axios-671ddf?&style=for-the-badge&logo=axios&logoColor=white">
 <img src="https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white">
+<img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E">
 <img src="https://img.shields.io/badge/Tumblr-%2336465D.svg?&style=for-the-badge&logo=Tumblr&logoColor=white">
+<a href="https://www.canva.com/design/DAGSv0CBeQk/agkzwuaU1uHtSfZZU3yT1w/edit?utm_content=DAGSv0CBeQk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton">
+  <img src="https://img.shields.io/badge/Canva-%2300C4CC.svg?&style=for-the-badge&logo=Canva&logoColor=white">
+</a>
+<a href="https://discord.gg/f8m2bK2U">
+  <img src="https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white">
+</a>
 
 <div align="center"> <!-- Banner animalitos -->
   <img src="https://64.media.tumblr.com/2642a1345d49a1cb30c7d983e0b33e5f/f9f725a077bae611-a6/s1280x1920/5f44b652867a1298ace4beac19a9a0c57868c613.gifv" width="800"> 
 </div>
-
-## Enlaces importantes
 
 
 <div align="center"> <!-- Banner pie plantas -->
@@ -45,6 +52,10 @@
 </div>
 
 <!-- Divs a lo menso para editar luego
+<img src="">
+<a href="">
+  <img src="">
+</a>
 <div align="center"> 
   <img src="" width="800"> 
 </div>
