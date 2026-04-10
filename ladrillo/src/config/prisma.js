@@ -1,5 +1,6 @@
-const { PrismaClient } = require('@prisma/client')
+const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient()
+// Pasamos un objeto vacío para la validación de esta versión de Prisma/Node (6.4.1)
+const prisma = new PrismaClient({});
 
-module.exports = prisma
+module.exports = prisma;
