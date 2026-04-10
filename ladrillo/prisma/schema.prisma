@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model catalogo_especie {
@@ -98,6 +98,7 @@ model usuario {
   id_usuario           Int                @id @default(autoincrement())
   nombre_completo      String             @db.VarChar(150)
   correo               String             @unique @db.VarChar(150)
+  password             String?            @db.VarChar(255)
   google_id            String?            @unique @db.VarChar(255)
   google_refresh_token String?
   telefono             String?            @db.VarChar(20)
