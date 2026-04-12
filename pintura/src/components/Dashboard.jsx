@@ -1,28 +1,158 @@
-import Button from "./Button"
+import { useState } from 'react';
+
+// Importación de subcomponentes
+import DashboardHeader from './dashboard/DashboardHeader';
+import InfoBubble from './dashboard/InfoBubble';
+import PetDisplay from './dashboard/PetDisplay';
+import BottomNav from './dashboard/BottomNav';
+import SettingsModal from './dashboard/SettingsModal';
+
+// Importación de iconos
+import { 
+  TrophyIcon, 
+  MapPinIcon, 
+  HomeIcon, 
+  CalendarIcon, 
+  UsersIcon,
+  CloseIcon
+} from './dashboard/Icons';
 
 export default function Dashboard({ user, onLogout }) {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 text-center">
-      <div className="bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border border-white/50 max-w-md w-full transform transition-all hover:scale-[1.01]">
-        <h1 className="text-4xl font-extrabold text-[#2d9b96] mb-2 tracking-tight">+Cuidado</h1>
-        <p className="text-gray-500 text-sm mb-8 uppercase tracking-widest font-semibold">Panel de Control</p>
-        
-        <div className="w-24 h-24 bg-gradient-to-br from-[#2d9b96] to-[#8dd9cc] rounded-full mx-auto mb-6 flex items-center justify-center text-white text-4xl font-bold shadow-lg border-4 border-white">
-          {user?.nombre?.charAt(0) || "U"}
-        </div>
-        
-        <h2 className="text-2xl font-bold text-gray-800 mb-1">{user?.nombre}</h2>
-        <p className="text-teal-600 font-medium mb-8 italic">{user?.correo}</p>
-        
-        <div className="p-5 bg-teal-50/50 rounded-2xl mb-10 border border-teal-100/50 text-teal-800 text-sm leading-relaxed shadow-inner">
-          <span className="block font-bold mb-1">¡Sesión Iniciada!</span>
-          Has accedido correctamente a tu cuenta. Ahora puedes gestionar todos los servicios de salud para tus mascotas.
-        </div>
+  // --- Estados Principales ---
+  const [activePetId, setActivePetId] = useState(1);
+  
+  // Estados de visibilidad de modales
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [isCartillaOpen, setIsCartillaOpen] = useState(false);
+  const [isClothesOpen, setIsClothesOpen] = useState(false);
+  const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
 
-        <Button onClick={onLogout} className="w-full py-4 rounded-xl font-bold text-lg shadow-teal-200">
-          Cerrar Sesión
-        </Button>
-      </div>
+  // --- Datos Mock (Simulados) ---
+  const pets = [
+    { id: 1, name: "Trapeador", type: "Perro", breed: "Golden", realAvatar: "🐶", virtualAvatar: "🐾" },
+    { id: 2, name: "Demóstenes", type: "Gato", breed: "Siames", realAvatar: "🐱", virtualAvatar: "🐾" },
+  ];
+
+  const reminders = [
+    { id: 1, petId: 1, time: "14:00", text: "Me tocan las pastillas" },
+  ];
+
+  const activePet = pets.find(p => p.id === activePetId) || pets[0];
+  const activeReminder = reminders.find(r => r.petId === activePetId);
+
+  // Definición de items de navegación
+  const navItems = [
+    { label: "Logros", icon: <TrophyIcon /> },
+    { label: "Mapa", icon: <MapPinIcon /> },
+    { label: "Home", icon: <HomeIcon /> },
+    { label: "Calendario", icon: <CalendarIcon /> },
+    { label: "Perfil", icon: <UsersIcon /> },
+  ];
+
+  return (
+    <div className="h-screen w-full bg-transparent font-sans flex flex-col overflow-hidden relative selection:bg-[#5fc4b8]/30 no-scrollbar">
+      
+      {/* Header (Configuración y Selector de Mascota) */}
+      <DashboardHeader 
+        onConfigClick={() => setIsConfigModalOpen(true)}
+        activePet={activePet}
+        pets={pets}
+        setActivePetId={setActivePetId}
+      />
+
+      {/* Área Central (Globo de texto y Mascota) */}
+      <main className="flex-1 w-full flex flex-col items-center justify-center relative overflow-hidden px-4">
+        <div className="w-full max-w-2xl flex flex-col items-center relative h-full justify-center">
+          
+          <InfoBubble 
+            activeReminder={activeReminder} 
+            activePetName={activePet.name} 
+          />
+
+          <PetDisplay 
+            virtualAvatar={activePet.virtualAvatar}
+            onCartillaClick={() => setIsCartillaOpen(true)}
+            onClothesClick={() => setIsClothesOpen(true)}
+            onRemindersClick={() => setIsRemindersModalOpen(true)}
+            remindersCount={reminders.length}
+          />
+
+        </div>
+      </main>
+
+      {/* Navegación Inferior */}
+      <BottomNav navItems={navItems} />
+
+      {/* --- MODALES Y OVERLAYS --- */}
+      
+      <SettingsModal 
+        isOpen={isConfigModalOpen} 
+        onClose={() => setIsConfigModalOpen(false)} 
+        onLogout={onLogout} 
+      />
+      
+      {/* Modal Cartilla */}
+      {isCartillaOpen && (
+        <div className="fixed inset-0 bg-[#0a1f1e]/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-lg p-8 shadow-2xl relative animate-in zoom-in-95 duration-200 border border-[#3aaba5]/20">
+            <button onClick={() => setIsCartillaOpen(false)} className="absolute top-6 right-6 hover:scale-110 active:scale-90 transition-transform duration-200">
+              <CloseIcon />
+            </button>
+            <h2 className="text-3xl font-black text-[#2d9b96] mb-6">Cartilla de {activePet.name}</h2>
+            <div className="h-64 bg-[#f0fdfa] rounded-[2rem] border-2 border-dashed border-[#3aaba5]/20 flex items-center justify-center mb-6">
+              <span className="text-[#3aaba5] font-bold">Contenido Médico</span>
+            </div>
+            <button onClick={() => setIsCartillaOpen(false)} className="w-full py-4 bg-[#2d9b96] text-white font-black rounded-2xl hover:bg-[#23807c] transition-all shadow-lg shadow-[#2d9b96]/20">Cerrar Cartilla</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Vestidor */}
+      {isClothesOpen && (
+        <div className="fixed inset-0 bg-[#0a1f1e]/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl relative animate-in zoom-in-95 duration-200 border border-[#3aaba5]/20">
+            <button onClick={() => setIsClothesOpen(false)} className="absolute top-6 right-6 hover:scale-110 active:scale-90 transition-transform duration-200">
+              <CloseIcon />
+            </button>
+            <h2 className="text-2xl font-black text-[#2d9b96] mb-4">Vestidor</h2>
+            <p className="text-[#3aaba5] font-bold mb-8">Personaliza a {activePet.name}</p>
+            <button onClick={() => setIsClothesOpen(false)} className="w-full py-4 bg-[#2d9b96] text-white font-black rounded-2xl hover:bg-[#23807c] transition-all shadow-lg shadow-[#2d9b96]/20">Guardar Cambios</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Recordatorios Rápidos */}
+      {isRemindersModalOpen && (
+        <div className="fixed inset-0 bg-[#0a1f1e]/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2.5rem] w-full max-w-sm p-8 shadow-2xl relative animate-in zoom-in-95 duration-200 border border-[#3aaba5]/20">
+            <button onClick={() => setIsRemindersModalOpen(false)} className="absolute top-6 right-6 hover:scale-110 active:scale-90 transition-transform duration-200">
+              <CloseIcon />
+            </button>
+            <h2 className="text-2xl font-black text-[#2d9b96] mb-6">Recordatorios</h2>
+            <div className="space-y-4 mb-8">
+              {reminders.map(r => (
+                <div key={r.id} className="p-4 bg-[#f0fdfa] rounded-2xl border border-[#3aaba5]/10 flex justify-between items-center">
+                  <span className="font-bold text-[#2d9b96]">{r.text}</span>
+                  <span className="font-black text-white bg-[#3aaba5] px-3 py-1 rounded-lg text-sm">{r.time}</span>
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setIsRemindersModalOpen(false)} className="w-full py-4 bg-[#2d9b96] text-white font-black rounded-2xl hover:bg-[#23807c] transition-all">Cerrar</button>
+          </div>
+        </div>
+      )}
+
+      {/* Estilos globales de animaciones bien padres */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes float-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes bounce-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-float-gentle { animation: float-gentle 4s ease-in-out infinite; }
+        .animate-bounce-gentle { animation: bounce-gentle 4s ease-in-out infinite; }
+        .animate-spin-slow { animation: spin-slow 40s linear infinite; }
+      `}} />
     </div>
-  )
+  );
 }
