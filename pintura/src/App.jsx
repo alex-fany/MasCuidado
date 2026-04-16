@@ -10,6 +10,7 @@ import BottomNav from "./components/layout/BottomNav"
 import SettingsModal from "./components/layout/SettingsModal"
 import HomeView from "./components/dashboard/HomeView"
 import MapView from "./components/map/MapView"
+import CalendarView from "./components/calendar/CalendarView"
 
 // Iconos para la navegación
 import { 
@@ -100,8 +101,15 @@ export default function App() {
             
             {currentView === 'map' && <MapView />}
 
+            {currentView === 'calendar' && (
+              <CalendarView 
+                reminders={reminders} 
+                activePet={activePet} 
+              />
+            )}
+
             {/* Placeholder para futuras vistas */}
-            {!['home', 'map'].includes(currentView) && (
+            {!['home', 'map', 'calendar'].includes(currentView) && (
               <div className="flex-1 h-full flex flex-col items-center justify-center text-[#2d9b96] animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="text-8xl mb-6 animate-bounce-gentle">✨</div>
                 <h2 className="text-3xl font-black italic tracking-tight">Vista de {currentView}</h2>
