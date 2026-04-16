@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function BottomNav({ navItems }) {
+export default function BottomNav({ navItems , onUserClick}) {
   return (
     <footer className="w-full flex justify-center z-40 flex-shrink-0 px-4 pb-4">
       <nav className="w-full max-w-3xl bg-[#bcedea]/90 backdrop-blur-md rounded-[2.5rem] p-2 flex items-center justify-between relative shadow-lg border-2 border-white/50">
@@ -20,6 +20,18 @@ export default function BottomNav({ navItems }) {
                 <div className="w-20"></div>
               </div>
             );
+          }else if(item.label === "Perfil"){
+            return (
+            <button
+              key={index}
+              onClick={onUserClick}
+              className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl transition-all duration-300 hover:bg-white/40 text-[#2d9b96] group"
+            >
+              <div className="opacity-70 group-hover:opacity-100 group-hover:-translate-y-1 transition-all">
+                {item.icon}
+              </div>
+            </button>
+          );
           }
           
           return (

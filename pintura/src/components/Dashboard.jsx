@@ -6,6 +6,7 @@ import InfoBubble from './dashboard/InfoBubble';
 import PetDisplay from './dashboard/PetDisplay';
 import BottomNav from './dashboard/BottomNav';
 import SettingsModal from './dashboard/SettingsModal';
+import UserModal from './dashboard/UserModal';
 
 // Importación de iconos
 import { 
@@ -23,6 +24,7 @@ export default function Dashboard({ user, onLogout }) {
   
   // Estados de visibilidad de modales
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isCartillaOpen, setIsCartillaOpen] = useState(false);
   const [isClothesOpen, setIsClothesOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
@@ -81,7 +83,8 @@ export default function Dashboard({ user, onLogout }) {
       </main>
 
       {/* Navegación Inferior */}
-      <BottomNav navItems={navItems} />
+      <BottomNav navItems={navItems} 
+      onUserClick={() => setIsUserModalOpen(true)}/>
 
       {/* --- MODALES Y OVERLAYS --- */}
       
@@ -89,6 +92,11 @@ export default function Dashboard({ user, onLogout }) {
         isOpen={isConfigModalOpen} 
         onClose={() => setIsConfigModalOpen(false)} 
         onLogout={onLogout} 
+      />
+      <UserModal
+        isOpen={isUserModalOpen}
+        onClose={() => setIsUserModalOpen(false)}
+        onLogout={onLogout}
       />
       
       {/* Modal Cartilla */}
