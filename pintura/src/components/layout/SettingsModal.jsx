@@ -1,5 +1,5 @@
 import React from 'react';
-import { CloseIcon, LogoutIcon } from './Icons';
+import { CloseIcon, LogoutIcon } from '../common/Icons';
 
 export default function SettingsModal({ isOpen, onClose, onLogout }) {
   if (!isOpen) return null;

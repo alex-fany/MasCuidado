@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SettingsIcon, CheckIcon } from './Icons';
+import { SettingsIcon, CheckIcon } from '../common/Icons';
 
 export default function DashboardHeader({ onConfigClick, activePet, pets, setActivePetId }) {
   const [isPetSelectorOpen, setIsPetSelectorOpen] = useState(false);

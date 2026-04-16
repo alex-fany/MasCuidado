@@ -1,5 +1,5 @@
 import React from 'react';
-import { HangerIcon, BellIcon } from './Icons';
+import { HangerIcon, BellIcon } from '../common/Icons';
 
 export default function PetDisplay({ 
   virtualAvatar, 

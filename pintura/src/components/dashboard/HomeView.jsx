@@ -1,68 +1,19 @@
 import { useState } from 'react';
+import InfoBubble from './InfoBubble';
+import PetDisplay from './PetDisplay';
+import { CloseIcon } from '../common/Icons';
 
-// Importación de subcomponentes
-import DashboardHeader from './dashboard/DashboardHeader';
-import InfoBubble from './dashboard/InfoBubble';
-import PetDisplay from './dashboard/PetDisplay';
-import BottomNav from './dashboard/BottomNav';
-import SettingsModal from './dashboard/SettingsModal';
-
-// Importación de iconos
-import { 
-  TrophyIcon, 
-  MapPinIcon, 
-  HomeIcon, 
-  CalendarIcon, 
-  UsersIcon,
-  CloseIcon
-} from './dashboard/Icons';
-
-export default function Dashboard({ user, onLogout }) {
-  // --- Estados Principales ---
-  const [activePetId, setActivePetId] = useState(1);
-  
-  // Estados de visibilidad de modales
-  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+export default function HomeView({ activePet, reminders, activeReminder }) {
+  // Estados de visibilidad de modales específicos de la mascota
   const [isCartillaOpen, setIsCartillaOpen] = useState(false);
   const [isClothesOpen, setIsClothesOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
 
-  // --- Datos Mock (Simulados) ---
-  const pets = [
-    { id: 1, name: "Trapeador", type: "Perro", breed: "Golden", realAvatar: "🐶", virtualAvatar: "🐾" },
-    { id: 2, name: "Demóstenes", type: "Gato", breed: "Siames", realAvatar: "🐱", virtualAvatar: "🐾" },
-  ];
-
-  const reminders = [
-    { id: 1, petId: 1, time: "14:00", text: "Me tocan las pastillas" },
-  ];
-
-  const activePet = pets.find(p => p.id === activePetId) || pets[0];
-  const activeReminder = reminders.find(r => r.petId === activePetId);
-
-  // Definición de items de navegación
-  const navItems = [
-    { label: "Logros", icon: <TrophyIcon /> },
-    { label: "Mapa", icon: <MapPinIcon /> },
-    { label: "Home", icon: <HomeIcon /> },
-    { label: "Calendario", icon: <CalendarIcon /> },
-    { label: "Perfil", icon: <UsersIcon /> },
-  ];
-
   return (
-    <div className="h-screen w-full bg-transparent font-sans flex flex-col overflow-hidden relative selection:bg-[#5fc4b8]/30 no-scrollbar">
-      
-      {/* Header (Configuración y Selector de Mascota) */}
-      <DashboardHeader 
-        onConfigClick={() => setIsConfigModalOpen(true)}
-        activePet={activePet}
-        pets={pets}
-        setActivePetId={setActivePetId}
-      />
-
+    <>
       {/* Área Central (Globo de texto y Mascota) */}
-      <main className="flex-1 w-full flex flex-col items-center justify-center relative overflow-hidden px-4">
-        <div className="w-full max-w-2xl flex flex-col items-center relative h-full justify-center">
+      <main className="flex-1 w-full flex flex-col items-center justify-center relative overflow-hidden px-4 pb-20">
+        <div className="w-full max-w-2xl flex flex-col items-center relative justify-center">
           
           <InfoBubble 
             activeReminder={activeReminder} 
@@ -76,20 +27,10 @@ export default function Dashboard({ user, onLogout }) {
             onRemindersClick={() => setIsRemindersModalOpen(true)}
             remindersCount={reminders.length}
           />
-
         </div>
       </main>
 
-      {/* Navegación Inferior */}
-      <BottomNav navItems={navItems} />
-
-      {/* --- MODALES Y OVERLAYS --- */}
-      
-      <SettingsModal 
-        isOpen={isConfigModalOpen} 
-        onClose={() => setIsConfigModalOpen(false)} 
-        onLogout={onLogout} 
-      />
+      {/* MODALES DE LA +COTA */}
       
       {/* Modal Cartilla */}
       {isCartillaOpen && (
@@ -141,18 +82,6 @@ export default function Dashboard({ user, onLogout }) {
           </div>
         </div>
       )}
-
-      {/* Estilos globales de animaciones bien padres */}
-      <style dangerouslySetInnerHTML={{ __html: `
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes float-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes bounce-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .animate-float-gentle { animation: float-gentle 4s ease-in-out infinite; }
-        .animate-bounce-gentle { animation: bounce-gentle 4s ease-in-out infinite; }
-        .animate-spin-slow { animation: spin-slow 40s linear infinite; }
-      `}} />
-    </div>
+    </>
   );
 }

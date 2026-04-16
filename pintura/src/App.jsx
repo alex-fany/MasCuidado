@@ -3,11 +3,42 @@ import Card from "./components/Card"
 import LoginForm from "./components/LoginForm"
 import RegisterForm from "./components/RegisterForm"
 import ForgotPasswordForm from "./components/ForgotPasswordForm"
-import Dashboard from "./components/Dashboard"
+
+// Layout y Vistas
+import DashboardHeader from "./components/layout/DashboardHeader"
+import BottomNav from "./components/layout/BottomNav"
+import SettingsModal from "./components/layout/SettingsModal"
+import HomeView from "./components/dashboard/HomeView"
+import MapView from "./components/map/MapView"
+
+// Iconos para la navegación
+import { 
+  TrophyIcon, 
+  MapPinIcon, 
+  HomeIcon, 
+  CalendarIcon,
+  UsersIcon
+} from "./components/common/Icons"
 
 export default function App() {
+  // --- Estados de Autenticación ---
   const [page, setPage] = useState("login")
   const [user, setUser] = useState(null)
+
+  // --- Estados Globales de la App ---
+  const [currentView, setCurrentView] = useState("home")
+  const [activePetId, setActivePetId] = useState(1)
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
+
+  // --- Datos Mock (Simulados) ---
+  const pets = [
+    { id: 1, name: "Trapeador", type: "Perro", breed: "Golden", realAvatar: "🐶", virtualAvatar: "🐾" },
+    { id: 2, name: "Demóstenes", type: "Gato", breed: "Siames", realAvatar: "🐱", virtualAvatar: "🐾" },
+  ];
+
+  const reminders = [
+    { id: 1, petId: 1, time: "14:00", text: "Me tocan las pastillas" },
+  ];
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user")
@@ -28,12 +59,80 @@ export default function App() {
     localStorage.removeItem("user")
     setUser(null)
     setPage("login")
+    setCurrentView("home") // Reset navigation
   }
+
+  // Cálculos de datos activos
+  const activePet = pets.find(p => p.id === activePetId) || pets[0];
+  const activeReminder = reminders.find(r => r.petId === activePetId);
+  const petReminders = reminders.filter(r => r.petId === activePetId);
+
+  // Definición de items de navegación
+  const navItems = [
+    { id: 'logros', label: "Logros", icon: <TrophyIcon /> },
+    { id: 'map', label: "Mapa", icon: <MapPinIcon /> },
+    { id: 'home', label: "Home", icon: <HomeIcon /> },
+    { id: 'calendar', label: "Calendario", icon: <CalendarIcon /> },
+    { id: 'profile', label: "Perfil", icon: <UsersIcon /> },
+  ];
 
   return (
     <main className="min-h-screen lg:h-[100dvh] w-full flex items-center justify-center selection:bg-[#2d9b96]/20 overflow-x-hidden p-4 sm:p-6">
       {page === "dashboard" ? (
-        <Dashboard user={user} onLogout={handleLogout} />
+        <div className="h-screen w-full bg-transparent font-sans flex flex-col overflow-hidden relative selection:bg-[#5fc4b8]/30 no-scrollbar">
+          
+          <DashboardHeader 
+            onConfigClick={() => setIsConfigModalOpen(true)}
+            activePet={activePet}
+            pets={pets}
+            setActivePetId={setActivePetId}
+          />
+
+          {/* ÁREA DINÁMICA DE VISTAS */}
+          <main className="flex-1 w-full overflow-y-auto no-scrollbar relative">
+            {currentView === 'home' && (
+              <HomeView 
+                activePet={activePet} 
+                reminders={petReminders} 
+                activeReminder={activeReminder} 
+              />
+            )}
+            
+            {currentView === 'map' && <MapView />}
+
+            {/* Placeholder para futuras vistas */}
+            {!['home', 'map'].includes(currentView) && (
+              <div className="flex-1 h-full flex flex-col items-center justify-center text-[#2d9b96] animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="text-8xl mb-6 animate-bounce-gentle">✨</div>
+                <h2 className="text-3xl font-black italic tracking-tight">Vista de {currentView}</h2>
+                <p className="text-[#3aaba5] font-bold mt-2">Próximamente en +Cuidado</p>
+              </div>
+            )}
+          </main>
+
+          <BottomNav 
+            navItems={navItems} 
+            currentView={currentView} 
+            onNavigate={setCurrentView} 
+          />
+
+          <SettingsModal 
+            isOpen={isConfigModalOpen} 
+            onClose={() => setIsConfigModalOpen(false)} 
+            onLogout={handleLogout} 
+          />
+
+          <style dangerouslySetInnerHTML={{ __html: `
+            .no-scrollbar::-webkit-scrollbar { display: none; }
+            .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            @keyframes float-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+            @keyframes bounce-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+            @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            .animate-float-gentle { animation: float-gentle 4s ease-in-out infinite; }
+            .animate-bounce-gentle { animation: bounce-gentle 4s ease-in-out infinite; }
+            .animate-spin-slow { animation: spin-slow 40s linear infinite; }
+          `}} />
+        </div>
       ) : (
         /* Contenedor Maestro */
         <div className="w-full max-w-5xl h-full flex items-center justify-center animate-in fade-in zoom-in-95 duration-1000">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ClockIcon } from './Icons';
+import { ClockIcon } from '../common/Icons';
 
 export default function InfoBubble({ activeReminder, activePetName }) {
   return (
