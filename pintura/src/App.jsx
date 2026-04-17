@@ -11,6 +11,7 @@ import SettingsModal from "./components/layout/SettingsModal"
 import HomeView from "./components/dashboard/HomeView"
 import MapView from "./components/map/MapView"
 import CalendarView from "./components/calendar/CalendarView"
+import UserModal from './components/layout/UserModal';
 
 // Iconos para la navegación
 import { 
@@ -30,7 +31,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState("home")
   const [activePetId, setActivePetId] = useState(1)
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
-
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   // --- Datos Mock (Simulados) ---
   const pets = [
     { id: 1, name: "Trapeador", type: "Perro", breed: "Golden", realAvatar: "🐶", virtualAvatar: "🐾" },
@@ -122,6 +123,7 @@ export default function App() {
             navItems={navItems} 
             currentView={currentView} 
             onNavigate={setCurrentView} 
+            onUserClick={() => setIsUserModalOpen(true)}
           />
 
           <SettingsModal 
@@ -129,7 +131,11 @@ export default function App() {
             onClose={() => setIsConfigModalOpen(false)} 
             onLogout={handleLogout} 
           />
-
+          <UserModal
+            isOpen={isUserModalOpen}
+            onClose={() => setIsUserModalOpen(false)}
+            onLogout={handleLogout}
+          />
           <style dangerouslySetInnerHTML={{ __html: `
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
