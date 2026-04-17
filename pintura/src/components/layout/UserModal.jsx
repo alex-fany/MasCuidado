@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { CloseIcon, LogoutIcon } from '../common/Icons';
-
+import EditUserModal from './EditUserModal';
 
 export default function UserModal({ isOpen, onClose, onLogout }) {
 
 
   const [user, setUser] = useState(null);
-
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -23,7 +23,22 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
     }
   }, [isOpen]);
 
+  const handleSave = async (data) => {
+    const token = localStorage.getItem("token");
 
+    const res = await fetch("http://localhost:3000/api/user/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(data)
+    });
+
+    const updated = await res.json();
+    setUser(updated);
+    setEditOpen(false);
+  };
   if (!isOpen) return null;
 
 
@@ -69,31 +84,41 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
                 <span className="text-s text-gray-800">{user.correo}</span>
               </div>
 
-
-              {/* MASCOTAS */}
              {/* TELEFONO*/}
               <div className="my-2 p-3 space-y-1.5 flex flex-col items-start rounded-[1rem] shadow-md/20">
                 <span className="font-black text-gray-800">Teléfono:</span>
-                <span className="text-s text-gray-800">{user.telefono||"No registrado"}<span className="text-lg text-[#2d9b96] mx-3 font-bold leading-none">+</span>
-</span>
+                <span className="text-s text-gray-800">{user.telefono||"No registrado"}</span>
               </div>
               {/* DIRECCION */}
               <div className="my-2 p-3 space-y-1.5 flex flex-col items-start rounded-[1rem] shadow-md/20">
                 <span className="font-black text-gray-800">Dirección:</span>
-                <span className="text-s text-gray-800">{user.direccion||"No registrado"}<span className="text-lg text-[#2d9b96] mx-3 font-bold leading-none">+</span>
-</span>
+                <span className="text-s text-gray-800">{user.direccion||"No registrado"}</span>
               </div>
-
-
-                          </>
+              {/* MASCOTAS */}
+              <div className="p-3 space-y-1.5 flex flex-col items-start rounded-[1rem] shadow-md/20">
+              <span className="font-black text-gray-800">Mascotas:</span>
+                {!user.mascota ? (
+                  <span className="text-s text-gray-800">Sin mascotas</span>
+                ) : (
+                  user.mascota.map((m, i) => (
+                    <span key={i} className="text-s text-gray-800">
+                      {m.nombre}
+                    </span>
+                  ))
+                )}
+              </div>
+            </>
           )}
-
 
         </div>
 
-
         {/* FOOTER */}
         <div className="p-6 bg-gradient-to-t from-[#f0fdfa] to-white border-t border-[#3aaba5]/10">
+          <button
+            onClick={() => setEditOpen(true)}
+            className="w-full py-4 mb-2 bg-[#bcedea]/30 hover:bg-[#5fc4b8]/30 text-[#3aaba5] font-black rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-3 border border-[#5fc4b8]/30 active:scale-95 group shadow-sm">
+            Editar perfil
+          </button>
           <button onClick={onLogout} className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-500 font-black rounded-[1.5rem] transition-all duration-300 flex items-center justify-center gap-3 border border-red-100 active:scale-95 group shadow-sm">
             <div className="text-red-500"><LogoutIcon /></div>
             Cerrar Sesión
@@ -102,9 +127,14 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
             <span className="text-[9px] font-black uppercase tracking-[0.3em] text-[#3aaba5]/40">+Cuidado v1.0.0</span>
           </div>
         </div>
-
-
+          <EditUserModal
+            isOpen={editOpen}
+            onClose={() => setEditOpen(false)}
+            user={user}
+            onSave={handleSave}
+          />
       </div>
     </div>
-  );
+      
+  ); 
 }
