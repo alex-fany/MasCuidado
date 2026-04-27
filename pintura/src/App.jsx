@@ -61,7 +61,7 @@ export default function App() {
     localStorage.removeItem("user")
     setUser(null)
     setPage("login")
-    setCurrentView("home") // Reset navigation
+    setCurrentView("home")
   }
 
   // Cálculos de datos activos
