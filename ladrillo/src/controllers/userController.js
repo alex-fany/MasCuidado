@@ -1,46 +1,51 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
+const prisma = require('../config/prisma');
 
 exports.getMyProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id; // Este id viene del token (UUID)
    
-    const user = await prisma.usuario.findUnique({
-      where: { id_usuario: userId },
+    const user = await prisma.Usuario.findUnique({
+      where: { id: userId },
       include: {
-        mascota: true,
-        clinica_favorita: true
+        mascotas: true
       }
     });
 
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
 
     res.json(user);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
+
 exports.updateMyProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const { nombre_completo, telefono, direccion } = req.body;
 
-    const currentUser = await prisma.usuario.findUnique({
-      where: { id_usuario: userId }
+    const currentUser = await prisma.Usuario.findUnique({
+      where: { id: userId }
     });
+
+    if (!currentUser) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
 
     const dataToUpdate = {
       telefono,
       direccion
     };
 
-    // Solo permitir editar nombre si NO es Google
-    if (!currentUser.google_id) {
-      dataToUpdate.nombre_completo = nombre_completo;
+    if (!currentUser.googleId) {
+      dataToUpdate.nombreCompleto = nombre_completo;
     }
 
-    const updatedUser = await prisma.usuario.update({
-      where: { id_usuario: userId },
+    const updatedUser = await prisma.Usuario.update({
+      where: { id: userId },
       data: dataToUpdate
     });
 

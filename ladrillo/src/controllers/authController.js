@@ -15,23 +15,23 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "Todos los campos son obligatorios" });
     }
 
-    const userExist = await prisma.usuario.findUnique({ where: { correo: email } });
+    // Nota: Usamos Usuario (PascalCase) según el nuevo schema
+    const userExist = await prisma.Usuario.findUnique({ where: { correo: email } });
     if (userExist) {
       return res.status(400).json({ error: "El correo ya está registrado" });
     }
 
-    // Encriptar contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await prisma.usuario.create({
+    const user = await prisma.Usuario.create({
       data: {
-        nombre_completo: name,
+        nombreCompleto: name,
         correo: email,
         password: hashedPassword
       }
     });
 
-    res.status(201).json({ message: "Usuario creado con éxito", userId: user.id_usuario });
+    res.status(201).json({ message: "Usuario creado con éxito", userId: user.id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error en el servidor al registrar" });
@@ -43,7 +43,7 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.usuario.findUnique({ where: { correo: email } });
+    const user = await prisma.Usuario.findUnique({ where: { correo: email } });
     if (!user || !user.password) {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
@@ -53,14 +53,16 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    const token = jwt.sign({ id: user.id_usuario }, JWT_SECRET, { expiresIn: '24h' });
+    // Usamos user.id (que es el UUID)
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       message: "Login exitoso",
       token,
-      user: { id: user.id_usuario, nombre: user.nombre_completo, correo: user.correo }
+      user: { id: user.id, nombre: user.nombreCompleto, correo: user.correo }
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error en el servidor al iniciar sesión" });
   }
 };
@@ -70,7 +72,6 @@ exports.googleLogin = async (req, res) => {
   try {
     const { idToken } = req.body;
 
-    // Verificar token con Google
     const ticket = await client.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -78,38 +79,36 @@ exports.googleLogin = async (req, res) => {
     
     const { sub: googleId, email, name } = ticket.getPayload();
 
-    // Buscar o crear usuario
-    let user = await prisma.usuario.findFirst({
+    let user = await prisma.Usuario.findFirst({
       where: {
         OR: [
-          { google_id: googleId },
+          { googleId: googleId },
           { correo: email }
         ]
       }
     });
 
     if (!user) {
-      user = await prisma.usuario.create({
+      user = await prisma.Usuario.create({
         data: {
-          nombre_completo: name,
+          nombreCompleto: name,
           correo: email,
-          google_id: googleId
+          googleId: googleId
         }
       });
-    } else if (!user.google_id) {
-      // Si el usuario ya existía por email pero no tenía google_id, lo vinculamos
-      user = await prisma.usuario.update({
-        where: { id_usuario: user.id_usuario },
-        data: { google_id: googleId }
+    } else if (!user.googleId) {
+      user = await prisma.Usuario.update({
+        where: { id: user.id },
+        data: { googleId: googleId }
       });
     }
 
-    const token = jwt.sign({ id: user.id_usuario }, JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       message: "Login con Google exitoso",
       token,
-      user: { id: user.id_usuario, nombre: user.nombre_completo, correo: user.correo }
+      user: { id: user.id, nombre: user.nombreCompleto, correo: user.correo }
     });
   } catch (error) {
     console.error("Error Google Auth:", error);

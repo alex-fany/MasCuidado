@@ -8,4 +8,19 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    port: 5173,
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        secure: false,
+      }
+    },
+    // Añadimos cabeceras para compatibilidad con Google Auth y evitar errores COOP
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      'Cross-Origin-Embedder-Policy': 'unsafe-none',
+    }
+  }
 })

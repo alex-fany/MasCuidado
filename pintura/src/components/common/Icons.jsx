@@ -104,12 +104,11 @@ export const UsersIcon = () => (
 
 export const HangerIcon = () => (
   <svg width="32" height="32" viewBox="0 0 100 100">
-    <path d="M50,5 L50,15 M30,30 L70,30 L85,45 L85,85 C85,90 80,95 75,95 L25,95 C20,95 15,90 15,85 L15,45 L30,30" fill="#3aaba5" opacity=".35" transform="translate(3, 3)" stroke="#3aaba5" strokeWidth="4" strokeLinecap="round"></path>
-    <path d="M50,2 L50,12 M30,27 L70,27 L85,42 L85,82 C85,87 80,92 75,92 L25,92 C20,92 15,87 15,82 L15,42 L30,27" fill="#f2f2f2" stroke="#1a5d5a" strokeWidth="3" strokeLinecap="round"></path>
+    <path d="M50,5 L50,15 M30,30 L70,30 L85,45 L85,85 C85,90 80,95 75,95 L25,95 C20,95 15,90 15,85 L15,45 L30,30" fill="white" opacity=".35" transform="translate(3, 3)"></path>
+    <path d="M50,2 L50,12 M30,27 L70,27 L85,42 L85,82 C85,87 80,92 75,92 L25,92 C20,92 15,87 15,82 L15,42 L30,27" fill="white"></path>
     <path d="M50,12 C55,12 58,15 58,20 C58,25 53,27 50,27 C47,27 42,25 42,20" fill="none" stroke="#1a5d5a" strokeWidth="4" strokeLinecap="round"></path>
     <path d="M30,27 L20,42 L20,55 L30,50 L30,85 L70,85 L70,50 L80,55 L80,42 L70,27 Z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3" strokeLinejoin="round"></path>
     <circle cx="50" cy="35" r="3" fill="#e6fcfb" stroke="#1a5d5a" strokeWidth="1.5"></circle>
-    <path d="M50,38 L50,45" stroke="#1a5d5a" strokeWidth="2" strokeLinecap="round"></path>
   </svg>
 );
 

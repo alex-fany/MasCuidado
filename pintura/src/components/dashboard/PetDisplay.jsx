@@ -1,61 +1,77 @@
 import React from 'react';
 import { HangerIcon, BellIcon } from '../common/Icons';
 
-export default function PetDisplay({ 
-  virtualAvatar, 
-  onCartillaClick, 
-  onClothesClick, 
-  onRemindersClick, 
-  remindersCount 
-}) {
-  return (
-    <div className="relative z-20 group mb-12">
-      {/* Contenedor de la +cota pq todavía no tenemos diseños ni nada de eso */}
-      <button 
-        onClick={onCartillaClick} 
-        className="relative w-64 h-64 md:w-72 md:h-72 cursor-pointer transition-all duration-700 hover:scale-105 block focus:outline-none"
-      >
-        <div className="absolute inset-[-40px] rounded-full bg-[#5fc4b8]/15 blur-[60px] animate-pulse pointer-events-none"></div>
-        <div className="w-full h-full rounded-full bg-white/50 backdrop-blur-md shadow-[0_30px_60px_-15px_rgba(45,155,150,0.25)] border-[5px] border-white/90 flex items-center justify-center relative overflow-hidden group-hover:shadow-[0_40px_80px_-15px_rgba(45,155,150,0.35)]">
-          <div className="absolute inset-6 rounded-full border-2 border-dashed border-[#3aaba5]/20 animate-spin-slow pointer-events-none"></div>
-          <div className="text-[8rem] md:text-[9rem] drop-shadow-2xl animate-bounce-gentle">
-            {virtualAvatar}
-          </div>
-          {/* Overlay de interacción */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#2d9b96]/40 via-[#2d9b96]/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center backdrop-blur-[2px]">
-            <div className="bg-white text-[#2d9b96] px-6 py-3 rounded-full shadow-2xl font-black text-[11px] tracking-[0.25em] transform translate-y-6 group-hover:translate-y-0 transition-all duration-500 border-b-4 border-[#3aaba5]/20">
-              VER CARTILLA
-            </div>
-          </div>
-        </div>
-      </button>
+export default function PetDisplay({ activePet, onCartillaClick, onClothesClick, onRemindersClick, remindersCount }) {
+  // Construcción de la URL de la imagen real
+  const imageUrl = activePet?.imagen 
+    ? `http://localhost:3000/uploads/${activePet.imagen}` 
+    : null;
 
-      {/* Botón del vestidor */}
-      <div className="absolute -bottom-6 -left-20 md:-left-32 z-30">
-        <button 
-          onClick={onClothesClick} 
-          className="w-16 h-16 rounded-full bg-[#3aaba5] flex items-center justify-center text-white shadow-xl hover:bg-[#2d9b96] hover:scale-110 transition-all duration-300 border-[3px] border-white"
-          title="Vestidor"
-        >
-          <HangerIcon />
+  // Estilo común para los botones laterales
+  const sideButtonStyle = "w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border-4 border-white shadow-[0_10px_25px_-5px_rgba(45,155,150,0.4)] relative group overflow-hidden bg-gradient-to-br from-[#5fc4b8] to-[#2d9b96] hover:scale-110 active:scale-95";
+
+  return (
+    <div className="relative w-full flex flex-col items-center justify-center py-10">
+      
+      {/* Botón Flotantes Izquierdos */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-10">
+        <button onClick={onClothesClick} className={sideButtonStyle} title="Vestidor">
+          {/* Brillo de reflejo */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="group-hover:rotate-12 transition-transform scale-110 relative z-10">
+            <HangerIcon />
+          </div>
         </button>
       </div>
 
-      {/* Botón de recordatorios */}
-      <div className="absolute -bottom-6 -right-20 md:-right-32 z-30">
-        <button 
-          onClick={onRemindersClick} 
-          className="w-16 h-16 rounded-full bg-[#3aaba5] flex items-center justify-center text-white shadow-xl hover:bg-[#2d9b96] hover:scale-110 transition-all duration-300 border-[3px] border-white relative"
-          title="Recordatorios"
-        >
-          <BellIcon />
+      {/* Botón Flotantes Derechas */}
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-10">
+        <button onClick={onRemindersClick} className={sideButtonStyle} title="Recordatorios">
+          {/* Brillo de reflejo */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="group-hover:rotate-12 transition-transform scale-110 relative z-10">
+            <BellIcon />
+          </div>
           {remindersCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-white animate-pulse">
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-7 h-7 rounded-full flex items-center justify-center border-2 border-white animate-bounce-gentle shadow-lg z-20">
               {remindersCount}
             </span>
           )}
         </button>
       </div>
+
+      {/* Visualización de la Mascota */}
+      <div 
+        className="relative group cursor-pointer"
+        onClick={onCartillaClick}
+      >
+        {/* Aura de fondo */}
+        <div className="absolute inset-0 bg-[#3aaba5]/20 rounded-full blur-3xl group-hover:bg-[#3aaba5]/30 transition-colors duration-700 scale-150 animate-pulse"></div>
+        
+        <div className="relative w-64 h-64 md:w-80 md:h-80 bg-white/40 backdrop-blur-sm rounded-[4rem] border-8 border-white/50 shadow-2xl overflow-hidden flex items-center justify-center transition-all duration-700 group-hover:scale-[1.05] group-hover:rotate-1">
+          {imageUrl ? (
+            <img 
+              src={imageUrl} 
+              alt={activePet.nombre} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex flex-col items-center">
+              <span className="text-9xl animate-float-gentle drop-shadow-2xl">
+                {activePet.realAvatar || '🐾'}
+              </span>
+            </div>
+          )}
+          
+          {/* Overlay de hover */}
+          <div className="absolute inset-0 bg-[#2d9b96]/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+             <div className="bg-white/90 px-6 py-2.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform font-black text-[#2d9b96] text-xs uppercase tracking-widest border-2 border-[#2d9b96]/10">
+               Ver cartilla
+             </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }

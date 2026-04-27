@@ -7,115 +7,141 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model catalogo_especie {
-  id_especie     Int       @id @default(autoincrement())
-  nombre_especie String    @unique @db.VarChar(50)
-  mascota        mascota[]
+model CatalogoEspecie {
+  id            Int       @id @default(autoincrement()) @map("id_especie")
+  nombreEspecie String    @unique @map("nombre_especie") @db.VarChar(50)
+  mascotas      Mascota[]
+
+  @@map("catalogo_especie")
 }
 
-model catalogo_ropa {
-  id_prenda            Int                    @id @default(autoincrement())
-  nombre_prenda        String                 @db.VarChar(100)
-  categoria            String?                @db.VarChar(50)
-  url_asset            String?                @db.VarChar(255)
-  mascota_virtual_item mascota_virtual_item[]
+model CatalogoRopa {
+  id                Int                  @id @default(autoincrement()) @map("id_prenda")
+  nombrePrenda      String               @map("nombre_prenda") @db.VarChar(100)
+  categoria         String?              @map("categoria") @db.VarChar(50)
+  urlAsset          String?              @map("url_asset") @db.VarChar(255)
+  mascotaVirtualItem MascotaVirtualItem[]
+
+  @@map("catalogo_ropa")
 }
 
-model clinica_favorita {
-  id_clinica_fav  Int     @id @default(autoincrement())
-  id_usuario      Int
-  google_place_id String  @db.VarChar(255)
-  nombre_clinica  String? @db.VarChar(150)
-  notas_usuario   String?
-  usuario         usuario @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
+model ClinicaFavorita {
+  id            String   @id @default(uuid()) @map("id_clinica_fav")
+  mascotaId     String   @map("id_mascota")
+  placeId       String   @map("google_place_id") @db.VarChar(255)
+  nombre        String?  @map("nombre_clinica") @db.VarChar(150)
+  direccion     String?  @map("direccion") @db.VarChar(255)
+  notasUsuario  String?  @map("notas_usuario")
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  
+  mascota       Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+
+  @@map("clinica_favorita")
 }
 
-model historial_medico {
-  id_evento           Int      @id @default(autoincrement())
-  id_mascota          Int
-  tipo_evento         String?  @db.VarChar(100)
-  fecha_evento        DateTime @db.Date
-  descripcion         String?
-  veterinario_clinica String?  @db.VarChar(150)
-  peso_kg             Decimal? @db.Decimal(5, 2)
-  mascota             mascota  @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade, onUpdate: NoAction)
+model HistorialMedico {
+  id                 String   @id @default(uuid()) @map("id_evento")
+  mascotaId          String   @map("id_mascota")
+  tipoEvento         String?  @map("tipo_evento") @db.VarChar(100)
+  fechaEvento        DateTime @map("fecha_evento") @db.Date
+  descripcion        String?  @map("descripcion")
+  veterinarioClinica String?  @map("veterinario_clinica") @db.VarChar(150)
+  pesoKg             Decimal? @map("peso_kg") @db.Decimal(5, 2)
+  creadoEn           DateTime @default(now()) @map("creado_en")
 
-  @@index([id_mascota], map: "idx_historial_mascota")
+  mascota            Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+
+  @@index([mascotaId], map: "idx_historial_mascota")
+  @@map("historial_medico")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model mascota {
-  id_mascota         Int                @id @default(autoincrement())
-  id_usuario         Int
-  id_especie         Int
-  nombre             String             @db.VarChar(100)
-  raza               String?            @db.VarChar(100)
-  fecha_nacimiento   DateTime?          @db.Date
-  sexo               String?            @db.Char(1)
-  color              String?            @db.VarChar(100)
-  senas_particulares String?
-  historial_medico   historial_medico[]
-  catalogo_especie   catalogo_especie   @relation(fields: [id_especie], references: [id_especie], onDelete: NoAction, onUpdate: NoAction)
-  usuario            usuario            @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: NoAction)
-  mascota_virtual    mascota_virtual?
-  recordatorio       recordatorio[]
-  vacuna             vacuna[]
+model Mascota {
+  id                String            @id @default(uuid()) @map("id_mascota")
+  usuarioId         String            @map("id_usuario")
+  especieId         Int?              @map("id_especie")
+  nombre            String            @map("nombre") @db.VarChar(100)
+  tipo              String?           @map("tipo") @db.VarChar(50)
+  raza              String?           @map("raza") @db.VarChar(100)
+  edad              Int?              @map("edad")
+  imagen            String?           @map("imagen")
+  fechaNacimiento   DateTime?         @map("fecha_nacimiento") @db.Date
+  sexo              String?           @map("sexo") @db.Char(1)
+  color             String?           @map("color") @db.VarChar(100)
+  senasParticulares String?           @map("senas_particulares")
+  peso              Float?            @map("peso")
+  genero            String?           @map("genero")
+  creadoEn          DateTime          @default(now()) @map("creado_en")
 
-  @@index([id_usuario], map: "idx_mascota_usuario")
+  historialMedico   HistorialMedico[]
+  especie           CatalogoEspecie?  @relation(fields: [especieId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuario           Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  mascotaVirtual    MascotaVirtual?
+  recordatorios     Recordatorio[]
+  vacunas           Vacuna[]
+  clinicasFavoritas ClinicaFavorita[]
+
+  @@index([usuarioId], map: "idx_mascota_usuario")
+  @@map("mascota")
 }
 
-model mascota_virtual {
-  id_mascota_virtual   Int                    @id @default(autoincrement())
-  id_mascota           Int                    @unique
-  mascota              mascota                @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade, onUpdate: NoAction)
-  mascota_virtual_item mascota_virtual_item[]
+model MascotaVirtual {
+  id                Int                  @id @default(autoincrement()) @map("id_mascota_virtual")
+  mascotaId         String               @unique @map("id_mascota")
+  mascota           Mascota              @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+  mascotaVirtualItem MascotaVirtualItem[]
+
+  @@map("mascota_virtual")
 }
 
-model mascota_virtual_item {
-  id_registro        Int             @id @default(autoincrement())
-  id_mascota_virtual Int
-  id_prenda          Int
-  slot               String          @db.VarChar(50)
-  mascota_virtual    mascota_virtual @relation(fields: [id_mascota_virtual], references: [id_mascota_virtual], onDelete: Cascade, onUpdate: NoAction)
-  catalogo_ropa      catalogo_ropa   @relation(fields: [id_prenda], references: [id_prenda], onDelete: NoAction, onUpdate: NoAction)
+model MascotaVirtualItem {
+  id                Int            @id @default(autoincrement()) @map("id_registro")
+  mascotaVirtualId  Int            @map("id_mascota_virtual")
+  prendaId          Int            @map("id_prenda")
+  slot              String         @map("slot") @db.VarChar(50)
+  mascotaVirtual    MascotaVirtual @relation(fields: [mascotaVirtualId], references: [id], onDelete: Cascade)
+  catalogoRopa      CatalogoRopa   @relation(fields: [prendaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([id_mascota_virtual, slot])
+  @@unique([mascotaVirtualId, slot])
+  @@map("mascota_virtual_item")
 }
 
-model recordatorio {
-  id_recordatorio  Int      @id @default(autoincrement())
-  id_mascota       Int
-  titulo           String   @db.VarChar(150)
-  fecha_hora       DateTime @db.Timestamp(6)
-  id_evento_google String?  @db.VarChar(255)
-  estado           Boolean? @default(false)
-  mascota          mascota  @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade, onUpdate: NoAction)
+model Recordatorio {
+  id             Int      @id @default(autoincrement()) @map("id_recordatorio")
+  mascotaId      String   @map("id_mascota")
+  titulo         String   @map("titulo") @db.VarChar(150)
+  fechaHora      DateTime @map("fecha_hora") @db.Timestamp(6)
+  idEventoGoogle String?  @map("id_evento_google") @db.VarChar(255)
+  estado         Boolean? @default(false) @map("estado")
+  mascota        Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
 
-  @@index([id_mascota], map: "idx_recordatorio_mascota")
+  @@index([mascotaId], map: "idx_recordatorio_mascota")
+  @@map("recordatorio")
 }
 
-model usuario {
-  id_usuario           Int                @id @default(autoincrement())
-  nombre_completo      String             @db.VarChar(150)
-  correo               String             @unique @db.VarChar(150)
-  password             String?            @db.VarChar(255)
-  google_id            String?            @unique @db.VarChar(255)
-  google_refresh_token String?
-  telefono             String?            @db.VarChar(20)
-  direccion            String?            @db.VarChar(255)
-  fecha_registro       DateTime?          @default(now()) @db.Timestamp(6)
-  clinica_favorita     clinica_favorita[]
-  mascota              mascota[]
+model Usuario {
+  id                 String            @id @default(uuid()) @map("id_usuario")
+  nombreCompleto     String            @map("nombre_completo") @db.VarChar(150)
+  correo             String            @unique @map("correo") @db.VarChar(150)
+  password           String?           @map("password") @db.VarChar(255)
+  googleId           String?           @unique @map("google_id") @db.VarChar(255)
+  googleRefreshToken String?           @map("google_refresh_token")
+  telefono           String?           @map("telefono") @db.VarChar(20)
+  direccion          String?           @map("direccion") @db.VarChar(255)
+  fechaRegistro      DateTime?         @default(now()) @map("fecha_registro") @db.Timestamp(6)
+  mascotas           Mascota[]
+
+  @@map("usuario")
 }
 
-model vacuna {
-  id_vacuna        Int       @id @default(autoincrement())
-  id_mascota       Int
-  nombre_vacuna    String    @db.VarChar(150)
-  fecha_aplicacion DateTime  @db.Date
-  proxima_dosis    DateTime? @db.Date
-  lote             String?   @db.VarChar(100)
-  mascota          mascota   @relation(fields: [id_mascota], references: [id_mascota], onDelete: Cascade, onUpdate: NoAction)
+model Vacuna {
+  id              Int       @id @default(autoincrement()) @map("id_vacuna")
+  mascotaId       String    @map("id_mascota")
+  nombreVacuna    String    @map("nombre_vacuna") @db.VarChar(150)
+  fechaAplicacion DateTime  @map("fecha_aplicacion") @db.Date
+  proximaDosis    DateTime? @map("proxima_dosis") @db.Date
+  lote            String?   @map("lote") @db.VarChar(100)
+  mascota         Mascota   @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
 
-  @@index([id_mascota], map: "idx_vacuna_mascota")
+  @@index([mascotaId], map: "idx_vacuna_mascota")
+  @@map("vacuna")
 }

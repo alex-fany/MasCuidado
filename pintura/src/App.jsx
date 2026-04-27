@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Card from "./components/Card"
 import LoginForm from "./components/LoginForm"
 import RegisterForm from "./components/RegisterForm"
@@ -12,6 +12,7 @@ import HomeView from "./components/dashboard/HomeView"
 import MapView from "./components/map/MapView"
 import CalendarView from "./components/calendar/CalendarView"
 import UserModal from './components/layout/UserModal';
+import AddMascotaModal from './components/layout/AddMascotaModal';
 
 // Iconos para la navegación
 import { 
@@ -19,55 +20,118 @@ import {
   MapPinIcon, 
   HomeIcon, 
   CalendarIcon,
-  UsersIcon
+  UsersIcon,
+  StarIcon
 } from "./components/common/Icons"
 
 export default function App() {
   // --- Estados de Autenticación ---
   const [page, setPage] = useState("login")
   const [user, setUser] = useState(null)
+  const [token, setToken] = useState(null)
 
   // --- Estados Globales de la App ---
   const [currentView, setCurrentView] = useState("home")
-  const [activePetId, setActivePetId] = useState(1)
+  const [activePetId, setActivePetId] = useState(null)
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false)
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  // --- Datos Mock (Simulados) ---
-  const pets = [
-    { id: 1, name: "Trapeador", type: "Perro", breed: "Golden", realAvatar: "🐶", virtualAvatar: "🐾" },
-    { id: 2, name: "Demóstenes", type: "Gato", breed: "Siames", realAvatar: "🐱", virtualAvatar: "🐾" },
-  ];
+  const [isAddMascotaOpen, setIsAddMascotaOpen] = useState(false);
+  
+  // --- Feedback (Toast) ---
+  const [toast, setToast] = useState({ show: false, message: "" });
+  
+  // --- Datos Reales de la BD ---
+  const [pets, setPets] = useState([]);
+  const [loadingPets, setLoadingPets] = useState(false);
 
   const reminders = [
     { id: 1, petId: 1, time: "14:00", text: "Me tocan las pastillas" },
   ];
 
+  const showSuccessToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => setToast({ show: false, message: "" }), 5000);
+  };
+
+  const fetchPets = useCallback(async (authToken, isNewPet = false) => {
+    if (!authToken) return;
+    setLoadingPets(true);
+    try {
+      const res = await fetch("/api/mascotas", {
+        headers: { "Authorization": `Bearer ${authToken}` }
+      });
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("El servidor no devolvió JSON.");
+      }
+
+      const data = await res.json();
+      if (res.ok) {
+        const emojiMap = {
+          'Perro': '🐶',
+          'Gato': '🐱',
+          'Conejo': '🐰',
+          'Tortuga': '🐢',
+          'Ave': '🦜',
+          'Hamster': '🐹'
+        };
+
+        setPets(data.map(p => ({
+          ...p,
+          realAvatar: emojiMap[p.tipo] || '🐾',
+          virtualAvatar: '🐾'
+        })));
+        
+        // Seleccionar automáticamente la primera mascota si no hay activa o si es nueva
+        if (data.length > 0 && (!activePetId || isNewPet)) {
+          setActivePetId(data[0].id);
+        }
+
+        if (isNewPet) showSuccessToast("Mascota registrada con éxito");
+
+      } else {
+        if (res.status === 401) handleLogout();
+      }
+    } catch (error) {
+      console.error("Error al obtener mascotas:", error.message);
+    } finally {
+      setLoadingPets(false);
+    }
+  }, [activePetId]);
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user")
-    const token = localStorage.getItem("token")
-    if (savedUser && token) {
+    const savedToken = localStorage.getItem("token")
+    if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser))
+      setToken(savedToken)
       setPage("dashboard")
+      fetchPets(savedToken);
     }
-  }, [])
+  }, [fetchPets])
 
   const handleLoginSuccess = (userData) => {
+    const savedToken = localStorage.getItem("token");
     setUser(userData)
+    setToken(savedToken)
     setPage("dashboard")
+    fetchPets(savedToken);
   }
 
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
     setUser(null)
+    setToken(null)
+    setPets([])
     setPage("login")
     setCurrentView("home")
+    setActivePetId(null)
   }
 
-  // Cálculos de datos activos
-  const activePet = pets.find(p => p.id === activePetId) || pets[0];
-  const activeReminder = reminders.find(r => r.petId === activePetId);
-  const petReminders = reminders.filter(r => r.petId === activePetId);
+  // Garantizar que activePet sea un objeto válido con campos reales de la BD
+  const activePet = pets.find(p => p.id === activePetId) || pets[0] || null;
 
   // Definición de items de navegación
   const navItems = [
@@ -85,6 +149,7 @@ export default function App() {
           
           <DashboardHeader 
             onConfigClick={() => setIsConfigModalOpen(true)}
+            onAddMascotaClick={() => setIsAddMascotaOpen(true)}
             activePet={activePet}
             pets={pets}
             setActivePetId={setActivePetId}
@@ -92,15 +157,25 @@ export default function App() {
 
           {/* ÁREA DINÁMICA DE VISTAS */}
           <main className="flex-1 w-full overflow-y-auto no-scrollbar relative">
-            {currentView === 'home' && (
+            {currentView === 'home' && activePet && (
               <HomeView 
                 activePet={activePet} 
-                reminders={petReminders} 
-                activeReminder={activeReminder} 
+                reminders={reminders.filter(r => r.petId === activePetId)} 
+                activeReminder={reminders.find(r => r.petId === activePetId)} 
               />
             )}
+
+            {currentView === 'home' && !activePet && !loadingPets && (
+               <div className="flex-1 h-full flex flex-col items-center justify-center text-white/80 p-8 text-center animate-in fade-in duration-500">
+                  <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center text-4xl mb-4 border-2 border-white/30 animate-bounce-gentle">
+                    🐾
+                  </div>
+                  <h3 className="text-2xl font-black italic">¿A quién cuidamos hoy?</h3>
+                  <p className="font-bold text-[#bcedea] mt-2 max-w-[250px]">Presiona el botón de arriba para registrar a tu primer amigo.</p>
+               </div>
+            )}
             
-            {currentView === 'map' && <MapView />}
+            {currentView === 'map' && <MapView activePet={activePet} />}
 
             {currentView === 'calendar' && (
               <CalendarView 
@@ -109,7 +184,7 @@ export default function App() {
               />
             )}
 
-            {/* Placeholder para futuras vistas */}
+            {/* Placeholder para vistas vacías */}
             {!['home', 'map', 'calendar'].includes(currentView) && (
               <div className="flex-1 h-full flex flex-col items-center justify-center text-[#2d9b96] animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="text-8xl mb-6 animate-bounce-gentle">✨</div>
@@ -119,12 +194,23 @@ export default function App() {
             )}
           </main>
 
-          <BottomNav 
-            navItems={navItems} 
-            currentView={currentView} 
-            onNavigate={setCurrentView} 
-            onUserClick={() => setIsUserModalOpen(true)}
-          />
+          {/* OCULTAR BOTTOMNAV CUANDO EL MODAL ESTÉ ABIERTO */}
+          {!isAddMascotaOpen && (
+            <BottomNav 
+              navItems={navItems} 
+              currentView={currentView} 
+              onNavigate={setCurrentView} 
+              onUserClick={() => setIsUserModalOpen(true)}
+            />
+          )}
+
+          {/* TOAST FEEDBACK */}
+          {toast.show && (
+            <div className="fixed bottom-32 left-1/2 -translate-x-1/2 bg-[#2d9b96] text-white px-8 py-4 rounded-[2rem] shadow-2xl z-[10000] font-black text-sm border-4 border-white/30 animate-in slide-in-from-bottom-10 fade-in duration-500 flex items-center gap-3">
+               <StarIcon filled />
+               {toast.message}
+            </div>
+          )}
 
           <SettingsModal 
             isOpen={isConfigModalOpen} 
@@ -136,6 +222,13 @@ export default function App() {
             onClose={() => setIsUserModalOpen(false)}
             onLogout={handleLogout}
           />
+          
+          <AddMascotaModal 
+            isOpen={isAddMascotaOpen}
+            onClose={() => setIsAddMascotaOpen(false)}
+            onRefreshPets={(success) => fetchPets(token, success)}
+          />
+
           <style dangerouslySetInnerHTML={{ __html: `
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

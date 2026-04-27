@@ -20,8 +20,13 @@ export default function CalendarView({ reminders, activePet }) {
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
   ];
 
-  // Filtrar recordatorios para el día seleccionado (También simulado pq no sirve el google)
-  const selectedDayReminders = reminders.filter(r => r.petId === activePet.id);
+  // URL de la imagen de la mascota activa
+  const petImageUrl = activePet?.imagen 
+    ? `http://localhost:3000/uploads/${activePet.imagen}` 
+    : null;
+
+  // Filtrar recordatorios para el día seleccionado
+  const selectedDayReminders = reminders.filter(r => r.petId === activePet?.id);
 
   return (
     <section className="flex-1 w-full max-w-4xl mx-auto flex flex-col px-4 pt-0 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -44,8 +49,9 @@ export default function CalendarView({ reminders, activePet }) {
         {/* Lado Izquierdo: El Calendario */}
         <div className="bg-white/60 backdrop-blur-md rounded-[3rem] p-8 border-4 border-white shadow-2xl animate-in zoom-in-95 duration-500">
           <div className="grid grid-cols-7 mb-6">
-            {['D', 'L', 'M', 'M', 'J', 'V', 'S'].map(d => (
-              <div key={d} className="text-center text-[#2d9b96] font-black text-xs opacity-40 uppercase tracking-widest">{d}</div>
+            {/* ERROR CORREGIDO: Se usa el índice para evitar conflicto entre 'M' de Martes y Miércoles */}
+            {['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'].map((d, index) => (
+              <div key={index} className="text-center text-[#2d9b96] font-black text-[10px] opacity-40 uppercase tracking-widest">{d}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 gap-3">
@@ -88,14 +94,18 @@ export default function CalendarView({ reminders, activePet }) {
               {selectedDayReminders.length > 0 ? (
                 selectedDayReminders.map(rem => (
                   <div key={rem.id} className="bg-white p-5 rounded-[2rem] border-2 border-[#bcedea] flex items-center gap-5 hover:scale-[1.02] transition-all cursor-pointer shadow-md group">
-                    <div className="w-14 h-14 bg-[#f0fdfa] rounded-2xl flex items-center justify-center text-3xl shadow-inner group-hover:bg-[#bcedea] transition-colors">
-                      {activePet.realAvatar}
+                    <div className="w-14 h-14 bg-[#f0fdfa] rounded-2xl flex items-center justify-center overflow-hidden text-3xl shadow-inner group-hover:bg-[#bcedea] transition-colors border-2 border-white">
+                      {petImageUrl ? (
+                        <img src={petImageUrl} alt="Pet" className="w-full h-full object-cover" />
+                      ) : (
+                        activePet?.realAvatar || '🐾'
+                      )}
                     </div>
                     <div className="flex-1">
                       <p className="font-black text-[#2d9b96] text-lg leading-tight group-hover:translate-x-1 transition-transform">{rem.text}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-white bg-[#3aaba5] px-3 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-wider">{rem.time}</span>
-                        <span className="text-[#3aaba5] text-xs font-bold opacity-60 italic">{activePet.name}</span>
+                        <span className="text-[#3aaba5] text-xs font-bold opacity-60 italic">{activePet?.nombre || "Mascota"}</span>
                       </div>
                     </div>
                   </div>
@@ -104,7 +114,7 @@ export default function CalendarView({ reminders, activePet }) {
                 <div className="text-center py-12 px-6 flex flex-col items-center gap-4 border-2 border-dashed border-[#2d9b96]/10 rounded-[2.5rem] bg-white/20">
                   <span className="text-5xl opacity-40">🦴</span>
                   <p className="font-black text-[#2d9b96] text-lg leading-tight opacity-50">¡Nada agendado por ahora!</p>
-                  <p className="text-[#3aaba5] text-sm font-bold opacity-40">Disfruta el día con tu mascota</p>
+                  <p className="text-[#3aaba5] text-sm font-bold opacity-40">Disfruta el día con {activePet?.nombre || "tu mascota"}</p>
                 </div>
               )}
             </div>
@@ -114,14 +124,6 @@ export default function CalendarView({ reminders, activePet }) {
                 AGENDAR RECORDATORIO
             </button>
           </div>
-          
-          {/* Tip */}
-          {/* <div className="bg-[#bcedea]/40 p-6 rounded-[2rem] border-2 border-white/50 flex items-center gap-4">
-             <div className="text-3xl animate-bounce-gentle">💡</div>
-             <p className="text-[#1a5d5a] text-sm font-bold italic leading-tight">
-               "Mantener una rutina de paseos ayuda a reducir el estrés de {activePet.name}."
-             </p>
-          </div> */}
         </div>
       </div>
     </section>

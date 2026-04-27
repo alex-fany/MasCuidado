@@ -3,3 +3,7 @@ node_modules
 .env
 
 /generated/prisma
+
+# Ignorar las fotos subidas de las mascotas
+uploads/*
+!uploads/.gitkeep
