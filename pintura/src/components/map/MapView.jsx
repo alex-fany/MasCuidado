@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Autocomplete } from '@react-google-maps/api';
-import { MapPinIcon, SearchIcon, StarIcon } from '../common/Icons';
+import { MapPinIcon, SearchIcon, ClinicFavoriteIcon } from '../common/Icons';
 import { useUserLocation } from '../../hooks/useUserLocation';
 import { useNearbyPlaces } from '../../hooks/useNearbyPlaces';
 
@@ -248,7 +248,6 @@ export default function MapView({ activePet }) {
                   key={place.place_id}
                   position={place.geometry.location}
                   onClick={() => setSelectedPlace(place)}
-                  // ANIMACIÓN RESTAURADA
                   animation={window.google?.maps?.Animation?.DROP}
                   icon={{
                     path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
@@ -268,7 +267,7 @@ export default function MapView({ activePet }) {
                     <div className="flex justify-between items-start gap-2 mb-1">
                       <h4 className="font-bold text-[#2d9b96] text-sm leading-tight">{selectedPlace.name}</h4>
                       <button onClick={() => handleFavoriteClick(selectedPlace)} className="shrink-0 hover:scale-110 transition-transform active:scale-90">
-                        <StarIcon filled={favoriteClinic?.place_id === selectedPlace.place_id} />
+                        <ClinicFavoriteIcon filled={favoriteClinic?.place_id === selectedPlace.place_id} />
                       </button>
                     </div>
                     <p className="text-[10px] text-gray-500 leading-snug mb-2">{selectedPlace.vicinity}</p>
@@ -294,7 +293,7 @@ export default function MapView({ activePet }) {
               <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-[#0a1f1e]/40 backdrop-blur-sm animate-in fade-in duration-200">
                 <div className="bg-white rounded-[2rem] p-8 shadow-2xl border-2 border-[#3aaba5]/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
                   <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-teal-100">
-                    <StarIcon filled />
+                    <ClinicFavoriteIcon filled />
                   </div>
                   <h3 className="text-[#2d9b96] font-black text-xl mb-2 italic">¿Guardar favorita?</h3>
                   <p className="text-gray-500 text-xs font-bold mb-6 leading-relaxed">
@@ -326,7 +325,7 @@ export default function MapView({ activePet }) {
 
             {showToast && (
               <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-[#2d9b96] text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm animate-in fade-in slide-in-from-bottom-2 duration-300 z-30 flex items-center gap-2 border-2 border-white/30">
-                <StarIcon filled />
+                <ClinicFavoriteIcon filled />
                 ¡Clínica guardada!
               </div>
             )}

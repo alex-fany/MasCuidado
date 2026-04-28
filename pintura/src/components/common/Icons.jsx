@@ -3,7 +3,7 @@ import React from 'react';
 export const CloseIcon = () => (
   <svg width="32" height="32" viewBox="0 0 100 100">
     <path d="M27.601,93.022c-1.729,0-3.358-0.672-4.584-1.892l-9.923-9.878 c-2.536-2.523-2.549-6.643-0.03-9.184L32.977,52L13.037,31.905c-2.521-2.542-2.507-6.662,0.029-9.186l9.921-9.876 c1.101-1.097,2.552-1.748,4.194-1.878l0.207-0.016l0.208,0c1.737,0.006,3.367,0.688,4.59,1.92L52,32.839l19.743-19.897 c1.225-1.233,2.855-1.916,4.591-1.922c1.752,0,3.381,0.672,4.607,1.892l9.923,9.878c2.536,2.523,2.549,6.643,0.03,9.184 L70.893,52.118l19.9,20.056c2.521,2.542,2.637,6.544,0.101,9.068l-9.921,9.876c-1.222,1.218-2.851,1.892-4.584,1.894 c-1.761-0.006-3.391-0.688-4.614-1.92L52,71.161L32.215,91.101c-1.225,1.233-2.855,1.916-4.592,1.922h-0.009H27.601z" opacity=".35" fill="#3aaba5"></path>
-    <path fill="white" d="M25.601,91.022c-1.729,0-3.358-0.672-4.584-1.892l-9.923-9.878 c-2.536-2.523-2.549-6.643-0.03-9.184L30.977,50L11.037,29.905c-2.521-2.542-2.507-6.662,0.029-9.186l9.921-9.876 c1.101-1.097,2.552-1.748,4.194-1.878l0.207-0.016l0.208,0c1.737,0.006,3.367,0.688,4.59,1.92L50,30.839l19.743-19.897 c1.225-1.233,2.855-1.916,4.591-1.922c1.752,0,3.381,0.672,4.607,1.892l9.923,9.878c2.536,2.523,2.549,6.643,0.03,9.184L69.023,50 l19.9,20.056c2.521,2.542,2.507,6.662-0.029,9.186l-9.921,9.876c-1.222,1.218-2.851,1.892-4.584,1.894 c-1.761-0.006-3.391-0.688-4.614-1.92L50,69.161L30.215,89.101c-1.225,1.233-2.855,1.916-4.592,1.922h-0.009H25.601z"></path>
+    <path fill="white" d="M25.601,91.022c-1.729,0-3.358-0.672-4.584-1.892l-9.923-9.878 c-2.536-2.523-2.549-6.643-0.03-9.184L30.977,50L11.037,29.905c-2.521-2.542-2.507-6.662,0.029-9.186l9.921-9.876 c1.101-1.097,2.552-1.748,4.194-1.878l0.207-0.016l0.208,0c1.737,0.006,3.367,0.688,4.59,1.92L52,30.839l19.743-19.897 c1.225-1.233,2.855-1.916,4.591-1.922c1.752,0,3.381,0.672,4.607,1.892l9.923,9.878c2.536,2.523,2.549,6.643,0.03,9.184L69.023,50 l19.9,20.056c2.521,2.542,2.507,6.662-0.029,9.186l-9.921,9.876c-1.222,1.218-2.851,1.892-4.584,1.894 c-1.761-0.006-3.391-0.688-4.614-1.92L50,69.161L30.215,89.101c-1.225,1.233-2.855,1.916-4.592,1.922h-0.009H25.601z"></path>
     <polygon fill="#2d9b96" points="84.279,25.397 74.357,15.52 50,40.067 25.573,15.45 15.651,25.327 40.134,50 15.679,74.645 25.601,84.522 50,59.933 74.388,84.511 84.31,74.634 59.866,50"></polygon>
     <polygon fill="none" stroke="#1a5d5a" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="3" points="84.279,25.397 74.357,15.52 50,40.067 25.573,15.45 15.651,25.327 40.134,50 15.679,74.645 25.601,84.522 50,59.933 74.388,84.511 84.31,74.634 59.866,50"></polygon>
   </svg>
@@ -20,20 +20,18 @@ export const CheckIcon = () => (
 
 export const ClockIcon = () => (
   <svg width="28" height="28" viewBox="0 0 100 100">
-    <path d="M30,25 L70,25 L75,35 L85,35 C90,35 94,40 94,45 L94,80 C94,88 88,94 80,94 L20,94 C12,94 6,88 6,80 L6,45 C6,40 10,35 15,35 L25,35 L30,25 Z" fill="#3aaba5" opacity=".35" transform="translate(3, 3)"></path>
-    <path d="M30,22 L70,22 L75,32 L85,32 C90,32 94,37 94,42 L94,77 C94,85 88,91 80,91 L20,91 C12,91 6,85 6,77 L6,42 C6,37 10,32 15,32 L25,32 L30,22 Z" fill="#f2f2f2"></path>
-    <circle cx="25" cy="25" r="12" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></circle>
-    <circle cx="75" cy="25" r="12" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></circle>
-    <path d="M25,13 L25,18 M75,13 L75,18" stroke="#1a5d5a" strokeWidth="3" strokeLinecap="round"></path>
-    <circle cx="50" cy="55" r="35" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></circle>
-    <circle cx="50" cy="55" r="26" fill="#e6fcfb" stroke="#1a5d5a" strokeWidth="2"></circle>
-    <circle cx="50" cy="35" r="2" fill="#1a5d5a"></circle>
-    <circle cx="50" cy="75" r="2" fill="#1a5d5a"></circle>
-    <circle cx="30" cy="55" r="2" fill="#1a5d5a"></circle>
-    <circle cx="70" cy="55" r="2" fill="#1a5d5a"></circle>
-    <polyline points="50,40 50,55 62,55" fill="none" stroke="#1a5d5a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"></polyline>
-    <circle cx="50" cy="55" r="3" fill="#1a5d5a"></circle>
-    <path d="M30,85 L25,92 M70,85 L75,92" stroke="#1a5d5a" strokeWidth="5" strokeLinecap="round"></path>
+    <circle cx="52" cy="52" r="44" fill="#2d9b96" opacity=".15"></circle>
+    <circle cx="50" cy="50" r="44" fill="#f2f2f2"></circle>
+    <path fill="#f2f2f2" d="M50,91C27.393,91,9,72.607,9,50S27.393,9,50,9s41,18.393,41,41S72.607,91,50,91z"></path>
+    <circle cx="50" cy="50" r="38.026" fill="#bcedea"></circle>
+    <circle cx="50" cy="50" r="30.026" fill="#f0fdfa"></circle>
+    <circle cx="50" cy="50" r="37.5" fill="none" stroke="#1a5d5a" strokeMiterlimit="10" strokeWidth="3"></circle>
+    <circle cx="26" cy="50" r="2" fill="#2d9b96"></circle>
+    <circle cx="74" cy="50" r="2" fill="#2d9b96"></circle>
+    <circle cx="50" cy="26" r="2" fill="#2d9b96"></circle>
+    <circle cx="50" cy="74" r="2" fill="#2d9b96"></circle>
+    <polyline fill="none" stroke="#1a5d5a" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="3" points="64.5,30.5 49.5,50 62,63"></polyline>
+    <circle cx="50" cy="50" r="4" fill="#1a5d5a"></circle>
   </svg>
 );
 
@@ -60,13 +58,24 @@ export const HomeIcon = () => (
 
 export const TrophyIcon = () => (
   <svg width="28" height="28" viewBox="0 0 100 100">
-    <circle cx="52" cy="52" r="40" opacity=".2" fill="#3aaba5"></circle>
-    <path d="M20,30h60v10c0,15-10,25-25,25h-10c-15,0-25-10-25-25V30z" fill="white" stroke="#1a5d5a" strokeWidth="3"></path>
-    <path d="M35,65h30v5c0,5-5,10-15,10s-15-5-15-10V65z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></path>
-    <rect x="30" y="80" width="40" height="8" rx="4" fill="#1a5d5a"></rect>
-    <path d="M20,35c-8,0-12,5-12,12s4,12,12,12" fill="none" stroke="#1a5d5a" strokeWidth="3" strokeLinecap="round"></path>
-    <path d="M80,35c8,0,12,5,12,12s-4,12-12,12" fill="none" stroke="#1a5d5a" strokeWidth="3" strokeLinecap="round"></path>
-    <text x="50" y="53" textAnchor="middle" fill="#2d9b96" fontSize="24" fontWeight="black" fontFamily="sans-serif">1</text>
+    <circle cx="52" cy="52" r="42" fill="#3aaba5" opacity=".15" />
+    <path d="M30 85h40a4 4 0 0 1 0 8H30a4 4 0 0 1 0-8z" fill="#1a5d5a" />
+    <path d="M38 75h24v10H38z" fill="white" stroke="#1a5d5a" strokeWidth="4" />
+    <path d="M25 15h50v20c0 13.807-11.193 25-25 25S25 48.807 25 35V15z" fill="white" stroke="#1a5d5a" strokeWidth="4" />
+    <path d="M25 20c0-4.418 3.582-8 8-8h34c4.418 0 8 3.582 8 8v8H25V20z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="4" />
+    <path d="M25 22c-8 0-12 4-12 10s4 10 12 10M75 22c8 0 12 4 12 10s-4 10-12 10" fill="none" stroke="#1a5d5a" strokeWidth="4" strokeLinecap="round" />
+    <circle cx="42" cy="22" r="3" fill="white" opacity=".4" />
+  </svg>
+);
+
+export const MapIcon = () => (
+  <svg width="28" height="28" viewBox="0 0 100 100">
+    <path d="M20 85l25-12 30 15 20-10V15l-20 10-30-15-25 12v70z" fill="#3aaba5" opacity=".15" transform="translate(4, 4)" />
+    <path d="M15 82l25-12 30 15 20-10V12l-20 10-30-15-25 12v70z" fill="white" stroke="#1a5d5a" strokeWidth="4" strokeLinejoin="round" />
+    <path d="M15 24v58l25-12V12l-25 12z" fill="#5fc4b8" opacity=".3" stroke="#1a5d5a" strokeWidth="4" />
+    <path d="M70 22v58l20-10V12l-20 10z" fill="#2d9b96" opacity=".2" stroke="#1a5d5a" strokeWidth="4" />
+    <line x1="40" y1="12" x2="40" y2="70" stroke="#1a5d5a" strokeWidth="4" strokeLinecap="round" />
+    <line x1="70" y1="22" x2="70" y2="80" stroke="#1a5d5a" strokeWidth="4" strokeLinecap="round" />
   </svg>
 );
 
@@ -80,25 +89,56 @@ export const MapPinIcon = () => (
 
 export const CalendarIcon = () => (
   <svg width="28" height="28" viewBox="0 0 100 100">
-    <rect x="14" y="14" width="76" height="76" rx="12" opacity=".2" fill="#3aaba5"></rect>
-    <rect x="10" y="10" width="80" height="80" rx="12" fill="white" stroke="#1a5d5a" strokeWidth="3"></rect>
-    <path d="M10,35h80" fill="none" stroke="#1a5d5a" strokeWidth="3"></path>
-    <rect x="10" y="10" width="80" height="25" rx="12" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></rect>
-    <circle cx="30" cy="55" r="4" fill="#3aaba5"></circle>
-    <circle cx="50" cy="55" r="4" fill="#3aaba5"></circle>
-    <circle cx="70" cy="55" r="4" fill="#3aaba5"></circle>
-    <circle cx="30" cy="75" r="4" fill="#3aaba5"></circle>
-    <circle cx="50" cy="75" r="4" fill="#3aaba5"></circle>
+    <rect x="18" y="18" width="70" height="70" rx="18" fill="#3aaba5" opacity=".2" />
+    <rect x="12" y="12" width="70" height="70" rx="18" fill="white" stroke="#1a5d5a" strokeWidth="4" />
+    <path d="M12 30c0-9.941 8.059-18 18-18h34c9.941 0 18 8.059 18 18v10H12V30z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="4" />
+    <rect x="28" y="4" width="8" height="20" rx="4" fill="#1a5d5a" />
+    <rect x="58" y="4" width="8" height="20" rx="4" fill="#1a5d5a" />
+    <g fill="#3aaba5" opacity=".6">
+      <circle cx="30" cy="52" r="4" />
+      <circle cx="47" cy="52" r="4" />
+      <circle cx="64" cy="52" r="4" />
+      <circle cx="30" cy="67" r="4" />
+      <circle cx="47" cy="67" r="4" />
+      <circle cx="64" cy="67" r="4" />
+      <circle cx="30" cy="82" r="4" />
+      <circle cx="47" cy="82" r="3" opacity=".3" />
+    </g>
+  </svg>
+);
+
+export const GoogleCalendarBrandIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48">
+    <rect width="22" height="22" x="13" y="13" fill="#fff"></rect>
+    <polygon fill="#1e88e5" points="25.68,20.92 26.688,22.36 28.272,21.208 28.272,29.56 30,29.56 30,18.616 28.56,18.616"></polygon>
+    <path fill="#1e88e5" d="M22.943,23.745c0.625-0.574,1.013-1.37,1.013-2.249c0-1.747-1.533-3.168-3.417-3.168 c-1.602,0-2.972,1.009-3.33,2.453l1.657,0.421c0.165-0.664,0.868-1.146,1.673-1.146c0.942,0,1.709,0.646,1.709,1.44 c0,0.794-0.767,1.44-1.709,1.44h-0.997v1.728h0.997c1.081,0,1.993,0.751,1.993,1.64c0,0.904-0.866,1.64-1.931,1.64 c-0.962,0-1.784-0.61-1.914-1.418L17,26.802c0.262,1.636,1.81,2.87,3.6,2.87c2.007,0,3.64-1.511,3.64-3.368 C24.24,25.281,23.736,24.363,22.943,23.745z"></path>
+    <polygon fill="#fbc02d" points="34,42 14,42 13,38 14,34 34,34 35,38"></polygon>
+    <polygon fill="#4caf50" points="38,35 42,34 42,14 38,13 34,14 34,34"></polygon>
+    <path fill="#1e88e5" d="M34,14l1-4l-1-4H9C7.343,6,6,7.343,6,9v25l4,1l4-1V14H34z"></path>
+    <polygon fill="#e53935" points="34,34 34,42 42,34"></polygon>
+    <path fill="#1565c0" d="M39,6h-5v8h8V9C42,7.343,40.657,6,39,6z"></path>
+    <path fill="#1565c0" d="M9,42h5v-8H6v5C6,40.657,7.343,42,9,42z"></path>
   </svg>
 );
 
 export const UsersIcon = () => (
   <svg width="28" height="28" viewBox="0 0 100 100">
-    <circle cx="44" cy="44" r="20" opacity=".2" fill="#3aaba5"></circle>
-    <circle cx="40" cy="40" r="18" fill="white" stroke="#1a5d5a" strokeWidth="3"></circle>
-    <path d="M15,85c0-12,10-22,25-22s25,10,25,22" fill="white" stroke="#1a5d5a" strokeWidth="3"></path>
-    <circle cx="70" cy="45" r="14" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></circle>
-    <path d="M55,85c0-10,8-18,15-18s15,8,15,18" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></path>
+    {/* Capa de profundidad */}
+    <g opacity=".15" fill="#3aaba5" transform="translate(4, 4)">
+      <circle cx="50" cy="35" r="22" />
+      <path d="M15 85c0-15 15-28 35-28s35 13 35 28v5H15v-5z" />
+    </g>
+    
+    {/* Cuerpo principal */}
+    <g stroke="#1a5d5a" strokeWidth="4" fill="white">
+      <circle cx="50" cy="35" r="22" />
+      <path d="M15 85c0-15 15-28 35-28s35 13 35 28v5H15v-5z" strokeLinejoin="round" />
+    </g>
+    <path d="M15 85c0-15 15-28 35-28s35 13 35 28v5H15v-5z" fill="#2d9b96" opacity=".2" pointerEvents="none" />
+    <path d="M22 85c0-10 10-18 28-18s28 8 28 18v5H22v-5z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3" />
+    
+    {/* Cabeza */}
+    <circle cx="50" cy="35" r="10" fill="#2d9b96" opacity=".1" />
   </svg>
 );
 
@@ -114,9 +154,25 @@ export const HangerIcon = () => (
 
 export const BellIcon = () => (
   <svg width="32" height="32" viewBox="0 0 100 100">
-    <path d="M50,15c-15,0-25,12-25,25v20l-10,10h70L75,60V40C75,27,65,15,50,15z" fill="white" stroke="#1a5d5a" strokeWidth="3"></path>
-    <path d="M40,80c0,5,4,10,10,10s10-5,10-10" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></path>
-    <circle cx="50" cy="10" r="5" fill="#1a5d5a"></circle>
+    {/* Borde exterior */}
+    <path d="M50 12c-15 0-25 12-25 25v20l-10 10h70L75 57V37c0-13-10-25-25-25z" fill="none" stroke="white" strokeWidth="10" strokeLinejoin="round" />
+
+    {/* Ondas de sonido */}
+    <g stroke="white" strokeWidth="6" strokeLinecap="round" opacity=".9">
+      <path d="M16 35c-6 4-8 12-4 18M84 35c6 4 8 12 4 18" />
+    </g>
+
+    {/* Campana */}
+    <path d="M50 12c-15 0-25 12-25 25v20l-10 10h70L75 57V37c0-13-10-25-25-25z" fill="#5fc4b8" stroke="#1a5d5a" strokeWidth="4" strokeLinejoin="round" />
+    
+    {/* Reflejo de luz */}
+    <path d="M40 32c0-5.5 4.5-10 10-10" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" opacity=".3" />
+
+    {/* Punta superior */}
+    <circle cx="50" cy="12" r="5" fill="#1a5d5a" stroke="#1a5d5a" strokeWidth="2" />
+
+    {/* Badajo (bolita inferior) */}
+    <path d="M42 63c0 4.4 3.6 8 8 8s8-3.6 8-8" fill="white" stroke="#1a5d5a" strokeWidth="3" />
   </svg>
 );
 
@@ -127,6 +183,18 @@ export const LogoutIcon = () => (
   </svg>
 );
 
+export const ArrowLeftIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 18l-6-6 6-6" />
+  </svg>
+);
+
+export const ArrowRightIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 18l6-6-6-6" />
+  </svg>
+);
+
 export const SearchIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d9b96" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="11" cy="11" r="8"></circle>
@@ -134,8 +202,42 @@ export const SearchIcon = () => (
   </svg>
 );
 
+export const ClinicFavoriteIcon = ({ filled }) => (
+  <svg width="24" height="24" viewBox="0 0 100 100">
+    <path d="M19.5,98.001c-1.022,0-2.044-0.246-2.955-0.711C14.361,96.179,13,93.959,13,91.5v-75 C13,10.71,17.71,6,23.5,6h47C76.29,6,81,10.71,81,16.5v9.471l2.68,8.246h9.699c2.823,0,5.308,1.804,6.182,4.489 c0.871,2.691-0.078,5.61-2.36,7.27l-7.848,5.701l2.997,9.225c0.871,2.689-0.078,5.608-2.36,7.268 c-1.122,0.812-2.441,1.241-3.821,1.241s-2.699-0.429-3.816-1.238L81,67.19V91.5c0,3.478-3.003,6.5-5.733,6.5 c-1.387,0-2.712-0.432-3.831-1.249L47.767,79.537l-24.445,17.22C22.215,97.567,20.889,98.001,19.5,98.001z" opacity=".35" fill="#3aaba5"></path>
+    <path fill="white" d="M17.5,96.001c-1.022,0-2.044-0.246-2.955-0.711C12.361,94.179,11,91.959,11,89.5v-75 C11,8.71,15.71,4,21.5,4h47C74.29,4,79,8.71,79,14.5v9.471l2.68,8.246h9.699c2.823,0,5.308,1.804,6.182,4.489 c0.871,2.691-0.078,5.61-2.36,7.27l-7.848,5.701l2.997,9.225c0.871,2.689-0.078,5.608-2.36,7.268 c-1.122,0.812-2.441,1.241-3.821,1.241s-2.699-0.429-3.816-1.238L79,65.19V89.5c0,2.459-1.361,4.679-3.552,5.793 C74.54,95.756,73.521,96,72.5,96c-1.387,0-2.712-0.432-3.831-1.249L45,77.537l-23.678,17.22 C20.215,95.567,18.889,96.001,17.5,96.001z"></path>
+    <path fill={filled ? "#2d9b96" : "#f2f2f2"} d="M21.5,10.5h47c2.209,0,4,1.791,4,4v75L45,69.5l-27.5,20v-75C17.5,12.291,19.291,10.5,21.5,10.5z"></path>
+    <path fill="#fbbf24" d="M73.382,51.219c-0.263-0.19-0.572-0.286-0.882-0.286s-0.619,0.096-0.882,0.286l-7.933,5.765 l3.03-9.326c0.2-0.618-0.02-1.296-0.545-1.678l-7.933-5.763h9.805c0.649,0,1.226-0.418,1.427-1.036l3.03-9.327l3.03,9.327 c0.201,0.618,0.777,1.036,1.427,1.036h9.805l-7.933,5.763c-0.525,0.382-0.745,1.06-0.545,1.678l3.03,9.326L73.382,51.219z"></path>
+    <path fill="none" stroke="#1a5d5a" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="3" d="M91.379,38.716H76.957 L72.5,25V14.5c0-2.209-1.791-4-4-4h-47c-2.209,0-4,1.791-4,4v75l27.5-20l27.5,20V52.433l11.668,8.477l-4.457-13.716L91.379,38.716z"></path>
+  </svg>
+);
+
+export const BookmarkIcon = ({ filled }) => (
+  <svg width="24" height="24" viewBox="0 0 100 100">
+    <path d="M24.501,98.001c-1.021,0-2.042-0.245-2.952-0.709C19.361,96.179,18,93.959,18,91.5v-75 C18,10.701,22.701,6,28.5,6h47C81.299,6,86,10.701,86,16.5v75.501c0,3.314-2.686,6-5.999,6h0c-1.299,0-2.562-0.421-3.601-1.2L50,77 l3.011,1.949L28.322,96.757C27.215,97.567,25.889,98.001,24.501,98.001z" opacity=".35" fill="#3aaba5"></path>
+    <path fill="white" d="M22.501,96.001c-1.021,0-2.042-0.245-2.952-0.709C17.361,94.179,16,91.959,16,89.5v-75 C16,8.71,20.71,4,26.5,4h47C79.29,4,84,8.71,84,14.5v75c0,2.459-1.361,4.679-3.552,5.793C79.54,95.756,78.521,96,77.5,96	c-1.387,0-2.712-0.432-3.831-1.249L50,77.537l-23.678,17.22C25.215,95.567,23.889,96.001,22.501,96.001z"></path>
+    <path fill={filled ? "#2d9b96" : "#f2f2f2"} d="M26.5,10.5h47c2.209,0,4,1.791,4,4v75L50,69.5l-27.5,20v-75C22.5,12.291,24.291,10.5,26.5,10.5z"></path>
+    <path fill="none" stroke="#1a5d5a" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="3" d="M26.5,10.5h47 c2.209,0,4,1.791,4,4v75L50,69.5l-27.5,20v-75C22.5,12.291,24.291,10.5,26.5,10.5z"></path>
+  </svg>
+);
+
 export const StarIcon = ({ filled }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill={filled ? "#fbbf24" : "none"} stroke={filled ? "#fbbf24" : "#94a3b8"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+  </svg>
+);
+
+export const GoogleCalendarIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2d9b96" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+    <line x1="16" y1="2" x2="16" y2="6"></line>
+    <line x1="8" y1="2" x2="8" y2="6"></line>
+    <line x1="3" y1="10" x2="21" y2="10"></line>
+    <path d="M8 14h.01"></path>
+    <path d="M12 14h.01"></path>
+    <path d="M16 14h.01"></path>
+    <path d="M8 18h.01"></path>
+    <path d="M12 18h.01"></path>
+    <path d="M16 18h.01"></path>
   </svg>
 );

@@ -5,6 +5,8 @@ const path = require("path");
 const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const mascotaRoutes = require('./src/routes/mascotaRoutes');
+const recordatorioRoutes = require('./src/routes/recordatorioRoutes');
+const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes'); // Nueva
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/mascotas', mascotaRoutes);
+app.use('/api/recordatorios', recordatorioRoutes);
+app.use('/api/google-calendar', googleCalendarRoutes); // Nueva
 
 app.get("/", (req, res) => {
   res.json({ mensaje: "Servidor MasCuidado funcionando" });

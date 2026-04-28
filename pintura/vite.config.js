@@ -17,10 +17,9 @@ export default defineConfig({
         secure: false,
       }
     },
-    // Añadimos cabeceras para compatibilidad con Google Auth y evitar errores COOP
+    
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-      'Cross-Origin-Embedder-Policy': 'unsafe-none',
     }
   }
 })

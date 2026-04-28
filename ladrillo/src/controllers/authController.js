@@ -15,7 +15,6 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "Todos los campos son obligatorios" });
     }
 
-    // Nota: Usamos Usuario (PascalCase) según el nuevo schema
     const userExist = await prisma.Usuario.findUnique({ where: { correo: email } });
     if (userExist) {
       return res.status(400).json({ error: "El correo ya está registrado" });
@@ -53,13 +52,17 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
-    // Usamos user.id (que es el UUID)
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       message: "Login exitoso",
       token,
-      user: { id: user.id, nombre: user.nombreCompleto, correo: user.correo }
+      user: { 
+        id: user.id, 
+        nombre: user.nombreCompleto, 
+        correo: user.correo,
+        isGoogleLinked: !!user.googleRefreshToken // Verificar vinculación
+      }
     });
   } catch (error) {
     console.error(error);
@@ -108,7 +111,12 @@ exports.googleLogin = async (req, res) => {
     res.json({
       message: "Login con Google exitoso",
       token,
-      user: { id: user.id, nombre: user.nombreCompleto, correo: user.correo }
+      user: { 
+        id: user.id, 
+        nombre: user.nombreCompleto, 
+        correo: user.correo,
+        isGoogleLinked: !!user.googleRefreshToken // Verificar vinculación
+      }
     });
   } catch (error) {
     console.error("Error Google Auth:", error);

@@ -108,13 +108,18 @@ model MascotaVirtualItem {
 model Recordatorio {
   id             Int      @id @default(autoincrement()) @map("id_recordatorio")
   mascotaId      String   @map("id_mascota")
+  usuarioId      String   @map("id_usuario")
   titulo         String   @map("titulo") @db.VarChar(150)
+  descripcion    String?  @map("descripcion") @db.Text
   fechaHora      DateTime @map("fecha_hora") @db.Timestamp(6)
   idEventoGoogle String?  @map("id_evento_google") @db.VarChar(255)
   estado         Boolean? @default(false) @map("estado")
+
   mascota        Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+  usuario        Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@index([mascotaId], map: "idx_recordatorio_mascota")
+  @@index([usuarioId], map: "idx_recordatorio_usuario")
   @@map("recordatorio")
 }
 
@@ -129,6 +134,7 @@ model Usuario {
   direccion          String?           @map("direccion") @db.VarChar(255)
   fechaRegistro      DateTime?         @default(now()) @map("fecha_registro") @db.Timestamp(6)
   mascotas           Mascota[]
+  recordatorios      Recordatorio[]
 
   @@map("usuario")
 }
