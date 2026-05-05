@@ -49,13 +49,13 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0a1f1e]/60 backdrop-blur-md animate-in fade-in duration-300">
       <div className="absolute inset-0" onClick={onClose}></div>
 
-      <div className="relative w-full max-w-sm bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-[#3aaba5]/20 animate-in zoom-in-95 slide-in-from-top-4 duration-500 flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-lg bg-white shadow-2xl rounded-[2.5rem] overflow-hidden border border-[#3aaba5]/20 animate-in zoom-in-95 slide-in-from-top-4 duration-500 flex flex-col max-h-[85vh]">
 
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-[#3aaba5]/10 bg-gradient-to-b from-[#f0fdfa] to-white shrink-0">
           <div className="flex flex-col text-left">
             <h2 className="text-[#2d9b96] text-xl font-black leading-tight tracking-tight text-left italic">Perfil</h2>
-            <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[#3aaba5]/60">Gestión de Cuenta</span>
+            <span className="text-xs font-black uppercase tracking-[0.1em] text-[#3aaba5]/60">Gestión de Cuenta</span>
           </div>
           <button onClick={onClose} className="hover:scale-110 active:scale-90 transition-transform duration-200">
             <CloseIcon />
@@ -71,21 +71,21 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
           ) : (
             <>
               <div className="space-y-1 text-left">
-                <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Nombre</p>
+                <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Nombre</p>
                 <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10">
                   <span className="font-bold text-gray-800 text-sm">{user.nombreCompleto || user.nombre_completo}</span>
                 </div>
               </div>
 
               <div className="space-y-1 text-left">
-                <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Correo</p>
+                <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Correo</p>
                 <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10">
                   <span className="font-bold text-gray-800 text-sm">{user.correo}</span>
                 </div>
               </div>
 
               <div className="space-y-1 text-left">
-                <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Dirección</p>
+                <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Dirección</p>
                 <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10">
                   <span className="font-bold text-gray-800 text-xs leading-relaxed">{user.direccion || "No registrada"}</span>
                 </div>
@@ -93,13 +93,13 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Teléfono</p>
+                  <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Teléfono</p>
                   <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10">
                     <span className="font-bold text-gray-800 text-sm">{user.telefono || "---"}</span>
                   </div>
                 </div>
                 <div className="space-y-1 text-left">
-                  <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Registro</p>
+                  <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Registro</p>
                   <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10">
                     <span className="font-bold text-gray-800 text-sm">
                       {new Date(user.fechaRegistro).toLocaleDateString()}
@@ -109,7 +109,7 @@ export default function UserModal({ isOpen, onClose, onLogout }) {
               </div>
 
               <div className="space-y-1 text-left pb-2">
-                <p className="text-[9px] font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Mascotas</p>
+                <p className="text-xs font-black text-[#2d9b96] uppercase tracking-widest italic ml-1 opacity-70">Mascotas</p>
                 <div className="bg-[#f0fdfa] p-3 rounded-xl border border-[#3aaba5]/10 flex flex-wrap gap-2">
                   {user.mascotas && user.mascotas.length > 0 ? (
                     user.mascotas.map((m) => (
