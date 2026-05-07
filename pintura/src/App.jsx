@@ -194,7 +194,8 @@ export default function App() {
             {currentView === 'home' && activePet && (
               <HomeView 
                 activePet={activePet} 
-                reminders={reminders} 
+                reminders={reminders}
+                onPetUpdated={() => fetchPets(token)} 
               />
             )}
 
