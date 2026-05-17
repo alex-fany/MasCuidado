@@ -3,6 +3,7 @@ import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Autocomplete } from '@r
 import { MapPinIcon, SearchIcon, ClinicFavoriteIcon } from '../common/Icons';
 import { useUserLocation } from '../../hooks/useUserLocation';
 import { useNearbyPlaces } from '../../hooks/useNearbyPlaces';
+import { useSettings } from '../../context/SettingsContext';
 
 const containerStyle = { width: '100%', height: '100%' };
 const LIBRARIES = ['places', 'marker']; 
@@ -14,6 +15,7 @@ const MAP_OPTIONS = {
 };
 
 export default function MapView({ activePet }) {
+  const { t, language } = useSettings();
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded, loadError } = useJsApiLoader({
@@ -154,9 +156,9 @@ export default function MapView({ activePet }) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10 text-center gap-4">
         <div className="text-red-500 text-5xl">⚠️</div>
-        <h3 className="text-[#2d9b96] font-black text-xl">Error de Conexión</h3>
+        <h3 className="text-[#2d9b96] font-black text-xl">{language === 'en' ? 'Connection Error' : language === 'pt' ? 'Erro de Conexão' : 'Error de Conexión'}</h3>
         <p className="text-gray-500 max-w-xs font-bold text-sm leading-relaxed">
-          No se pudo conectar con Google Maps. Por favor, reinicia la aplicación.
+          {language === 'en' ? 'Could not connect to Google Maps. Please restart the application.' : language === 'pt' ? 'Não foi possível conectar ao Google Maps. Reinicie o aplicativo.' : 'No se pudo conectar con Google Maps. Por favor, reinicia la aplicación.'}
         </p>
       </div>
     );
@@ -166,9 +168,9 @@ export default function MapView({ activePet }) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10 text-center gap-4">
         <div className="text-amber-500 text-5xl">🔑</div>
-        <h3 className="text-amber-600 font-black text-xl">Clave no detectada</h3>
+        <h3 className="text-amber-600 font-black text-xl">{language === 'en' ? 'Key not detected' : language === 'pt' ? 'Chave não detectada' : 'Clave no detectada'}</h3>
         <p className="text-gray-500 max-w-xs font-bold text-sm">
-          Vite no encuentra tu VITE_GOOGLE_MAPS_API_KEY. ¿Reiniciaste el servidor?
+          {language === 'en' ? 'Vite could not find your VITE_GOOGLE_MAPS_API_KEY. Did you restart the server?' : language === 'pt' ? 'Vite não encontrou sua VITE_GOOGLE_MAPS_API_KEY. Você reiniciou o servidor?' : 'Vite no encuentra tu VITE_GOOGLE_MAPS_API_KEY. ¿Reiniciaste el servidor?'}
         </p>
       </div>
     );
@@ -179,9 +181,9 @@ export default function MapView({ activePet }) {
       <header className="mb-4 flex justify-between items-center px-2 shrink-0">
         <div className="text-left">
           <h2 className="text-2xl md:text-3xl font-black text-white drop-shadow-[0_4px_8px_rgba(45,155,150,0.4)] tracking-tight">
-            Clínicas veterinarias cercanas
+            {language === 'en' ? 'Nearby veterinary clinics' : language === 'pt' ? 'Clínicas veterinárias próximas' : 'Clínicas veterinarias cercanas'}
           </h2>
-          <p className="text-[#3aaba5] font-bold text-sm">Encuentra la mejor atención para tu mascota</p>
+          <p className="text-[#3aaba5] font-bold text-sm">{language === 'en' ? 'Find the best care for your pet' : language === 'pt' ? 'Encontre o melhor cuidado para seu pet' : 'Encuentra la mejor atención para tu mascota'}</p>
         </div>
       </header>
 
@@ -193,16 +195,16 @@ export default function MapView({ activePet }) {
               <MapPinIcon />
             </div>
             <div className="text-center space-y-2">
-              <h3 className="text-[#2d9b96] font-black text-2xl tracking-tight">Cargando...</h3>
+              <h3 className="text-[#2d9b96] font-black text-2xl tracking-tight">{language === 'en' ? 'Loading...' : language === 'pt' ? 'Carregando...' : 'Cargando...'}</h3>
             </div>
           </div>
         ) : locationError ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4 animate-in zoom-in duration-300 h-full">
              <div className="text-red-500 text-5xl opacity-80">📍</div>
-             <h3 className="text-[#2d9b96] font-black text-xl">Ubicación necesaria</h3>
+             <h3 className="text-[#2d9b96] font-black text-xl">{language === 'en' ? 'Location required' : language === 'pt' ? 'Localização necessária' : 'Ubicación necesaria'}</h3>
              <p className="text-gray-500 font-medium max-w-xs">{locationError}</p>
              <button onClick={() => window.location.reload()} className="mt-2 px-8 py-2.5 bg-[#2d9b96] text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">
-               Intentar de nuevo
+               {language === 'en' ? 'Try again' : language === 'pt' ? 'Tentar novamente' : 'Intentar de nuevo'}
              </button>
           </div>
         ) : (
@@ -216,7 +218,7 @@ export default function MapView({ activePet }) {
                   <input
                     ref={searchInputRef}
                     type="text"
-                    placeholder="Buscar otra zona..."
+                    placeholder={language === 'en' ? 'Search other area...' : language === 'pt' ? 'Buscar outra área...' : 'Buscar otra zona...'}
                     className="w-full pl-12 pr-6 py-3 bg-white/90 backdrop-blur-md border-2 border-[#3aaba5]/30 rounded-2xl shadow-xl focus:outline-none focus:border-[#2d9b96] text-[#2d9b96] font-semibold placeholder-[#3aaba5]/50 transition-all text-sm group-hover:border-[#3aaba5]/50"
                   />
                 </div>
@@ -295,28 +297,28 @@ export default function MapView({ activePet }) {
                   <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-teal-100">
                     <ClinicFavoriteIcon filled />
                   </div>
-                  <h3 className="text-[#2d9b96] font-black text-xl mb-2 italic">¿Guardar favorita?</h3>
+                  <h3 className="text-[#2d9b96] font-black text-xl mb-2 italic">{language === 'en' ? 'Save as favorite?' : language === 'pt' ? 'Salvar como favorita?' : '¿Guardar favorita?'}</h3>
                   <p className="text-gray-500 text-xs font-bold mb-6 leading-relaxed">
-                    ¿Quieres vincular esta clínica a todas tus mascotas o solo a la actual?
+                    {language === 'en' ? 'Do you want to link this clinic to all your pets or just the current one?' : language === 'pt' ? 'Deseja vincular esta clínica a todos os seus pets ou apenas ao atual?' : '¿Quieres vincular esta clínica a todas tus mascotas o solo a la actual?'}
                   </p>
                   <div className="flex flex-col gap-3">
                     <button 
                       onClick={() => saveFavorite(true)}
                       className="w-full py-3 bg-[#2d9b96] text-white font-black rounded-xl text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-[#2d9b96]/20"
                     >
-                      Todas mis mascotas
+                      {language === 'en' ? 'All my pets' : language === 'pt' ? 'Todos os meus pets' : 'Todas mis mascotas'}
                     </button>
                     <button 
                       onClick={() => saveFavorite(false)}
                       className="w-full py-3 bg-white border-2 border-teal-100 text-[#2d9b96] font-black rounded-xl text-xs uppercase tracking-widest hover:bg-teal-50 active:scale-95 transition-all"
                     >
-                      Solo {activePet?.nombre || "esta mascota"}
+                      {language === 'en' ? `Only ${activePet?.nombre || 'this pet'}` : language === 'pt' ? `Apenas ${activePet?.nombre || 'este pet'}` : `Solo ${activePet?.nombre || "esta mascota"}`}
                     </button>
                     <button 
                       onClick={() => { setShowConfirmModal(false); setPendingPlace(null); }}
                       className="mt-2 text-gray-400 font-bold text-[10px] uppercase hover:text-gray-600 transition-colors"
                     >
-                      Cancelar
+                      {t('profile_cancel')}
                     </button>
                   </div>
                 </div>
@@ -326,7 +328,7 @@ export default function MapView({ activePet }) {
             {showToast && (
               <div className="absolute bottom-24 left-1/2 -translate-x-1/2 bg-[#2d9b96] text-white px-6 py-3 rounded-2xl shadow-2xl font-bold text-sm animate-in fade-in slide-in-from-bottom-2 duration-300 z-30 flex items-center gap-2 border-2 border-white/30">
                 <ClinicFavoriteIcon filled />
-                ¡Clínica guardada!
+                {language === 'en' ? 'Clinic saved!' : language === 'pt' ? 'Clínica salva!' : '¡Clínica guardada!'}
               </div>
             )}
           </div>

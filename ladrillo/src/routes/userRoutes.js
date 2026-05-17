@@ -7,5 +7,6 @@ const { updateMyProfile } = require('../controllers/userController');
 
 router.get('/me', verifyToken, getMyProfile);
 router.put('/me', verifyToken, updateMyProfile);
+router.delete('/me', verifyToken, require('../controllers/userController').deleteAccount);
 
 module.exports = router;

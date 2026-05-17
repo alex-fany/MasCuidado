@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { CloseIcon } from '../common/Icons';
 import Input from '../Input';
 import Button from '../Button';
 import { useSettings } from '../../context/SettingsContext';
 
-export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, activePetId }) {
+const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
   const { t } = useSettings();
   const [formData, setFormData] = useState({
     nombre: '',
@@ -23,6 +23,27 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
   const [errors, setErrors] = useState({});
   
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (pet && isOpen) {
+      setFormData({
+        nombre: pet.nombre || '',
+        tipo: pet.tipo || 'Perro',
+        raza: pet.raza || '',
+        edad: pet.edad || '',
+        peso: pet.peso || '',
+        genero: pet.genero || 'Macho',
+        color: pet.color || '',
+        senasParticulares: pet.senasParticulares || ''
+      });
+      if (pet.imagen) {
+        setImagePreview(`http://localhost:3000/uploads/${pet.imagen}`);
+      } else {
+        setImagePreview(null);
+      }
+      setErrors({});
+    }
+  }, [pet, isOpen]);
 
   if (!isOpen) return null;
 
@@ -64,8 +85,8 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
     }
 
     try {
-      const res = await fetch("/api/mascotas", {
-        method: "POST",
+      const res = await fetch(`/api/mascotas/${pet.id}`, {
+        method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`
         },
@@ -77,12 +98,6 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
         throw new Error(data.error || "Error");
       }
 
-      setFormData({
-        nombre: '', tipo: 'Perro', raza: '', edad: '', peso: '',
-        genero: 'Macho', color: '', senasParticulares: ''
-      });
-      setImageFile(null);
-      setImagePreview(null);
       onRefreshPets(true); 
       onClose();
     } catch (err) {
@@ -107,7 +122,7 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
         </button>
 
         <h2 className="text-4xl font-black text-[var(--brand-primary)] mb-6 shrink-0 tracking-tighter italic">
-          {t('header_add_pet')}
+          {t('header_manage')}
         </h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden text-left">
@@ -121,7 +136,7 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
             <div className="flex flex-col items-center gap-4 mb-4">
               <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="w-32 h-32 rounded-3xl bg-[var(--brand-surface-muted)] border-4 border-dashed border-[var(--brand-primary)]/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-[var(--brand-primary)] transition-all group relative"
+                className="w-32 h-32 rounded-3xl bg-[var(--brand-surface-muted)] border-4 border-dashed border-[var(--brand-primary)]/30 flex items-center justify-center overflow-hidden cursor-pointer hover:border-[var(--brand-primary)] transition-all group relative shadow-inner"
               >
                 {imagePreview ? (
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
@@ -195,11 +210,13 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
 
           <div className="pt-4 shrink-0">
             <Button type="submit" loading={loading} className="w-full py-5 rounded-[1.5rem] text-lg shadow-2xl shadow-[var(--brand-primary)]/40 font-black uppercase tracking-widest italic">
-              {t('form_register_pet')}
+              {t('form_save')}
             </Button>
           </div>
         </form>
       </div>
     </div>
   );
-}
+};
+
+export default PetManagementModal;

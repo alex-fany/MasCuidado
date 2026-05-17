@@ -1,24 +1,178 @@
 @import "tailwindcss";
 
+:root {
+  /* Variables base (Claro por defecto) */
+  --brand-primary: #2d9b96;
+  --brand-secondary: #3aaba5;
+  --brand-accent: #5fc4b8;
+  --brand-text: #1a5d5a;
+  --brand-text-muted: rgba(26, 93, 90, 0.6);
+  --brand-surface: #ffffff;
+  --brand-surface-glass: rgba(255, 255, 255, 0.8);
+  --brand-surface-muted: #f0fdfa;
+  --brand-bg-gradient: linear-gradient(
+    179deg, 
+    rgba(45, 155, 150, 1) 0%, 
+    rgba(58, 171, 165, 1) 19%, 
+    rgba(95, 196, 184, 1) 38%, 
+    rgba(141, 217, 204, 1) 56%, 
+    rgba(186, 232, 220, 1) 75%, 
+    rgba(229, 245, 239, 1) 90%, 
+    rgba(255, 255, 255, 1) 100%
+  );
+  --brand-border: rgba(45, 155, 150, 0.15);
+  --brand-border-strong: rgba(255, 255, 255, 0.8);
+  --brand-modal-bg: #ffffff;
+  --brand-modal-gradient: linear-gradient(180deg, #e0f2f1 0%, #ffffff 100%);
+  --brand-danger: #ef4444;
+  --brand-danger-muted: #fee2e2;
+  --brand-button-text: #ffffff;
+  --brand-backdrop: rgba(10, 31, 30, 0.4);
+  --brand-ripple: rgba(255, 255, 255, 0.9);
+}
+[data-theme='dark'] {
+  /* Modo oscuro*/
+  --brand-primary: #4ebfba;
+  --brand-secondary: #3aaba5;
+  --brand-accent: #3e9e9c;
+  --brand-text: #e6fcfb;
+  --brand-text-muted: rgba(230, 252, 251, 0.5);
+  --brand-surface: #0a1f1e;
+  --brand-surface-glass: rgba(5, 16, 15, 0.7);
+  --brand-surface-muted: rgba(78, 191, 186, 0.05);
+  --brand-bg-gradient: linear-gradient(
+    1deg, 
+    rgba(62, 110, 158, 1) 0%, 
+    rgba(47, 119, 145, 1) 20%, 
+    rgba(36, 110, 120, 1) 44%, 
+    rgba(14, 72, 82, 1) 70%, 
+    rgba(0, 0, 0, 1) 100%
+  );
+  --brand-border: rgba(78, 191, 186, 0.25);
+  --brand-border-strong: rgba(78, 191, 186, 0.5);
+  --brand-modal-bg: #050a0a;
+  --brand-modal-gradient: linear-gradient(180deg, #0a1414 0%, #000000 100%);
+  --brand-danger: #f87171;
+  --brand-danger-muted: rgba(248, 113, 113, 0.1);
+  --brand-button-text: #0a1f1e;
+  --brand-backdrop: rgba(0, 0, 0, 0.85);
+  --brand-ripple: #4ebfba;
+}
+
+[data-theme='glass'] {
+  /* Glassmorphism */
+  --brand-primary: #1a5d5a;
+  --brand-secondary: #2d9b96;
+  --brand-accent: #ffffff;
+  --brand-text: #0a1f1e;
+  --brand-text-muted: rgba(10, 31, 30, 0.6);
+  --brand-surface: rgba(255, 255, 255, 0.7);
+  --brand-surface-glass: rgba(255, 255, 255, 0.3);
+  --brand-surface-muted: rgba(255, 255, 255, 0.3);
+  --brand-bg-gradient: radial-gradient(
+    circle at top left,
+    #f0fdfa 0%, 
+    #bae8dc 50%,
+    #8dd9cc 100%
+  );
+  --brand-border: rgba(255, 255, 255, 0.6);
+  --brand-border-strong: rgba(255, 255, 255, 0.9);
+  --brand-modal-bg: rgba(255, 255, 255, 0.85);
+  --brand-modal-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(224, 242, 241, 0.9) 100%);
+  --brand-danger: #ef4444;
+  --brand-danger-muted: rgba(239, 68, 68, 0.1);
+  --brand-button-text: #ffffff;
+  --brand-backdrop: rgba(10, 31, 30, 0.6);
+  --brand-ripple: #1a5d5a;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
   min-height: 100%;
   height: 100%;
-}
-
-body {
-  background: linear-gradient(
-    to bottom,
-    #2d9b96 0%,
-    #3aaba5 20%,
-    #5fc4b8 40%,
-    #8dd9cc 55%,
-    #bae8dc 70%,
-    #e5f5ef 85%,
-    #ffffff 100%
-  );
+  color: var(--brand-text);
+  background: var(--brand-bg-gradient);
   background-attachment: fixed;
   background-repeat: no-repeat;
   background-size: cover;
+  transition: background 0.7s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* Clases de utilidad */
+.bg-brand-surface { background-color: var(--brand-surface); }
+.bg-brand-modal { background-color: var(--brand-modal-bg); }
+.text-brand-primary { color: var(--brand-primary); }
+.text-brand-text { color: var(--brand-text); }
+.border-brand { border-color: var(--brand-border); }
+
+/* Custom scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--brand-primary);
+  border-radius: 10px;
+  opacity: 0.3;
+}
+
+/* Efecto de ondas */
+@keyframes ripple-premium {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.8, 2.2); opacity: 0; }
+}
+
+.ripple-effect::before,
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border: 4px solid var(--brand-ripple);
+  border-radius: 1.5rem;
+  animation: ripple-premium 2s infinite ease-out;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(2px);
+}
+
+.ripple-effect::after {
+  animation-delay: 1.25s;
+}
+
+/* Animación de Sacudida */
+@keyframes shake-toast {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.animate-shake-toast {
+  animation: shake-toast 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* Giro Lento Continuo */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+.group:hover .animate-spin-slow {
+  animation-play-state: paused;
 }

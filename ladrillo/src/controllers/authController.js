@@ -15,6 +15,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "Todos los campos son obligatorios" });
     }
 
+    if (name.length > 30) {
+      return res.status(400).json({ error: "El nombre no puede exceder los 30 caracteres" });
+    }
+
     const userExist = await prisma.Usuario.findUnique({ where: { correo: email } });
     if (userExist) {
       return res.status(400).json({ error: "El correo ya está registrado" });
@@ -47,6 +51,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
+    if (user.estado === 'Inactivo') {
+      return res.status(403).json({ error: "Esta cuenta se encuentra desactivada" });
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: "Credenciales inválidas" });
@@ -65,8 +73,9 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error en el servidor al iniciar sesión" });
+    console.error("DETALLE ERROR LOGIN:", JSON.stringify(error, null, 2));
+    console.error("MENSAJE ERROR LOGIN:", error.message);
+    res.status(500).json({ error: "Error en el servidor al iniciar sesión", detail: error.message });
   }
 };
 
@@ -107,6 +116,10 @@ exports.googleLogin = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
+
+    if (user.estado === 'Inactivo') {
+      return res.status(403).json({ error: "Esta cuenta se encuentra desactivada" });
+    }
 
     res.json({
       message: "Login con Google exitoso",

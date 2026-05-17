@@ -2,7 +2,7 @@ export default function Input({ label, name, type = "text", placeholder, value, 
   return (
     <div className="flex flex-col gap-1.5 w-full group">
       {label && (
-        <label className={`text-xs font-bold uppercase tracking-widest ml-1 transition-colors duration-300 ${error ? 'text-red-500' : 'text-[#4b5563] group-focus-within:text-[#2d9b96]'}`}>
+        <label className={`text-[10px] font-black uppercase italic ml-2 transition-colors duration-300 ${error ? 'text-red-500' : 'text-[var(--brand-primary)] group-focus-within:opacity-100 opacity-70'}`}>
           {label}
         </label>
       )}
@@ -15,14 +15,14 @@ export default function Input({ label, name, type = "text", placeholder, value, 
         required={required}
         disabled={disabled}
         className={`
-          w-full px-5 py-3.5 rounded-2xl border-2 bg-white/70 backdrop-blur-sm
-          text-[#1f2937] font-medium placeholder:text-gray-400/80
-          focus:outline-none focus:bg-white
+          w-full px-5 py-3.5 rounded-2xl border-2 bg-[var(--brand-surface-muted)]
+          text-[var(--brand-text)] font-bold placeholder:text-[var(--brand-text)]/30
+          focus:outline-none focus:bg-[var(--brand-surface)]
           transition-all duration-300 shadow-sm
-          ${disabled ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}
+          ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
           ${error 
-            ? 'border-red-200 focus:border-red-500 focus:ring-4 focus:ring-red-500/10' 
-            : 'border-transparent focus:border-[#2d9b96] focus:ring-4 focus:ring-[#2d9b96]/10'}
+            ? 'border-red-500/50 focus:border-red-500' 
+            : 'border-transparent focus:border-[var(--brand-primary)]'}
         `}
       />
     </div>

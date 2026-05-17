@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { CloseIcon, GoogleCalendarBrandIcon } from '../common/Icons';
 import Input from '../Input';
 import Button from '../Button';
+import { useSettings } from '../../context/SettingsContext';
 
 export default function AddReminderModal({ isOpen, onClose, pets = [], onRefreshReminders, initialDate, editReminder, activePetId }) {
+  const { t, language } = useSettings();
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -85,7 +87,7 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
         }
       };
     } catch (err) {
-      alert("Error al conectar con Google");
+      alert(language === 'en' ? "Connection error" : "Error al conectar con Google");
     }
   };
 
@@ -118,10 +120,10 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Error al procesar recordatorio");
+        throw new Error(data.error || "Error");
       }
 
-      onRefreshReminders();
+      onRefreshReminders(true); // Indicar éxito para mostrar el toast
       onClose();
     } catch (err) {
       setError(err.message);
@@ -134,25 +136,28 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
 
   return (
     <>
-      <div className="fixed inset-0 bg-[#0a1f1e]/90 backdrop-blur-xl z-[9999] flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-300">
-        <div className="bg-white rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[#3aaba5]/20 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300">
+      <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[9999] flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-300">
+        <div 
+          className="rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[var(--brand-primary)]/20 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300"
+          style={{ background: 'var(--brand-modal-gradient)' }}
+        >
           
-          <button type="button" onClick={onClose} className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-teal-50 p-2 rounded-full">
+          <button type="button" onClick={onClose} className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-2 rounded-full">
             <CloseIcon />
           </button>
 
-          <h2 className="text-4xl font-black text-[#2d9b96] mb-2 shrink-0 tracking-tighter italic">
-            {editReminder ? "Editar Recordatorio" : "Nuevo Recordatorio"}
+          <h2 className="text-4xl font-black text-[var(--brand-primary)] mb-2 shrink-0 tracking-tighter italic text-left">
+            {editReminder ? t('form_edit_rem') : t('form_new_rem')}
           </h2>
 
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden text-left mt-4">
             <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-5 pb-6">
-              {error && <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-[11px] font-black border-2 border-red-100">{error}</div>}
+              {error && <div className="p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[11px] font-black border-2 border-[var(--brand-danger)]/10">{error}</div>}
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#2d9b96] uppercase italic ml-2">Seleccionar Mascota</label>
+              <div className="space-y-2 text-left">
+                <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">{t('form_select_pet')}</label>
                 <select
-                  className="w-full px-5 py-4 bg-[#f0fdfa] border-2 border-transparent focus:border-[#2d9b96] focus:bg-white rounded-[1.5rem] text-gray-700 font-bold outline-none appearance-none cursor-pointer"
+                  className="w-full px-5 py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] focus:bg-[var(--brand-surface)] rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none transition-all appearance-none cursor-pointer shadow-sm"
                   value={formData.mascotaId}
                   onChange={(e) => setFormData({ ...formData, mascotaId: e.target.value })}
                   required
@@ -162,51 +167,51 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
               </div>
 
               <Input
-                label="Título del recordatorio"
-                placeholder="Ej: Vacuna de la rabia"
+                label={t('form_rem_title')}
+                placeholder={t('ph_rem_title')}
                 value={formData.titulo}
                 onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                 required
               />
 
               <div className="grid grid-cols-2 gap-4">
-                <Input label="Fecha" type="date" value={formData.fecha} onChange={(e) => setFormData({ ...formData, fecha: e.target.value })} required />
-                <Input label="Hora" type="time" value={formData.hora} onChange={(e) => setFormData({ ...formData, hora: e.target.value })} required />
+                <Input label={t('form_rem_date')} type="date" value={formData.fecha} onChange={(e) => setFormData({ ...formData, fecha: e.target.value })} required />
+                <Input label={t('form_rem_time')} type="time" value={formData.hora} onChange={(e) => setFormData({ ...formData, hora: e.target.value })} required />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-[#2d9b96] uppercase italic ml-2">Descripción / Notas</label>
+              <div className="space-y-2 text-left">
+                <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">{t('form_rem_desc')}</label>
                 <textarea
-                  className="w-full px-5 py-4 bg-[#f0fdfa] border-2 border-transparent focus:border-[#2d9b96] focus:bg-white rounded-[1.5rem] text-gray-700 font-bold outline-none resize-none h-28"
-                  placeholder="Detalles adicionales..."
+                  className="w-full px-5 py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] focus:bg-[var(--brand-surface)] rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none transition-all resize-none h-28 shadow-sm"
+                  placeholder={t('ph_notes')}
                   value={formData.descripcion}
                   onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                 />
               </div>
 
               <div 
-                className={`p-5 rounded-[2rem] border-2 flex items-center justify-between group cursor-pointer transition-all ${formData.syncGoogle ? 'bg-teal-50 border-teal-200' : 'bg-gray-50 border-gray-100 hover:border-teal-100'}`} 
+                className={`p-5 rounded-[2rem] border-2 flex items-center justify-between group cursor-pointer transition-all ${formData.syncGoogle ? 'bg-[var(--brand-primary)]/10 border-[var(--brand-primary)]/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-border)] hover:border-[var(--brand-primary)]/20'}`} 
                 onClick={handleToggleSync}
               >
                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-teal-100 scale-110">
+                    <div className="w-10 h-10 bg-[var(--brand-surface)] rounded-xl flex items-center justify-center shadow-sm border border-[var(--brand-primary)]/10 scale-110">
                       <GoogleCalendarBrandIcon />
                     </div>
                     <div className="text-left">
-                      <p className="text-[11px] font-black text-[#2d9b96] uppercase tracking-tighter">Sincronizar con Google</p>
-                      <p className="text-[10px] text-gray-400 font-bold leading-tight italic">Actualizar en tu Calendario externo</p>
+                      <p className="text-[11px] font-black text-[var(--brand-primary)] uppercase tracking-tighter">{t('form_rem_sync')}</p>
+                      <p className="text-[10px] text-[var(--brand-text)] opacity-40 font-bold leading-tight italic">{t('form_rem_sync_desc')}</p>
                     </div>
                  </div>
-                 <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${formData.syncGoogle ? 'bg-[#2d9b96] border-[#2d9b96]' : 'border-gray-300'}`}>
-                    {formData.syncGoogle && <div className="w-2 h-2 bg-white rounded-full"></div>}
+                 <div className={`w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center ${formData.syncGoogle ? 'bg-[var(--brand-primary)] border-[var(--brand-primary)]' : 'border-[var(--brand-border)]'}`}>
+                    {formData.syncGoogle && <div className="w-2 h-2 bg-[var(--brand-button-text)] rounded-full"></div>}
                  </div>
               </div>
             </div>
 
             <div className="pt-4 shrink-0">
-              <Button type="submit" loading={loading} className="w-full py-5 rounded-[1.5rem] text-lg shadow-2xl font-black">
-                {editReminder ? "Guardar Cambios" : "Agendar Recordatorio"}
-              </Button>
+              <button type="submit" className="w-full py-5 bg-[var(--brand-primary)] text-[var(--brand-button-text)] rounded-[1.5rem] text-lg shadow-2xl font-black hover:bg-[var(--brand-secondary)] transition-all">
+                {editReminder ? t('form_save') : t('form_add_rem')}
+              </button>
             </div>
           </form>
         </div>
@@ -215,27 +220,27 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
       {/* Modal de Vinculación de Google */}
       {isLinkingModalOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-[#0a1f1e]/80 backdrop-blur-sm" onClick={() => setIsLinkingModalOpen(false)}></div>
-          <div className="relative bg-white rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl border-4 border-[#3aaba5]/20 text-center animate-in zoom-in-95 duration-300">
-            <div className="w-20 h-20 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-6 scale-150">
+          <div className="absolute inset-0 bg-[var(--brand-backdrop)] backdrop-blur-sm" onClick={() => setIsLinkingModalOpen(false)}></div>
+          <div className="relative bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 max-w-sm w-full shadow-2xl border-4 border-[var(--brand-primary)]/20 text-center animate-in zoom-in-95 duration-300">
+            <div className="w-20 h-20 bg-[var(--brand-surface-muted)] rounded-full flex items-center justify-center mx-auto mb-6 scale-150">
               <GoogleCalendarBrandIcon />
             </div>
-            <h3 className="text-2xl font-black text-gray-800 mb-2 italic">Sincronización</h3>
-            <p className="text-gray-500 font-bold text-sm leading-relaxed mb-8">
-              Para usar esta función, necesitas vincular tu cuenta con Google Calendar. Solo toma unos segundos.
+            <h3 className="text-2xl font-black text-[var(--brand-text)] mb-2 italic">{language === 'en' ? 'Synchronization' : language === 'pt' ? 'Sincronização' : 'Sincronización'}</h3>
+            <p className="text-[var(--brand-text)] opacity-60 font-bold text-sm leading-relaxed mb-8">
+              {language === 'en' ? 'To use this feature, you need to link your account with Google Calendar. It only takes a few seconds.' : language === 'pt' ? 'Para usar este recurso, você precisa vincular sua conta ao Google Calendar. Leva apenas alguns segundos.' : 'Para usar esta función, necesitas vincular tu cuenta con Google Calendar. Solo toma unos segundos.'}
             </p>
             <div className="space-y-3">
               <button 
                 onClick={handleConnectGoogle}
-                className="w-full py-4 bg-[#2d9b96] text-white font-black rounded-2xl shadow-lg hover:bg-[#23807c] transition-all uppercase tracking-widest text-xs"
+                className="w-full py-4 bg-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-2xl shadow-lg hover:bg-[var(--brand-secondary)] transition-all uppercase tracking-widest text-xs"
               >
-                Vincular ahora
+                {language === 'en' ? 'Link now' : language === 'pt' ? 'Vincular agora' : 'Vincular ahora'}
               </button>
               <button 
                 onClick={() => setIsLinkingModalOpen(false)}
-                className="w-full py-3 text-gray-400 font-black hover:text-gray-600 transition-colors uppercase tracking-widest text-[10px]"
+                className="w-full py-3 text-[var(--brand-text)] opacity-40 font-black hover:opacity-100 transition-colors uppercase tracking-widest text-[10px]"
               >
-                Tal vez luego
+                {language === 'en' ? 'Maybe later' : language === 'pt' ? 'Talvez depois' : 'Tal vez luego'}
               </button>
             </div>
           </div>

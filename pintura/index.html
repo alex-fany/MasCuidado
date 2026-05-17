@@ -5,6 +5,17 @@
     <link rel="icon" type="image/svg+xml" href="https://uxwing.com/wp-content/themes/uxwing/download/medical-science-lab/veterinary-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>+Cuidado</title>
+    <script>
+      (function() {
+        try {
+          const settings = JSON.parse(localStorage.getItem('masCuidado_settings'));
+          if (settings && settings.theme) {
+            document.documentElement.setAttribute('data-theme', settings.theme);
+            if (settings.theme === 'dark') document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
