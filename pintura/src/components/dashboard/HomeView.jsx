@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import InfoBubble from './InfoBubble';
 import PetDisplay from './PetDisplay';
-import { CloseIcon } from '../common/Icons';
+import { CloseIcon, CheckIcon } from '../common/Icons';
 import EditCartillaModal from '../layout/EditCartillaModal';
 import { useSettings } from '../../context/SettingsContext';
 
@@ -10,28 +10,85 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
   const [isCartillaOpen, setIsCartillaOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [isEditCartillaOpen, setIsEditCartillaOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [selectedVaccineGroup, setSelectedVaccineGroup] = useState(null);
+  const [prefillVaccine, setPrefillVaccine] = useState(null);
 
-  // Recordatorios filtrados
-  const petReminders = useMemo(() => {
+  const dateLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
+
+  const formatLocalDate = (dateString, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+    const correctedDate = new Date(date.getTime() + userTimezoneOffset);
+    return correctedDate.toLocaleDateString(dateLocale, options);
+  };
+
+  // Recordatorios unificados
+  const allEvents = useMemo(() => {
     if (!activePet) return [];
-    return reminders.filter(r => r.mascotaId === activePet.id);
-  }, [reminders, activePet]);
+
+    // Recordatorios de la base de datos
+    const dbReminders = reminders
+      .filter(r => r.mascotaId === activePet.id)
+      .map(r => ({ ...r, type: 'reminder' }));
+
+    // Refuerzos de vacunas
+    const seenVaccines = new Set();
+    const vaccineReinforcements = (activePet.vacunas || [])
+      .filter(v => v.proximaDosis && !seenVaccines.has(v.nombreVacuna))
+      .map(v => {
+        seenVaccines.add(v.nombreVacuna);
+        return {
+          id: `vaccine-${v.id}`,
+          titulo: `${t('form_vac_next_reinf')}: ${v.nombreVacuna}`,
+          fechaHora: v.proximaDosis,
+          type: 'vaccine',
+          mascotaId: activePet.id
+        };
+      });
+
+    // Combinar y ordenar cronológicamente
+    return [...dbReminders, ...vaccineReinforcements].sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));
+  }, [reminders, activePet, t]);
 
   const todaysReminder = useMemo(() => {
-    const today = new Date().toDateString();
-    return petReminders.filter(r => new Date(r.fechaHora).toDateString() === today)
-                       .sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora))[0] || null;
-  }, [petReminders]);
+    const today = new Date();
+    // Comparación segura ignorando horas
+    return allEvents.filter(e => {
+      const eDate = new Date(e.fechaHora);
+      const userTimezoneOffset = eDate.getTimezoneOffset() * 60000;
+      const correctedDate = new Date(eDate.getTime() + userTimezoneOffset);
+      return correctedDate.toDateString() === today.toDateString();
+    })[0] || null;
+  }, [allEvents]);
 
   const upcomingReminders = useMemo(() => {
     const now = new Date();
     const nextWeek = new Date();
     nextWeek.setDate(now.getDate() + 7);
-    return petReminders.filter(r => {
-      const rDate = new Date(r.fechaHora);
-      return rDate >= now && rDate <= nextWeek;
-    }).sort((a, b) => new Date(a.fechaHora) - new Date(b.fechaHora));
-  }, [petReminders]);
+    
+    return allEvents.filter(e => {
+      const eDate = new Date(e.fechaHora);
+      const userTimezoneOffset = eDate.getTimezoneOffset() * 60000;
+      const correctedDate = new Date(eDate.getTime() + userTimezoneOffset);
+      return correctedDate >= now && correctedDate <= nextWeek;
+    });
+  }, [allEvents]);
+
+  // Agrupar vacunas por nombre para el historial
+  const vaccineGroups = useMemo(() => {
+    if (!activePet?.vacunas) return [];
+    const groups = {};
+    activePet.vacunas.forEach(v => {
+      if (!groups[v.nombreVacuna]) groups[v.nombreVacuna] = [];
+      groups[v.nombreVacuna].push(v);
+    });
+    Object.keys(groups).forEach(name => {
+      groups[name].sort((a, b) => new Date(b.fechaAplicacion) - new Date(a.fechaAplicacion));
+    });
+    return groups;
+  }, [activePet]);
 
   if (!activePet) {
     return (
@@ -42,8 +99,18 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
     );
   }
 
-  const dateLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
   const favoriteClinic = activePet.clinicasFavoritas?.[0] || null;
+
+  const handleAddDoseFromHistory = (vaccineName) => {
+    setPrefillVaccine(vaccineName);
+    setSelectedVaccineGroup(null);
+    setIsEditCartillaOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditCartillaOpen(false);
+    setPrefillVaccine(null);
+  };
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
@@ -63,7 +130,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
         </div>
       </main>
 
-      {/* Modal Recordatorios */}
+      {/* Modal Agenda Semanal */}
       {isRemindersModalOpen && (
         <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-md z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
           <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-[320px] p-6 shadow-2xl relative animate-in zoom-in-95 slide-in-from-top-4 duration-500 border border-[var(--brand-primary)]/20 flex flex-col max-h-[70vh]">
@@ -74,16 +141,17 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
             <p className="text-[var(--brand-text)] opacity-60 font-bold text-[8px] uppercase tracking-widest mb-5 text-left shrink-0">{t('home_activities_of')} {activePet?.nombre}</p>
 
             <div className="space-y-3 mb-6 overflow-y-auto pr-1 custom-scrollbar flex-1">
-              {upcomingReminders.length > 0 ? upcomingReminders.map(r => (
-                <div key={r.id} className="p-3.5 bg-[var(--brand-surface)] rounded-xl border border-[var(--brand-primary)]/10 flex justify-between items-center transition-all duration-300 hover:bg-[var(--brand-primary)]/5 group">
+              {upcomingReminders.length > 0 ? upcomingReminders.map(e => (
+                <div key={e.id} className={`p-3.5 rounded-xl border flex justify-between items-center transition-all duration-300 hover:scale-[1.02] group ${e.type === 'vaccine' ? 'bg-purple-500/5 border-purple-500/10' : 'bg-[var(--brand-surface)] border-[var(--brand-primary)]/10'}`}>
                   <div className="text-left">
-                    <p className="font-black text-[var(--brand-primary)] text-xs leading-tight group-hover:text-[var(--brand-text)]">{r.titulo}</p>
+                    <p className={`font-black text-xs leading-tight ${e.type === 'vaccine' ? 'text-purple-600' : 'text-[var(--brand-primary)] group-hover:text-[var(--brand-text)]'}`}>{e.titulo}</p>
                     <p className="text-[9px] text-[var(--brand-text)] opacity-40 font-bold mt-0.5 uppercase italic">
-                      {new Date(r.fechaHora).toLocaleDateString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short' })} • {new Date(r.fechaHora).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                      {formatLocalDate(e.fechaHora, { weekday: 'short', day: 'numeric', month: 'short' })}
+                      {e.type === 'reminder' && ` • ${new Date(e.fechaHora).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}`}
                     </p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-[var(--brand-primary)]/5 flex items-center justify-center text-[var(--brand-primary)] opacity-40 group-hover:scale-110 transition-transform">
-                     🔔
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center opacity-40 group-hover:scale-110 transition-transform ${e.type === 'vaccine' ? 'bg-purple-500/10 text-purple-600' : 'bg-[var(--brand-primary)]/5 text-[var(--brand-primary)]'}`}>
+                     {e.type === 'vaccine' ? '💉' : '🔔'}
                   </div>
                 </div>
               )) : (
@@ -114,31 +182,103 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                 </div>
                 <div>
                    <h2 className="text-3xl font-black text-[var(--brand-primary)] italic tracking-tighter leading-none">{activePet.nombre}</h2>
-                   <p className="text-[10px] font-black text-[var(--brand-text)] opacity-40 uppercase tracking-[0.2em] mt-1 italic">{t(`pet_${activePet.tipo.toLowerCase()}`)} • {activePet.raza}</p>
+                   <p className="text-[10px] font-black text-[var(--brand-text)] opacity-40 uppercase tracking-[0.2em] mt-1 italic">{t(`pet_${activePet.tipo?.toLowerCase()}`)} • {activePet.raza}</p>
                 </div>
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 text-left">
                  
-                 {/* Sección: Datos Médicos */}
+                 {/* Sección: Información General */}
                  <section className="bg-[var(--brand-surface-muted)] p-6 rounded-[2rem] border border-[var(--brand-primary)]/5 relative group shadow-inner">
                     <button 
-                      onClick={() => setIsEditCartillaOpen(true)}
-                      className="absolute top-4 right-4 w-8 h-8 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 shadow-sm"
+                      onClick={(e) => { e.stopPropagation(); setIsEditCartillaOpen(true); }}
+                      className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 shadow-sm cursor-pointer z-20"
                     >
                       ✎
                     </button>
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] mb-4 italic opacity-80">{t('form_medical_data')}</h3>
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] mb-4 italic opacity-80">{t('form_info_gen')}</h3>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-4">
+                       <div>
+                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-0.5 ml-1">{t('form_breed')}</p>
+                          <p className="text-xs font-bold text-[var(--brand-text)] ml-1">{activePet.raza || t('form_none')}</p>
+                       </div>
+                       <div>
+                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-0.5 ml-1">{t('form_age')}</p>
+                          <p className="text-xs font-bold text-[var(--brand-text)] ml-1">{activePet.edad ? `${activePet.edad} ${activePet.edad === 1 ? (language === 'en' ? 'year' : 'año') : (language === 'en' ? 'years' : 'años')}` : t('form_none')}</p>
+                       </div>
+                       <div>
+                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-0.5 ml-1">{t('form_color')}</p>
+                          <p className="text-xs font-bold text-[var(--brand-text)] ml-1">{activePet.color || t('form_none')}</p>
+                       </div>
+                       <div>
+                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-0.5 ml-1">{t('form_weight')}</p>
+                          <p className="text-xs font-bold text-[var(--brand-text)] ml-1">{activePet.peso ? `${activePet.peso} kg` : t('form_none')}</p>
+                       </div>
+                       <div>
+                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-0.5 ml-1">{t('form_gender')}</p>
+                          <p className="text-xs font-bold text-[var(--brand-text)] ml-1">{t(`gender_${activePet.genero?.toLowerCase()}`)}</p>
+                       </div>
+                    </div>
+                    <div className="pt-3 border-t border-[var(--brand-primary)]/5">
+                       <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-1 ml-1">{t('form_notes')}</p>
+                       <p className="text-xs font-bold text-[var(--brand-text)] ml-1 italic leading-relaxed">{activePet.senasParticulares || t('form_none')}</p>
+                    </div>
+                 </section>
+
+                 {/* Sección: Fotos de Cartilla Física */}
+                 {activePet.fotosCartilla?.length > 0 && (
+                   <section className="space-y-3">
+                      <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-2 italic opacity-80 ml-2">{t('form_vac_physical')}</h3>
+                      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-1">
+                         {activePet.fotosCartilla.map((f, i) => (
+                           <div key={i} onClick={() => setSelectedPhoto(f)} className="w-24 h-24 rounded-2xl border-2 border-emerald-500/10 overflow-hidden shrink-0 shadow-sm hover:scale-105 transition-transform cursor-pointer">
+                              <img src={`http://localhost:3000/uploads/${f}`} className="w-full h-full object-cover" alt="Cartilla" />
+                           </div>
+                         ))}
+                      </div>
+                   </section>
+                 )}
+
+                 {/* Sección: Vacunas */}
+                 <section className="space-y-3">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-2 italic opacity-80 ml-2">{t('form_vac_title')}</h3>
+                    <div className="grid grid-cols-1 gap-2">
+                       {Object.keys(vaccineGroups).length > 0 ? Object.entries(vaccineGroups).map(([name, records], i) => (
+                         <div 
+                            key={i} 
+                            onClick={() => setSelectedVaccineGroup({ name, records })}
+                            className="p-4 bg-purple-600/10 rounded-2xl border border-purple-500/20 flex justify-between items-center italic shadow-sm hover:bg-purple-600/15 transition-colors cursor-pointer group"
+                         >
+                            <div className="flex items-center gap-3">
+                              <span className="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
+                              <span className="text-xs font-black text-[var(--brand-text)]">{name}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                               <span className="text-[9px] font-bold opacity-40 uppercase">{t('form_vac_applied')}: {formatLocalDate(records[0].fechaAplicacion)}</span>
+                               <span className="text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">›</span>
+                            </div>
+                         </div>
+                       )) : (
+                         <div className="p-6 bg-black/5 rounded-2xl border border-dashed border-purple-200 text-center">
+                            <p className="text-[9px] font-black text-purple-300 uppercase tracking-widest">Sin registro de vacunas</p>
+                         </div>
+                       )}
+                    </div>
+                 </section>
+
+                 {/* Sección: Datos Médicos */}
+                 <section className="bg-gradient-to-br from-purple-500/10 to-purple-600/20 p-6 rounded-[2rem] border border-purple-500/20 shadow-inner">
+                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-4 italic opacity-80">{t('form_medical_data')}</h3>
                     <div className="space-y-4">
                        <div>
-                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-1 ml-1">{t('form_medications')}</p>
-                          <div className="p-3 bg-white/40 dark:bg-black/20 rounded-xl text-xs font-bold text-[var(--brand-text)] shadow-sm">
+                          <p className="text-[8px] font-black uppercase text-purple-600 opacity-40 mb-1 ml-1">{t('form_medications')}</p>
+                          <div className="p-3 bg-purple-600/10 border border-purple-500/10 rounded-xl text-xs font-bold text-[var(--brand-text)] shadow-sm">
                              {activePet.medicamentos || t('form_none')}
                           </div>
                        </div>
                        <div>
-                          <p className="text-[8px] font-black uppercase text-[var(--brand-text)] opacity-40 mb-1 ml-1">{t('form_conditions')}</p>
-                          <div className="p-3 bg-white/40 dark:bg-black/20 rounded-xl text-xs font-bold text-[var(--brand-text)] shadow-sm">
+                          <p className="text-[8px] font-black uppercase text-purple-600 opacity-40 mb-1 ml-1">{t('form_conditions')}</p>
+                          <div className="p-3 bg-purple-600/10 border border-purple-500/10 rounded-xl text-xs font-bold text-[var(--brand-text)] shadow-sm">
                              {activePet.padecimientos || t('form_none')}
                           </div>
                        </div>
@@ -162,20 +302,6 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                       </div>
                     )}
                  </section>
-
-                 {/* Sección: Vacunas */}
-                 <section className="pb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] mb-3 ml-2 italic opacity-80">{t('form_vaccines')}</h3>
-                    <div className="grid grid-cols-1 gap-2">
-                       <div className="p-4 bg-[var(--brand-surface)] rounded-2xl border border-[var(--brand-primary)]/10 flex justify-between items-center italic shadow-sm hover:scale-[1.02] transition-transform">
-                          <div className="flex items-center gap-3">
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                            <span className="text-xs font-black text-[var(--brand-text)]">{t('form_rabies')}</span>
-                          </div>
-                          <span className="text-[9px] font-bold opacity-40 uppercase">{t('form_january')} 2026</span>
-                       </div>
-                    </div>
-                 </section>
               </div>
 
               <div className="pt-6 shrink-0">
@@ -185,24 +311,71 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
         </div>
       )}
 
+      {/* Modal Historial de Vacuna Específica */}
+      {selectedVaccineGroup && (
+         <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-sm p-7 shadow-2xl border-4 border-purple-500/20 animate-in zoom-in-95 duration-300">
+               <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-xl font-black text-purple-600 italic tracking-tighter leading-none">{selectedVaccineGroup.name}</h3>
+                    <p className="text-[9px] font-black uppercase text-[var(--brand-text)] opacity-40 mt-1 tracking-widest">{t('form_vac_history')}</p>
+                  </div>
+                  <button onClick={() => setSelectedVaccineGroup(null)} className="p-1.5 rounded-full hover:bg-black/5 transition-colors">
+                     <CloseIcon />
+                  </button>
+               </div>
+
+               <div className="space-y-4 mb-8">
+                  {selectedVaccineGroup.records.map((rec, i) => (
+                    <div key={i} className="flex items-start gap-4 relative">
+                       <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-purple-200'}`}></div>
+                          {i !== selectedVaccineGroup.records.length - 1 && <div className="w-0.5 h-12 bg-purple-100"></div>}
+                       </div>
+                       <div className="text-left flex-1 pb-4">
+                          <p className={`text-xs font-black ${i === 0 ? 'text-[var(--brand-text)]' : 'text-[var(--brand-text)] opacity-40'}`}>{t('form_vac_applied')} {formatLocalDate(rec.fechaAplicacion, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                          {rec.proximaDosis && (
+                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">✨ {t('form_vac_next')}: {formatLocalDate(rec.proximaDosis, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                          )}
+                       </div>
+                    </div>
+                  ))}
+               </div>
+
+               <div className="space-y-3">
+                  <button 
+                    onClick={() => handleAddDoseFromHistory(selectedVaccineGroup.name)}
+                    className="w-full py-4 bg-purple-600 text-white font-black rounded-2xl shadow-lg hover:bg-purple-700 transition-all uppercase tracking-widest text-[10px] active:scale-95"
+                  >
+                    + Registrar nueva dosis
+                  </button>
+                  <button onClick={() => setSelectedVaccineGroup(null)} className="w-full py-3 bg-[var(--brand-surface-muted)] text-[var(--brand-text)] font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-black/5 transition-all">{t('profile_back')}</button>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {/* Lightbox para ver fotos de la cartilla en grande */}
+      {selectedPhoto && (
+        <div className="fixed inset-0 bg-black/95 z-[20000] flex items-center justify-center p-4 animate-in fade-in duration-300" onClick={() => setSelectedPhoto(null)}>
+           <button className="absolute top-10 right-10 text-white/60 hover:text-white p-2">
+              <CloseIcon />
+           </button>
+           <img 
+             src={`http://localhost:3000/uploads/${selectedPhoto}`} 
+             alt="Zoom Cartilla" 
+             className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-500" 
+           />
+        </div>
+      )}
+
       {isEditCartillaOpen && (
         <EditCartillaModal 
           isOpen={isEditCartillaOpen}
-          onClose={() => setIsEditCartillaOpen(false)}
+          onClose={handleCloseEdit}
           pet={activePet}
-          onSave={async (formData) => {
-             const token = localStorage.getItem('token');
-             try {
-               const res = await fetch(`/api/mascotas/${activePet.id}`, {
-                 method: "PUT",
-                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                 body: JSON.stringify(formData)
-               });
-               if (res.ok) onPetUpdated();
-             } catch (err) {
-               console.error("Error updating cartilla:", err);
-             }
-          }}
+          onSave={() => onPetUpdated(false)}
+          prefillVaccineName={prefillVaccine}
         />
       )}
     </div>

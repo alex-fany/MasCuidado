@@ -4,9 +4,9 @@ const prisma = require('../config/prisma');
 exports.createMascota = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares } = req.body;
+    const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares, padecimientos, medicamentos } = req.body;
 
-    // Si hay un archivo subido por multer, guardamos su nombre
+    // Si hay un archivo subido, guardamos su nombre
     const imagen = req.file ? req.file.filename : null;
 
     const mascota = await prisma.Mascota.create({
@@ -19,6 +19,8 @@ exports.createMascota = async (req, res) => {
         genero,
         color,
         senasParticulares,
+        padecimientos,
+        medicamentos,
         imagen, // Guardamos la referencia de la imagen
         usuarioId: userId
       }
@@ -40,7 +42,8 @@ exports.getMascotas = async (req, res) => {
       include: {
         especie: true,
         mascotaVirtual: true,
-        clinicasFavoritas: true
+        clinicasFavoritas: true,
+        vacunas: true
       },
       orderBy: { creadoEn: 'desc' }
     });
@@ -81,29 +84,107 @@ exports.getMascotaById = async (req, res) => {
 exports.updateMascota = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares } = req.body;
+    const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares, padecimientos, medicamentos, vacunas } = req.body;
 
     const data = {
       nombre,
       tipo,
       raza,
-      edad: edad ? parseInt(edad) : undefined,
-      peso: peso ? parseFloat(peso) : undefined,
+      edad: edad !== undefined ? (edad === "" ? null : parseInt(edad)) : undefined,
+      peso: peso !== undefined ? (peso === "" ? null : parseFloat(peso)) : undefined,
       genero,
       color,
-      senasParticulares
+      senasParticulares,
+      padecimientos,
+      medicamentos
     };
 
-    if (req.file) {
-      data.imagen = req.file.filename;
+    // Manejar archivos (imagen principal y fotos de cartilla)
+    if (req.files) {
+      if (req.files.imagen) {
+        data.imagen = req.files.imagen[0].filename;
+      }
+      if (req.files.fotosCartilla) {
+        // Obtener fotos actuales para no perderlas o reemplazarlas
+        const currentPet = await prisma.Mascota.findUnique({ where: { id } });
+        const existingPhotos = Array.isArray(currentPet.fotosCartilla) ? currentPet.fotosCartilla : [];
+        const newPhotos = req.files.fotosCartilla.map(f => f.filename);
+        data.fotosCartilla = [...existingPhotos, ...newPhotos];
+      }
     }
 
+    // Actualizar Mascota
     const mascota = await prisma.Mascota.update({
       where: { id },
-      data
+      data,
+      include: { vacunas: true }
     });
 
-    res.json(mascota);
+    // Manejar Vacunas de forma atómica con transacciones
+    if (vacunas) {
+      const parsedVacunas = JSON.parse(vacunas);
+      
+      // Filtrar duplicados en la misma fecha para la misma vacuna
+      const uniqueVacunasMap = new Map();
+      parsedVacunas.forEach(v => {
+        const dateKey = v.fecha ? v.fecha.split('T')[0] : 'no-date';
+        const key = `${v.nombre.toLowerCase().trim()}-${dateKey}`;
+        if (!uniqueVacunasMap.has(key)) {
+          uniqueVacunasMap.set(key, v);
+        }
+      });
+      
+      const uniqueVacunasList = Array.from(uniqueVacunasMap.values());
+
+      // Agrupar por nombre para asignar 'proximaDosis' solo a la más reciente
+      const groupsByName = {};
+      uniqueVacunasList.forEach(v => {
+        const name = v.nombre.toLowerCase().trim();
+        if (!groupsByName[name]) groupsByName[name] = [];
+        groupsByName[name].push(v);
+      });
+
+      const finalVacunasToInsert = [];
+      Object.keys(groupsByName).forEach(name => {
+        const doses = groupsByName[name];
+        // Ordenar por fecha descendente
+        doses.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        
+        doses.forEach((dose, idx) => {
+          const appliedDate = dose.fecha ? new Date(dose.fecha) : new Date();
+          // Solo la primera lleva la fecha de próximo refuerzo
+          const nextDate = (idx === 0 && dose.proxima) ? new Date(dose.proxima) : null;
+
+          finalVacunasToInsert.push({
+            mascotaId: id,
+            nombreVacuna: dose.nombre || 'Vacuna',
+            fechaAplicacion: isNaN(appliedDate.getTime()) ? new Date() : appliedDate,
+            proximaDosis: nextDate && !isNaN(nextDate.getTime()) ? nextDate : null
+          });
+        });
+      });
+      
+      const vaccineOperations = [
+        prisma.Vacuna.deleteMany({ where: { mascotaId: id } })
+      ];
+
+      if (finalVacunasToInsert.length > 0) {
+        vaccineOperations.push(
+          prisma.Vacuna.createMany({
+            data: finalVacunasToInsert
+          })
+        );
+      }
+      
+      await prisma.$transaction(vaccineOperations);
+    }
+
+    const updatedMascota = await prisma.Mascota.findUnique({
+      where: { id },
+      include: { vacunas: true, clinicasFavoritas: true }
+    });
+
+    res.json(updatedMascota);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });

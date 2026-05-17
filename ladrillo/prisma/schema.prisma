@@ -69,6 +69,9 @@ model Mascota {
   edad              Int?              @map("edad")
   imagen            String?           @map("imagen")
   raza              String?           @map("raza") @db.VarChar(100)
+  padecimientos     String?           @map("padecimientos")
+  medicamentos      String?           @map("medicamentos")
+  fotosCartilla     Json?             @map("fotos_cartilla")
   clinicasFavoritas ClinicaFavorita[]
   historialMedico   HistorialMedico[]
   especie           CatalogoEspecie?  @relation(fields: [especieId], references: [id], onDelete: NoAction, onUpdate: NoAction)

@@ -111,7 +111,7 @@ body {
 .text-brand-text { color: var(--brand-text); }
 .border-brand { border-color: var(--brand-border); }
 
-/* Custom scrollbar */
+/* Scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -175,4 +175,14 @@ body {
 
 .group:hover .animate-spin-slow {
   animation-play-state: paused;
+}
+
+/* Animación de Brillo */
+@keyframes glow-new-item {
+  0% { background-color: rgba(147, 51, 234, 0.4); opacity: 0.8; box-shadow: 0 0 20px rgba(147, 51, 234, 0.4); }
+  100% { background-color: transparent; opacity: 1; box-shadow: 0 0 0 transparent; }
+}
+
+.animate-glow-new {
+  animation: glow-new-item 1.5s ease-out forwards;
 }

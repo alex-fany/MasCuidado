@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ClockIcon, ArrowLeftIcon, ArrowRightIcon, GoogleCalendarBrandIcon, CloseIcon } from '../common/Icons';
 import AddReminderModal from '../layout/AddReminderModal';
+import EditCartillaModal from '../layout/EditCartillaModal';
 import { useSettings } from '../../context/SettingsContext';
 
-export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal }) {
+export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal, onPetUpdated }) {
   const { t, language } = useSettings();
   const [currentDate, setCurrentMonth] = useState(new Date());
   const today = new Date();
@@ -12,6 +13,11 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [editingReminder, setEditingReminder] = useState(null);
+
+  const [selectedVaccineGroup, setSelectedVaccineGroup] = useState(null);
+  const [isEditCartillaOpen, setIsEditCartillaOpen] = useState(false);
+  const [prefillVaccine, setPrefillVaccine] = useState(null);
+  const [petForCartilla, setPetForCartilla] = useState(null);
 
   const fetchReminders = useCallback(async (toastType = null) => {
     setLoading(true);
@@ -35,6 +41,59 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
   useEffect(() => {
     fetchReminders();
   }, [fetchReminders]);
+
+  // Helper para normalizar fechas
+  const normalizeDate = (dateString) => {
+    const d = new Date(dateString);
+    const userTimezoneOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() + userTimezoneOffset);
+  };
+
+  // Unificación de eventos
+  const allEvents = useMemo(() => {
+    const events = [];
+
+    // Añadir Recordatorios
+    reminders.forEach(r => {
+      events.push({
+        id: `rem-${r.id}`,
+        titulo: r.titulo,
+        fecha: normalizeDate(r.fechaHora),
+        type: 'reminder',
+        pet: r.mascota,
+        originalData: r
+      });
+    });
+
+    // Añadir Vacunas de todos los pets registrados
+    pets.forEach(pet => {
+      pet.vacunas?.forEach(v => {
+        // Dosis Pasada
+        events.push({
+          id: `vac-past-${v.id}`,
+          titulo: `${language === 'en' ? 'Applied' : language === 'pt' ? 'Aplicada' : 'Aplicada'}: ${v.nombreVacuna}`,
+          fecha: normalizeDate(v.fechaAplicacion),
+          type: 'vaccine_past',
+          vaccineName: v.nombreVacuna,
+          pet: pet
+        });
+
+        // Refuerzo Futuro (si existe)
+        if (v.proximaDosis) {
+          events.push({
+            id: `vac-future-${v.id}`,
+            titulo: `${t('form_vac_next_reinf')}: ${v.nombreVacuna}`,
+            fecha: normalizeDate(v.proximaDosis),
+            type: 'vaccine_future',
+            vaccineName: v.nombreVacuna,
+            pet: pet
+          });
+        }
+      });
+    });
+
+    return events;
+  }, [reminders, pets, t, language]);
 
   const monthNames = language === 'en' 
     ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -60,24 +119,35 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
   const prevMonth = () => setCurrentMonth(new Date(currentYear, currentMonth - 1));
   const nextMonth = () => setCurrentMonth(new Date(currentYear, currentMonth + 1));
 
-  const selectedDayReminders = reminders.filter(r => {
-    const rDate = new Date(r.fechaHora);
-    return rDate.getDate() === selectedDate.getDate() && 
-           rDate.getMonth() === selectedDate.getMonth() && 
-           rDate.getFullYear() === selectedDate.getFullYear();
-  });
+  const selectedDayEvents = allEvents.filter(e => {
+    return e.fecha.getDate() === selectedDate.getDate() && 
+           e.fecha.getMonth() === selectedDate.getMonth() && 
+           e.fecha.getFullYear() === selectedDate.getFullYear();
+  }).sort((a, b) => a.fecha - b.fecha);
 
   const totalCells = firstDayOfMonth + daysInMonth;
   const rowCount = Math.ceil(totalCells / 7);
 
-  const handleEditReminder = (rem) => {
-    setEditingReminder(rem);
-    setIsAddModalOpen(true);
+  const handleEventClick = (event) => {
+    if (event.type === 'reminder') {
+      setEditingReminder(event.originalData);
+      setIsAddModalOpen(true);
+    } else if (event.type.startsWith('vaccine')) {
+      const records = event.pet.vacunas.filter(v => v.nombreVacuna === event.vaccineName).sort((a, b) => new Date(b.fechaAplicacion) - new Date(a.fechaAplicacion));
+      setPetForCartilla(event.pet);
+      setSelectedVaccineGroup({ name: event.vaccineName, records });
+    }
   };
 
   const handleCloseModal = () => {
     setIsAddModalOpen(false);
     setEditingReminder(null);
+  };
+
+  const handleAddDoseFromHistory = (vaccineName) => {
+    setPrefillVaccine(vaccineName);
+    setSelectedVaccineGroup(null);
+    setIsEditCartillaOpen(true);
   };
 
   const dateLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
@@ -114,14 +184,21 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
               const dateObj = new Date(currentYear, currentMonth, d);
               const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
               const isSelected = d === selectedDate.getDate() && currentMonth === selectedDate.getMonth() && currentYear === selectedDate.getFullYear();
-              const hasReminders = reminders.some(r => {
-                const rDate = new Date(r.fechaHora);
-                return rDate.getDate() === d && rDate.getMonth() === currentMonth && rDate.getFullYear() === currentYear;
-              });
+              
+              const dayEvents = allEvents.filter(e => 
+                e.fecha.getDate() === d && e.fecha.getMonth() === currentMonth && e.fecha.getFullYear() === currentYear
+              );
+
               return (
                 <button key={d} onClick={() => setSelectedDate(dateObj)} className={`w-full h-full rounded-xl lg:rounded-2xl flex flex-col items-center justify-center relative transition-all duration-300 text-xs font-black ${isSelected ? 'bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] shadow-lg scale-105 z-10 border-2 border-[var(--brand-border-strong)]' : isToday ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] ring-1 ring-[var(--brand-primary)] shadow-sm' : 'text-[var(--brand-text)] opacity-70 hover:opacity-100 hover:bg-[var(--brand-surface)] hover:text-[var(--brand-primary)] hover:scale-105 bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/10'}`}>
                   {d}
-                  {hasReminders && <span className={`absolute bottom-1.5 lg:bottom-2 w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />}
+                  {dayEvents.length > 0 && (
+                    <div className="absolute bottom-1.5 lg:bottom-2 flex gap-0.5">
+                       {dayEvents.map((e, idx) => (
+                         <span key={idx} className={`w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : e.type.startsWith('vaccine') ? 'bg-purple-500' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />
+                       ))}
+                    </div>
+                  )}
                 </button>
               );
             })}
@@ -141,21 +218,23 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
             </div>
             
             <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-2.5 pb-4 px-1 overflow-x-visible min-h-0">
-              {selectedDayReminders.length > 0 ? (
-                selectedDayReminders.map(rem => (
-                  <div key={rem.id} onClick={() => handleEditReminder(rem)} className="bg-[var(--brand-surface)]/80 backdrop-blur-sm p-3 rounded-[1.8rem] border border-[var(--brand-primary)]/10 flex items-center gap-3.5 transition-all duration-300 group shadow-sm hover:shadow-[inset_0_0_0_2px_rgba(45,155,150,0.2)] hover:bg-[var(--brand-surface)] cursor-pointer relative shrink-0">
-                    <div className="w-9 h-9 bg-[var(--brand-surface-muted)] rounded-[1.1rem] flex items-center justify-center overflow-hidden text-lg shadow-inner border border-[var(--brand-primary)]/10 shrink-0 group-hover:bg-[var(--brand-primary)]/10 transition-colors">
-                      {rem.mascota?.imagen ? <img src={`http://localhost:3000/uploads/${rem.mascota.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{rem.mascota?.tipo === 'Perro' ? '🐶' : rem.mascota?.tipo === 'Gato' ? '🐱' : '🐾'}</span>}
+              {selectedDayEvents.length > 0 ? (
+                selectedDayEvents.map(event => (
+                  <div key={event.id} onClick={() => handleEventClick(event)} className={`p-3 rounded-[1.8rem] border flex items-center gap-3.5 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
+                    <div className={`w-9 h-9 rounded-[1.1rem] flex items-center justify-center overflow-hidden text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
+                      {event.pet?.imagen ? <img src={`http://localhost:3000/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between gap-1.5">
-                        <p className="font-black text-[var(--brand-text)] text-sm leading-tight truncate group-hover:text-[var(--brand-primary)] transition-colors">{rem.titulo}</p>
+                        <p className={`font-black text-sm leading-tight truncate transition-colors ${event.type.startsWith('vaccine') ? 'text-purple-700' : 'text-[var(--brand-text)] group-hover:text-[var(--brand-primary)]'}`}>{event.titulo}</p>
                         <div className="flex items-center gap-1 shrink-0">
-                          {rem.idEventoGoogle && <GoogleCalendarBrandIcon />}
-                          <span className="text-[var(--brand-primary)] font-black text-[7px] uppercase tracking-tighter opacity-60">{new Date(rem.fechaHora).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}</span>
+                          {event.type === 'reminder' && event.originalData.idEventoGoogle && <GoogleCalendarBrandIcon />}
+                          <span className={`font-black text-[7px] uppercase tracking-tighter opacity-60 ${event.type.startsWith('vaccine') ? 'text-purple-600' : 'text-[var(--brand-primary)]'}`}>
+                             {event.type.startsWith('vaccine') ? '💉' : new Date(event.originalData?.fechaHora || event.fecha).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                         </div>
                       </div>
-                      <p className="text-[8px] font-bold text-[var(--brand-primary)]/50 uppercase tracking-widest italic">{rem.mascota?.nombre}</p>
+                      <p className={`text-[9px] font-black uppercase tracking-widest italic ${event.type.startsWith('vaccine') ? 'text-purple-600 opacity-80' : 'text-[var(--brand-primary)] opacity-80'}`}>{event.pet?.nombre}</p>
                     </div>
                   </div>
                 ))
@@ -194,6 +273,62 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
         editReminder={editingReminder}
         activePetId={activePet?.id}
       />
+
+      {/* Modal Historial de Vacuna Específica */}
+      {selectedVaccineGroup && (
+         <div className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/40 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-sm p-7 shadow-2xl border-4 border-purple-500/20 animate-in zoom-in-95 duration-300">
+               <div className="flex justify-between items-center mb-6">
+                  <div>
+                    <h3 className="text-xl font-black text-purple-600 italic tracking-tighter leading-none">{selectedVaccineGroup.name}</h3>
+                    <p className="text-[9px] font-black uppercase text-[var(--brand-text)] opacity-40 mt-1 tracking-widest">{t('form_vac_history')}</p>
+                  </div>
+                  <button onClick={() => setSelectedVaccineGroup(null)} className="p-1.5 rounded-full hover:bg-black/5 transition-colors">
+                     <CloseIcon />
+                  </button>
+               </div>
+
+               <div className="space-y-4 mb-8">
+                  {selectedVaccineGroup.records.map((rec, i) => (
+                    <div key={i} className="flex items-start gap-4 relative">
+                       <div className="flex flex-col items-center">
+                          <div className={`w-3 h-3 rounded-full ${i === 0 ? 'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]' : 'bg-purple-200'}`}></div>
+                          {i !== selectedVaccineGroup.records.length - 1 && <div className="w-0.5 h-12 bg-purple-100"></div>}
+                       </div>
+                       <div className="text-left flex-1 pb-4">
+                          <p className={`text-xs font-black ${i === 0 ? 'text-[var(--brand-text)]' : 'text-[var(--brand-text)] opacity-40'}`}>
+                             {t('form_vac_applied')} {new Date(rec.fechaAplicacion).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </p>
+                          {rec.proximaDosis && (
+                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">✨ {t('form_vac_next')}: {new Date(rec.proximaDosis).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                          )}
+                       </div>
+                    </div>
+                  ))}
+               </div>
+
+               <div className="space-y-3">
+                  <button 
+                    onClick={() => handleAddDoseFromHistory(selectedVaccineGroup.name)}
+                    className="w-full py-4 bg-purple-600 text-white font-black rounded-2xl shadow-lg hover:bg-purple-700 transition-all uppercase tracking-widest text-[10px] active:scale-95"
+                  >
+                    + Registrar nueva dosis
+                  </button>
+                  <button onClick={() => setSelectedVaccineGroup(null)} className="w-full py-3 bg-[var(--brand-surface-muted)] text-[var(--brand-text)] font-black rounded-2xl text-[10px] uppercase tracking-widest hover:bg-black/5 transition-all">{t('profile_back')}</button>
+               </div>
+            </div>
+         </div>
+      )}
+
+      {isEditCartillaOpen && (
+        <EditCartillaModal 
+          isOpen={isEditCartillaOpen}
+          onClose={() => { setIsEditCartillaOpen(false); setPrefillVaccine(null); }}
+          pet={petForCartilla}
+          onSave={() => onPetUpdated(false)}
+          prefillVaccineName={prefillVaccine}
+        />
+      )}
     </section>
   );
 }

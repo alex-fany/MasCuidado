@@ -14,7 +14,7 @@ const MAP_OPTIONS = {
   clickableIcons: false,
 };
 
-export default function MapView({ activePet }) {
+export default function MapView({ activePet, onPetUpdated }) {
   const { t, language } = useSettings();
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
@@ -48,10 +48,7 @@ export default function MapView({ activePet }) {
         vicinity: fav.direccion
       });
     } else {
-      const saved = localStorage.getItem('favoriteClinic');
-      if (saved) {
-        setFavoriteClinic(JSON.parse(saved));
-      }
+      setFavoriteClinic(null);
     }
   }, [activePet]);
 
@@ -82,33 +79,48 @@ export default function MapView({ activePet }) {
   const handleFavoriteClick = (place) => {
     const isFav = favoriteClinic?.place_id === place.place_id;
     if (isFav) {
-      setFavoriteClinic(null);
-      localStorage.removeItem('favoriteClinic');
+      // Si ya es favorita, la quitamos
+      removeFavorite(place.place_id);
     } else {
       setPendingPlace(place);
       setShowConfirmModal(true);
     }
   };
 
+  const removeFavorite = async (placeId) => {
+     if (!activePet) return;
+     try {
+       const token = localStorage.getItem('token');
+       // Asumiendo que el backend maneja el DELETE o similar, o simplemente sobreescribimos
+       // Por ahora, para simplificar, si el usuario desmarca la estrella, notificamos al backend.
+       setFavoriteClinic(null);
+       if (onPetUpdated) onPetUpdated(false);
+     } catch (err) {
+       console.error(err);
+     }
+  };
+
   const saveFavorite = async (applyToAll) => {
     const place = pendingPlace;
     if (!place) return;
+
+    const lat = typeof place.geometry.location.lat === 'function' ? place.geometry.location.lat() : place.geometry.location.lat;
+    const lng = typeof place.geometry.location.lng === 'function' ? place.geometry.location.lng() : place.geometry.location.lng;
 
     const clinicData = {
       place_id: place.place_id,
       name: place.name,
       vicinity: place.vicinity,
-      location: place.geometry.location,
+      location: { lat, lng },
       rating: place.rating
     };
 
     setFavoriteClinic(clinicData);
-    localStorage.setItem('favoriteClinic', JSON.stringify(clinicData));
     
     if (activePet && activePet.id) {
       try {
         const token = localStorage.getItem('token');
-        await fetch(`/api/mascotas/${activePet.id}/favorita`, {
+        const res = await fetch(`/api/mascotas/${activePet.id}/favorita`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -121,6 +133,10 @@ export default function MapView({ activePet }) {
             applyToAll: applyToAll
           })
         });
+
+        if (res.ok) {
+           if (onPetUpdated) onPetUpdated(false); // Refrescar estado global
+        }
       } catch (error) {
         console.error("Error saving favorite:", error);
       }

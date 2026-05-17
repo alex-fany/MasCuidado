@@ -1,6 +1,6 @@
-export default function Input({ label, name, type = "text", placeholder, value, onChange, required = false, error = false, disabled = false }) {
+export default function Input({ label, name, type = "text", placeholder, value, onChange, required = false, error = false, disabled = false, className = "", maxLength }) {
   return (
-    <div className="flex flex-col gap-1.5 w-full group">
+    <div className={`flex flex-col gap-1.5 w-full group ${className}`}>
       {label && (
         <label className={`text-[10px] font-black uppercase italic ml-2 transition-colors duration-300 ${error ? 'text-red-500' : 'text-[var(--brand-primary)] group-focus-within:opacity-100 opacity-70'}`}>
           {label}
@@ -14,6 +14,7 @@ export default function Input({ label, name, type = "text", placeholder, value, 
         onChange={onChange}
         required={required}
         disabled={disabled}
+        maxLength={maxLength}
         className={`
           w-full px-5 py-3.5 rounded-2xl border-2 bg-[var(--brand-surface-muted)]
           text-[var(--brand-text)] font-bold placeholder:text-[var(--brand-text)]/30

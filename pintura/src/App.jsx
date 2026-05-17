@@ -67,7 +67,7 @@ export default function App() {
     }
   }, [t]);
 
-  const fetchPets = useCallback(async (authToken, toastType = null) => {
+  const fetchPets = useCallback(async (authToken, actionType = null, showGeneralToast = true) => {
     if (!authToken) return;
     setLoadingPets(true);
     try {
@@ -84,12 +84,15 @@ export default function App() {
         }));
         setPets(mapped);
         
-        if (mapped.length > 0 && (!activePetId || toastType === 'registered')) {
+        if (mapped.length > 0 && (!activePetId || actionType === 'registered')) {
            setActivePetId(mapped[0].id);
         }
         
-        if (toastType === 'registered') showToast(t('toast_pet_registered'));
-        if (toastType === 'updated') showToast(t('toast_pet_updated'));
+        // Solo mostrar toast general si no se indica lo contrario
+        if (showGeneralToast) {
+          if (actionType === 'registered') showToast(t('toast_pet_registered'));
+          if (actionType === 'updated') showToast(t('toast_pet_updated'));
+        }
 
       }
     } catch (error) {
@@ -164,11 +167,11 @@ export default function App() {
 
           <main className="flex-1 w-full overflow-hidden relative flex flex-col">
             {currentView === 'home' && (
-              <HomeView activePet={activePet} reminders={reminders} onPetUpdated={() => fetchPets(token, 'updated')} />
+              <HomeView activePet={activePet} reminders={reminders} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />
             )}
             
-            {currentView === 'map' && <MapView activePet={activePet} />}
-            {currentView === 'calendar' && <CalendarView activePet={activePet} pets={pets} onRefreshRemindersGlobal={(type) => fetchReminders(token, type)} />}
+            {currentView === 'map' && <MapView activePet={activePet} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />}
+            {currentView === 'calendar' && <CalendarView activePet={activePet} pets={pets} onRefreshRemindersGlobal={(type) => fetchReminders(token, type)} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />}
             {currentView === 'profile' && <ProfileView onLogout={handleLogout} onEditPet={handleEditPetGlobal} pets={pets} />}
             {currentView === 'logros' && <AchievementsView user={user} pets={pets} reminders={reminders} />}
           </main>
