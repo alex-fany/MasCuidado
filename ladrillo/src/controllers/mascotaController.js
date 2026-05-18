@@ -42,7 +42,12 @@ exports.getMascotas = async (req, res) => {
       include: {
         especie: true,
         clinicasFavoritas: true,
-        vacunas: true
+        vacunas: true,
+        nutricionConfig: true,
+        inventariosAlimento: {
+            where: { estado: 'Activo' },
+            include: { compartidoCon: true }
+        }
       },
       orderBy: { creadoEn: 'desc' }
     });

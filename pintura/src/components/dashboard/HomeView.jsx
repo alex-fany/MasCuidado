@@ -5,6 +5,8 @@ import { CloseIcon, CheckIcon } from '../common/Icons';
 import EditCartillaModal from '../layout/EditCartillaModal';
 import NutricionModal from '../layout/NutricionModal';
 import { useSettings } from '../../context/SettingsContext';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import PetRecordPDF from '../layout/PetRecordPDF';
 
 export default function HomeView({ activePet, reminders, onPetUpdated }) {
   const { t, language } = useSettings();
@@ -215,9 +217,19 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
              className="bg-[var(--brand-modal-bg)] rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[var(--brand-border-strong)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300 overflow-hidden"
              style={{ background: 'var(--brand-modal-gradient)' }}
            >
-              <button onClick={() => setIsCartillaOpen(false)} className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-2 rounded-full shadow-sm">
-                <CloseIcon />
-              </button>
+              <div className="absolute top-8 right-8 flex items-center gap-3 z-50">
+                <PDFDownloadLink 
+                  document={<PetRecordPDF pet={activePet} t={t} language={language} />} 
+                  fileName={`Cartilla_${activePet?.nombre || 'Mascota'}.pdf`}
+                  className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-full border-2 border-emerald-500/20 text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm"
+                >
+                  {({ loading }) => (loading ? '...' : `📄 ${t('form_export_pdf')}`)}
+                </PDFDownloadLink>
+
+                <button onClick={() => setIsCartillaOpen(false)} className="hover:scale-110 active:scale-90 transition-transform duration-200 bg-[var(--brand-surface-muted)] p-2 rounded-full shadow-sm">
+                  <CloseIcon />
+                </button>
+              </div>
               
               <div className="flex items-center gap-4 mb-8 text-left shrink-0">
                 <div className="w-20 h-20 rounded-3xl bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/20 flex items-center justify-center text-4xl shadow-inner">

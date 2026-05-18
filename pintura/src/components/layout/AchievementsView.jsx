@@ -1,196 +1,228 @@
-import React, { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { TrophyIcon, CheckIcon, StarIcon, ShieldIcon, CalendarIcon } from '../common/Icons';
+import React, { useMemo, useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TrophyIcon, CheckIcon, StarIcon, ShieldIcon, CalendarIcon, FoodBowlIcon } from '../common/Icons';
 import { useSettings } from '../../context/SettingsContext';
+
+// Fondo
+const FloatingOrb = ({ color, size, duration, delay }) => (
+  <motion.div
+    animate={{
+      y: [0, -40, 0],
+      x: [0, 20, 0],
+      scale: [1, 1.1, 1],
+      opacity: [0.05, 0.1, 0.05]
+    }}
+    transition={{ duration, repeat: Infinity, delay, ease: "easeInOut" }}
+    style={{
+      position: 'absolute',
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+      filter: 'blur(30px)',
+      zIndex: 0,
+      pointerEvents: 'none'
+    }}
+  />
+);
 
 export default function AchievementsView({ user, pets, reminders }) {
   const { t, language } = useSettings();
-  
-  // Lógica de las misiones
-  const missions = useMemo(() => [
+  const [displayXP, setDisplayXP] = useState(0);
+
+  // Utilidad interna para lógica de peso
+  const factor = { 'g': 1, 'kg': 1000, 'oz': 28.3495, 'lb': 453.592, 't': 1000000 };
+
+  const achievements = useMemo(() => [
+    // Fundamentos
     {
-      id: 1,
-      title: language === 'en' ? "First Friend" : language === 'pt' ? "Primeiro Amigo" : "Primer Amigo",
-      desc: language === 'en' ? "Register your first pet in the system." : language === 'pt' ? "Registre seu primeiro pet no sistema." : "Registra tu primera mascota en el sistema.",
-      completed: pets.length > 0,
-      reward: language === 'en' ? "Initiator" : language === 'pt' ? "Iniciador" : "Iniciador",
-      icon: "🐾"
+      id: 1, tier: 'bronze', category: 'essentials',
+      title: { es: "Primer Amigo", en: "First Friend", pt: "Primeiro Amigo" },
+      desc: { es: "Registra tu primera mascota.", en: "Register your first pet.", pt: "Registre seu primeiro pet." },
+      completed: pets.length > 0, icon: "🐾", points: 100, color: "from-orange-400 to-orange-700"
     },
     {
-      id: 2,
-      title: language === 'en' ? "Elite Profile" : language === 'pt' ? "Perfil de Elite" : "Perfil de Élite",
-      desc: language === 'en' ? "Complete your name and visual identity." : language === 'pt' ? "Complete seu nome e identidade visual." : "Completa tu nombre e identidad visual.",
-      completed: !!(user?.nombreCompleto || user?.nombre_completo) && !!user?.imagen,
-      reward: language === 'en' ? "Top Citizen" : language === 'pt' ? "Cidadão Exemplar" : "Ciudadano Ejemplar",
-      icon: "👤"
+      id: 2, tier: 'silver', category: 'essentials',
+      title: { es: "Líder de Manada", en: "Pack Leader", pt: "Líder da Matilha" },
+      desc: { es: "Gestiona a 3 o más mascotas.", en: "Manage 3 or more pets.", pt: "Gerencie 3 ou mais animais." },
+      completed: pets.length >= 3, icon: "🐕", points: 250, color: "from-slate-300 to-slate-500"
     },
     {
-      id: 3,
-      title: language === 'en' ? "Expert Organizer" : language === 'pt' ? "Organizador Especialista" : "Organizador Experto",
-      desc: language === 'en' ? "Create at least 3 reminders for your pets." : language === 'pt' ? "Crie pelo menos 3 lembretes para seus pets." : "Crea al menos 3 recordatorios para tus mascotas.",
-      completed: reminders.length >= 3,
-      reward: language === 'en' ? "Golden Agenda" : language === 'pt' ? "Agenda de Ouro" : "Agenda de Oro",
-      icon: "📅"
+      id: 3, tier: 'bronze', category: 'essentials',
+      title: { es: "Perfil Pro", en: "Pro Profile", pt: "Perfil Pro" },
+      desc: { es: "Completa tu nombre e identidad visual.", en: "Complete your name and avatar.", pt: "Complete seu nome e avatar." },
+      completed: !!user?.nombreCompleto && !!user?.imagen, icon: "👤", points: 150, color: "from-orange-400 to-orange-700"
     },
     {
-      id: 4,
-      title: language === 'en' ? "Large Pack" : language === 'pt' ? "Matilha Numerosa" : "Manada Numerosa",
-      desc: language === 'en' ? "Register 3 or more companions." : language === 'pt' ? "Registre 3 ou mais companheiros." : "Registra a 3 o más compañeros.",
-      completed: pets.length >= 3,
-      reward: language === 'en' ? "Pack Leader" : language === 'pt' ? "Líder de Matilha" : "Líder de Manada",
-      icon: "🐕"
+      id: 4, tier: 'bronze', category: 'essentials',
+      title: { es: "Sincronizado", en: "Synced", pt: "Sincronizado" },
+      desc: { es: "Vincula tu cuenta con Google Calendar.", en: "Link your account with Google.", pt: "Vincule sua conta ao Google." },
+      completed: !!user?.googleId, icon: "☁️", points: 200, color: "from-orange-400 to-orange-700"
+    },
+
+    // Salud
+    {
+      id: 5, tier: 'bronze', category: 'health',
+      title: { es: "Escudo Salud", en: "Health Shield", pt: "Escudo Saúde" },
+      desc: { es: "Registra la primera vacuna.", en: "Register your first vaccine.", pt: "Registre sua primeira vacina." },
+      completed: pets.some(p => p.vacunas?.length > 0), icon: "💉", points: 150, color: "from-orange-400 to-orange-700"
     },
     {
-      id: 5,
-      title: language === 'en' ? "Security First" : language === 'pt' ? "Segurança Primeiro" : "Seguridad Primero",
-      desc: language === 'en' ? "Link your account with Google Calendar." : language === 'pt' ? "Vincule sua conta ao Google Calendar." : "Vincula tu cuenta con Google Calendar.",
-      completed: !!user?.googleId,
-      reward: language === 'en' ? "Digital Partner" : language === 'pt' ? "Sócio Digital" : "Socio Digital",
-      icon: "🔐"
+      id: 6, tier: 'bronze', category: 'health',
+      title: { es: "Bibliotecario", en: "Librarian", pt: "Bibliotecário" },
+      desc: { es: "Sube una foto de cartilla física.", en: "Upload a physical record photo.", pt: "Envie uma foto da caderneta." },
+      completed: pets.some(p => p.fotosCartilla && JSON.parse(JSON.stringify(p.fotosCartilla)).length > 0), icon: "📸", points: 150, color: "from-orange-400 to-orange-700"
+    },
+    {
+      id: 7, tier: 'silver', category: 'health',
+      title: { es: "Héroe Clínico", en: "Clinical Hero", pt: "Herói Clínico" },
+      desc: { es: "Registra 3 o más vacunas para una mascota.", en: "Register 3+ vaccines for a pet.", pt: "Registre 3+ vacinas para um pet." },
+      completed: pets.some(p => p.vacunas?.length >= 3), icon: "🩺", points: 300, color: "from-slate-300 to-slate-500"
+    },
+    {
+      id: 8, tier: 'silver', category: 'health',
+      title: { es: "Protector", en: "Protector", pt: "Protetor" },
+      desc: { es: "Agenda un refuerzo futuro de vacuna.", en: "Set a future booster dose.", pt: "Agende um reforço de vacina." },
+      completed: pets.some(p => p.vacunas?.some(v => !!v.proximaDosis)), icon: "🛡️", points: 250, color: "from-slate-300 to-slate-500"
+    },
+
+    // Nutrición
+    {
+      id: 9, tier: 'bronze', category: 'nutrition',
+      title: { es: "Proveedor", en: "Provider", pt: "Fornecedor" },
+      desc: { es: "Registra tu primera compra de alimento.", en: "Register your first food purchase.", pt: "Registre sua primeira compra." },
+      completed: pets.some(p => p.inventariosAlimento?.length > 0), icon: "🥣", points: 150, color: "from-orange-400 to-orange-700"
+    },
+    {
+      id: 10, tier: 'silver', category: 'nutrition',
+      title: { es: "Socio del Cuenco", en: "Bowl Partner", pt: "Sócio da Tigela" },
+      desc: { es: "Crea un grupo de comida compartida.", en: "Create a shared food group.", pt: "Crie um grupo de comida compartilhada." },
+      completed: pets.some(p => p.inventariosAlimento?.some(i => i.compartidoCon?.length > 0)), icon: "🤝", points: 350, color: "from-slate-300 to-slate-500"
+    },
+    {
+      id: 11, tier: 'silver', category: 'nutrition',
+      title: { es: "Reserva Maestro", en: "Master Reserve", pt: "Reserva Mestre" },
+      desc: { es: "Asegura el suministro: registra una compra de 10kg o más.", en: "Secure supply: register a purchase of 10kg or more.", pt: "Garanta o suprimento: registre uma compra de 10kg ou mais." },
+      completed: pets.some(p => p.inventariosAlimento?.some(i => (i.cantidadTotal * (factor[i.unidadMedida] || 1)) >= 10000)), icon: "📦", points: 200, color: "from-slate-300 to-slate-500"
+    },
+    {
+      id: 12, tier: 'silver', category: 'nutrition',
+      title: { es: "Hidratación", en: "Hydration", pt: "Hidratação" },
+      desc: { es: "Establece una meta de agua diaria.", en: "Set a daily water goal.", pt: "Defina uma meta de água." },
+      completed: pets.some(p => p.nutricionConfig?.metaAguaDiaria > 0), icon: "💧", points: 200, color: "from-slate-300 to-slate-500"
+    },
+
+    // Maestría
+    {
+      id: 13, tier: 'gold', category: 'mastery',
+      title: { es: "Expediente Oro", en: "Golden Record", pt: "Prontuário Ouro" },
+      desc: { es: "Completa todos los datos médicos.", en: "Complete all medical fields.", pt: "Complete os dados médicos." },
+      completed: pets.some(p => p.raza && p.edad && p.peso && p.padecimientos && p.medicamentos), icon: "📜", points: 500, color: "from-amber-300 to-amber-600"
+    },
+    {
+      id: 14, tier: 'silver', category: 'mastery',
+      title: { es: "Explorador", en: "Scout", pt: "Explorador" },
+      desc: { es: "Guarda una clínica favorita en el mapa.", en: "Save a favorite clinic on the map.", pt: "Salve uma clínica favorita." },
+      completed: pets.some(p => p.clinicasFavoritas?.length > 0), icon: "🏥", points: 250, color: "from-slate-300 to-slate-500"
+    },
+    {
+      id: 15, tier: 'silver', category: 'mastery',
+      title: { es: "Agenda Maestra", en: "Master Agenda", pt: "Agenda Mestra" },
+      desc: { es: "Mantén 5 recordatorios activos.", en: "Keep 5 active reminders.", pt: "Mantenha 5 lembretes ativos." },
+      completed: reminders.length >= 5, icon: "📅", points: 300, color: "from-slate-300 to-slate-500"
+    },
+    {
+      id: 16, tier: 'gold', category: 'mastery',
+      title: { es: "Planificador", en: "Planner", pt: "Planejador" },
+      desc: { es: "Sincroniza 5 eventos con Google.", en: "Sync 5 events with Google.", pt: "Sincronize 5 eventos no Google." },
+      completed: reminders.filter(r => !!r.idEventoGoogle).length >= 5, icon: "⚡", points: 450, color: "from-amber-300 to-amber-600"
     }
-  ], [user, pets, reminders, language]);
+  ], [user, pets, reminders]);
 
-  const completedCount = missions.filter(m => m.completed).length;
-  const progress = (completedCount / missions.length) * 100;
-  const level = Math.floor(completedCount * 1.5) + 1;
+  const categories = [
+    { id: 'essentials', name: { es: 'Fundamentos', en: 'Essentials', pt: 'Fundamentos' }, icon: <StarIcon /> },
+    { id: 'health', name: { es: 'Salud', en: 'Health', pt: 'Saúde' }, icon: <ShieldIcon /> },
+    { id: 'nutrition', name: { es: 'Nutrición', en: 'Nutrition', pt: 'Nutrição' }, icon: <FoodBowlIcon /> },
+    { id: 'mastery', name: { es: 'Maestría', en: 'Mastery', pt: 'Maestria' }, icon: <TrophyIcon /> }
+  ];
 
-  const CardWrapper = ({ children, className = "" }) => (
-    <div 
-      className={`rounded-[2.5rem] border-4 border-[var(--brand-border-strong)] shadow-xl overflow-hidden flex flex-col ${className}`}
-      style={{ background: 'var(--brand-modal-gradient)' }}
-    >
-      {children}
-    </div>
-  );
+  const completedCount = achievements.filter(a => a.completed).length;
+  const totalPoints = achievements.filter(a => a.completed).reduce((sum, a) => sum + a.points, 0);
+  const progress = (completedCount / achievements.length) * 100;
+
+  useEffect(() => {
+     let start = 0;
+     const end = totalPoints;
+     const timer = setInterval(() => {
+       start += Math.ceil(end / 30);
+       if (start >= end) { setDisplayXP(end); clearInterval(timer); }
+       else setDisplayXP(start);
+     }, 30);
+     return () => clearInterval(timer);
+  }, [totalPoints]);
+  
+  const currentRank = useMemo(() => {
+    if (progress >= 90) return { name: { es: "Protector Legendario", en: "Legendary Protector", pt: "Protetor Lendário" }, color: "from-amber-400 to-orange-600", glow: "shadow-amber-500/40", icon: "👑" };
+    if (progress >= 60) return { name: { es: "Cuidador Élite", en: "Elite Caregiver", pt: "Cuidador Elite" }, color: "from-emerald-400 to-teal-600", glow: "shadow-emerald-500/40", icon: "💎" };
+    if (progress >= 30) return { name: { es: "Cuidador Experto", en: "Expert Caregiver", pt: "Cuidador Experto" }, color: "from-blue-400 to-indigo-600", glow: "shadow-blue-500/40", icon: "🎖️" };
+    return { name: { es: "Iniciado", en: "Novice", pt: "Iniciado" }, color: "from-purple-400 to-pink-600", glow: "shadow-purple-500/40", icon: "🐾" };
+  }, [progress]);
 
   return (
-    <section className="h-full w-full max-w-[1400px] mx-auto flex flex-col px-6 pt-2 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden text-left">
-      
-      {/* Header */}
-      <header className="mb-6 flex justify-between items-end px-2 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-[var(--brand-primary)] flex items-center justify-center text-white shadow-xl rotate-3">
-            <TrophyIcon />
-          </div>
-          <div>
-            <h2 className="text-3xl font-black text-white drop-shadow-md tracking-tighter italic leading-none text-left">{language === 'en' ? 'Achievements & Missions' : language === 'pt' ? 'Conquistas e Missões' : 'Logros y Misiones'}</h2>
-            <p className="text-[var(--brand-accent)] font-black text-[10px] uppercase tracking-[0.3em] mt-1 opacity-90 italic text-left">{language === 'en' ? 'Road to care excellence' : language === 'pt' ? 'Caminho para a excelência no cuidado' : 'Camino a la excelencia en cuidado'}</p>
+    <section className="h-full w-full max-w-[1600px] mx-auto flex flex-col px-10 pt-0 pb-14 animate-in fade-in slide-in-from-bottom-4 duration-1000 overflow-hidden relative text-left">
+      <FloatingOrb color="var(--brand-primary)" size={300} duration={20} delay={0} />
+      <FloatingOrb color="#f59e0b" size={200} duration={25} delay={2} />
+
+      <header className="mb-4 p-5 bg-black/20 backdrop-blur-2xl rounded-[2.5rem] border-2 border-white/10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 relative z-10 overflow-hidden">
+        <div className="flex items-center gap-6 relative z-10">
+          <motion.div whileHover={{ rotate: 10, scale: 1.05 }} className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${currentRank.color} flex items-center justify-center text-3xl shadow-xl ${currentRank.glow} relative`}>
+             <div className="absolute inset-0 rounded-2xl border-2 border-white/20 animate-pulse"></div>
+             {currentRank.icon}
+          </motion.div>
+          <div className="text-left">
+            <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-[0.4em] mb-1 italic opacity-80">{language === 'en' ? 'Honor Status' : 'Estado de Honor'}</p>
+            <h2 className="text-2xl font-black text-white tracking-tighter italic leading-none">{currentRank.name[language] || currentRank.name.es} <span className="text-xs not-italic opacity-20 font-light ml-2">Lvl.{Math.floor(progress/10) + 1}</span></h2>
+            <div className="flex items-center gap-3 mt-3">
+               <div className="px-3 py-1 rounded-xl bg-black/30 border border-white/5"><span className="text-amber-500 font-black text-[9px] italic uppercase tracking-widest">{displayXP} XP</span></div>
+               <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic border-l border-white/10 pl-3">{completedCount}/{achievements.length} {language === 'en' ? 'Unlocked' : 'Desbloqueados'}</span>
+            </div>
           </div>
         </div>
-
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-3">
-             <span className="text-[10px] font-black text-white/60 uppercase tracking-widest">{language === 'en' ? 'Caregiver Level' : language === 'pt' ? 'Nível de Cuidador' : 'Nivel de Cuidador'}</span>
-             <span className="text-4xl font-black text-[var(--brand-primary)] italic leading-none drop-shadow-lg">{level}</span>
-          </div>
-          <div className="w-48 h-2 bg-black/20 rounded-full overflow-hidden border border-white/10 shadow-inner">
-             <motion.div 
-               initial={{ width: 0 }}
-               animate={{ width: `${progress}%` }}
-               className="h-full bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)]"
-             />
-          </div>
+        <div className="flex-1 max-w-lg w-full flex flex-col gap-2 relative z-10">
+           <div className="flex justify-between items-end mb-0.5 px-1"><span className="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">{language === 'en' ? 'Journey Progress' : 'Senda de Maestría'}</span><span className="text-lg font-black text-white italic tracking-widest">{Math.round(progress)}%</span></div>
+           <div className="h-3 bg-black/60 rounded-full overflow-hidden border-2 border-white/5 shadow-inner p-0.5"><motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1.5, ease: "circOut" }} className={`h-full rounded-full bg-gradient-to-r ${currentRank.color} relative shadow-[0_0_15px_rgba(255,255,255,0.2)]`} /></div>
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
-        
-        {/* Lado Izquierdo: Resumen de Progreso */}
-        <div className="lg:col-span-4 flex flex-col gap-6 min-h-0">
-          <CardWrapper className="flex-1 p-8 justify-center items-center text-center">
-            <div className="w-40 h-40 rounded-full border-[12px] border-[var(--brand-primary)]/10 flex items-center justify-center relative mb-6 shadow-inner">
-               <div className="absolute inset-0 rounded-full border-[12px] border-transparent border-t-[var(--brand-primary)] rotate-45"></div>
-               <div className="text-6xl animate-bounce-gentle">🏆</div>
+      <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-8 pb-12 relative z-10 no-scrollbar">
+        {categories.map((cat, catIdx) => (
+          <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: catIdx * 0.05 }} className="space-y-6">
+            <div className="flex items-center gap-4 border-l-4 border-[var(--brand-primary)] pl-4">
+               <div className="text-[var(--brand-primary)] opacity-50 scale-90">{cat.icon}</div>
+               <h3 className="text-lg font-black text-white/80 italic tracking-tight uppercase leading-none">{cat.name[language] || cat.name.es}</h3>
             </div>
-            <h3 className="text-2xl font-black text-[var(--brand-primary)] italic tracking-tight mb-2">{language === 'en' ? 'Great job,' : language === 'pt' ? 'Bom trabalho,' : '¡Gran trabajo,'} {user?.nombreCompleto?.split(' ')[0]}!</h3>
-            <p className="text-[var(--brand-text)] opacity-60 text-xs font-bold leading-relaxed px-4">
-              {language === 'en' ? `You have completed ${completedCount} out of ${missions.length} main missions. Keep caring for your pack to unlock new badges.` : language === 'pt' ? `Você completou ${completedCount} de ${missions.length} missões principais. Continue cuidando de sua matilha para desbloquear novas medalhas.` : `Has completado ${completedCount} de ${missions.length} misiones principales. Sigue cuidando a tu manada para desbloquear nuevas insignias.`}
-            </p>
-            
-            <div className="grid grid-cols-2 gap-3 w-full mt-8">
-               <div className="bg-[var(--brand-surface-muted)] p-4 rounded-2xl border border-[var(--brand-primary)]/5">
-                  <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase">{language === 'en' ? 'Missions' : language === 'pt' ? 'Missões' : 'Misiones'}</p>
-                  <p className="text-xl font-black text-[var(--brand-text)]">{completedCount}/{missions.length}</p>
-               </div>
-               <div className="bg-[var(--brand-surface-muted)] p-4 rounded-2xl border border-[var(--brand-primary)]/5">
-                  <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase">{language === 'en' ? 'Points' : language === 'pt' ? 'Pontos' : 'Puntos'}</p>
-                  <p className="text-xl font-black text-orange-600">{completedCount * 150}</p>
-               </div>
-            </div>
-          </CardWrapper>
-
-          <CardWrapper className="p-6 bg-[var(--brand-primary)]/5 border-dashed border-[var(--brand-primary)]/20">
-             <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-[var(--brand-primary)] flex items-center justify-center text-white"><StarIcon filled /></div>
-                <h4 className="text-[10px] font-black uppercase tracking-widest text-[var(--brand-primary)]">{language === 'en' ? 'Level Benefits' : language === 'pt' ? 'Benefícios de Nível' : 'Beneficios de Nivel'}</h4>
-             </div>
-             <ul className="space-y-3">
-                {[
-                  language === 'en' ? "Increased visibility on map" : language === 'pt' ? "Maior visibilidade no mapa" : "Mayor visibilidad en el mapa",
-                  language === 'en' ? "Priority reminders" : language === 'pt' ? "Lembretes prioritários" : "Recordatorios prioritarios",
-                  language === 'en' ? "Verified Caregiver badge" : language === 'pt' ? "Medalha de Cuidador Verificado" : "Insignia de Cuidador Verificado"
-                ].map((b, i) => (
-                  <li key={i} className="flex items-center gap-2 text-[10px] font-bold text-[var(--brand-text)] opacity-70">
-                    <span className="text-[var(--brand-primary)]">✦</span> {b}
-                  </li>
-                ))}
-             </ul>
-          </CardWrapper>
-        </div>
-
-        {/* Lado Derecho: Lista de Misiones */}
-        <div className="lg:col-span-8 flex flex-col min-h-0">
-          <CardWrapper className="flex-1 p-8">
-            <div className="flex items-center gap-3 mb-8 border-b border-[var(--brand-primary)]/10 pb-4">
-              <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] opacity-80 italic">{language === 'en' ? 'Active Missions' : language === 'pt' ? 'Missões Ativas' : 'Misiones Activas'}</h4>
-            </div>
-
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-4">
-              {missions.map((m) => (
-                <motion.div 
-                  key={m.id}
-                  whileHover={{ scale: 1.01 }}
-                  className={`p-5 rounded-[2rem] border-2 flex items-center justify-between transition-all duration-300 ${
-                    m.completed 
-                      ? 'bg-[var(--brand-primary)]/10 border-[var(--brand-primary)]/20 shadow-md' 
-                      : 'bg-[var(--brand-surface-muted)] border-transparent opacity-60'
-                  }`}
-                >
-                  <div className="flex items-center gap-5">
-                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-inner ${
-                      m.completed ? 'bg-[var(--brand-primary)]/10' : 'bg-white/20'
-                    }`}>
-                      {m.icon}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5">
+               {achievements.filter(a => a.category === cat.id).map((a) => (
+                  <motion.div key={a.id} whileHover={{ y: -5, scale: 1.02 }} className={`relative p-6 rounded-[2.5rem] border-2 transition-all duration-500 flex flex-col items-center text-center group overflow-hidden ${a.completed ? 'bg-white/[0.04] border-white/10 shadow-xl backdrop-blur-sm' : 'bg-black/30 border-transparent opacity-45 grayscale-[80%]'}`}>
+                    {a.completed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer pointer-events-none" />}
+                    <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl mb-5 relative transition-all duration-700 ${a.completed ? `bg-gradient-to-br ${a.color} shadow-lg` : 'bg-white/5'}`}>
+                       {a.completed && <div className={`absolute inset-0 rounded-[1.5rem] blur-xl opacity-30 bg-gradient-to-br ${a.color}`}></div>}
+                       <span className="relative z-10 group-hover:scale-110 transition-transform duration-500">{a.icon}</span>
                     </div>
-                    <div className="text-left space-y-0.5">
-                      <h5 className={`font-black text-base italic leading-tight ${m.completed ? 'text-[var(--brand-primary)]' : 'text-[var(--brand-text)]'}`}>
-                        {m.title}
-                      </h5>
-                      <p className="text-[10px] font-bold text-[var(--brand-text)] opacity-60 leading-relaxed max-w-md">
-                        {m.desc}
-                      </p>
-                      {m.completed && (
-                        <div className="inline-block mt-1 bg-orange-500/10 px-2 py-0.5 rounded text-[8px] font-black text-orange-600 uppercase tracking-tighter">
-                          +{m.reward}
-                        </div>
-                      )}
+                    <h4 className={`text-base font-black italic tracking-tight mb-2 ${a.completed ? 'text-white' : 'text-white/60'}`}>{a.title[language] || a.title.es}</h4>
+                    <p className={`text-xs font-bold leading-relaxed px-2 mb-5 line-clamp-3 ${a.completed ? 'text-white/60' : 'text-white/40'}`}>{a.desc[language] || a.desc.es}</p>
+                    <div className="mt-auto w-full flex items-center justify-between pt-4 border-t border-white/5">
+                       <span className={`text-[10px] font-black italic ${a.completed ? 'text-[var(--brand-primary)]' : 'text-white/20'}`}>+{a.points} XP</span>
+                       {a.completed && <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border border-white/10"><CheckIcon /></div>}
                     </div>
-                  </div>
-
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
-                    m.completed 
-                      ? 'bg-[var(--brand-primary)] border-[var(--brand-primary)] text-white shadow-lg' 
-                      : 'border-[var(--brand-text)]/10'
-                  }`}>
-                    {m.completed ? <CheckIcon /> : <span className="text-xs font-black opacity-20">?</span>}
-                  </div>
-                </motion.div>
-              ))}
+                    <div className={`absolute top-4 right-5 text-[7px] font-black uppercase tracking-widest opacity-20 italic ${a.tier === 'gold' ? 'text-amber-400' : a.tier === 'silver' ? 'text-slate-300' : 'text-orange-500'}`}>{t(`tier_${a.tier}`)}</div>
+                    </motion.div>
+               ))}
             </div>
-          </CardWrapper>
-        </div>
-
+          </motion.div>
+        ))}
       </div>
+      <style dangerouslySetInnerHTML={{ __html: `@keyframes shimmer { 0% { transform: translateX(-200%) rotate(45deg); } 100% { transform: translateX(200%) rotate(45deg); } } .animate-shimmer { animation: shimmer 6s infinite linear; } .custom-scrollbar::-webkit-scrollbar { width: 4px; } .custom-scrollbar::-webkit-scrollbar-track { background: transparent; } .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }` }} />
     </section>
   );
 }

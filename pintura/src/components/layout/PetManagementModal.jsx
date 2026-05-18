@@ -116,7 +116,7 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
         <button 
           type="button" 
           onClick={onClose} 
-          className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-2 rounded-full"
+          className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-2 rounded-full shadow-sm"
         >
           <CloseIcon />
         </button>

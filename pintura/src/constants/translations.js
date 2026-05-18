@@ -93,6 +93,7 @@ export const translations = {
     form_fav_clinic: "Clínica Veterinaria Favorita",
     form_fav_clinic_none: "Sin clínica favorita",
     form_medical_data: "Datos Médicos",
+    form_export_pdf: "Exportar PDF",
     form_required: "obligatorio",
     form_invalid_email: "Email inválido",
     form_select_pet: "Seleccionar Mascota",
@@ -285,7 +286,10 @@ export const translations = {
     pet_hamster: "Hámster",
     pet_otro: "Otro",
     gender_macho: "Macho",
-    gender_hembra: "Hembra"
+    gender_hembra: "Hembra",
+    tier_bronze: "Bronce",
+    tier_silver: "Plata",
+    tier_gold: "Oro"
   },
   en: {
     // Auth
@@ -381,6 +385,7 @@ export const translations = {
     form_fav_clinic: "Favorite Veterinary Clinic",
     form_fav_clinic_none: "No favorite clinic",
     form_medical_data: "Medical Data",
+    form_export_pdf: "Export PDF",
     form_required: "required",
     form_invalid_email: "Invalid email",
     form_select_pet: "Select Pet",
@@ -573,7 +578,10 @@ export const translations = {
     pet_hamster: "Hamster",
     pet_otro: "Other",
     gender_macho: "Male",
-    gender_hembra: "Female"
+    gender_hembra: "Female",
+    tier_bronze: "Bronze",
+    tier_silver: "Silver",
+    tier_gold: "Gold"
   },
   pt: {
     // Auth
@@ -861,6 +869,9 @@ export const translations = {
     pet_hamster: "Hamster",
     pet_otro: "Outro",
     gender_macho: "Macho",
-    gender_hembra: "Fêmea"
+    gender_hembra: "Fêmea",
+    tier_bronze: "Bronze",
+    tier_silver: "Prata",
+    tier_gold: "Ouro"
   }
 };
