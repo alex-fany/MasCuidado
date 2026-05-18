@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { SettingsIcon, CheckIcon } from '../common/Icons';
 import { useSettings } from '../../context/SettingsContext';
 
-export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEditPetClick, activePet, pets, setActivePetId }) {
+export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEditPetClick, activePet, pets, setActivePetId, user }) {
   const { t, language } = useSettings();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -17,8 +17,8 @@ export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEd
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const userData = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = userData.nombreCompleto || userData.nombre || "Usuario";
+  const userData = user || JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = userData.nombreCompleto || userData.nombre_completo || userData.nombre || "Usuario";
 
   return (
     <header className="w-full p-4 flex justify-between items-center relative z-[100] shrink-0 text-left">

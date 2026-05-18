@@ -312,10 +312,10 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] opacity-60 ml-2 italic">{t('form_info_diag')}</h3>
              <div className="grid grid-cols-2 gap-4">
                 <Input label={t('form_breed')} name="raza" value={form.raza} onChange={handleChange} placeholder={t('ph_breed')} />
-                <Input label={t('form_age')} name="edad" type="number" value={form.edad} onChange={handleChange} placeholder="0" />
+                <Input label={t('form_age')} name="edad" type="number" min={0} value={form.edad} onChange={handleChange} placeholder="0" />
              </div>
              <div className="grid grid-cols-2 gap-4">
-                <Input label={t('form_weight')} name="peso" type="number" step="0.1" value={form.peso} onChange={handleChange} placeholder="0.0" />
+                <Input label={t('form_weight')} name="peso" type="number" step="0.1" min={0} value={form.peso} onChange={handleChange} placeholder="0.0" />
                 <div className="space-y-2 text-left">
                   <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">{t('form_gender')}</label>
                   <select name="genero" value={form.genero} onChange={handleChange} className="w-full px-5 py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] rounded-[1.5rem] text-[var(--brand-text)] font-bold text-sm outline-none appearance-none cursor-pointer shadow-sm">

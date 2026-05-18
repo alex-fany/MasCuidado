@@ -1,8 +1,9 @@
 import React from 'react';
-import { HangerIcon, BellIcon } from '../common/Icons';
+import { BellIcon } from '../common/Icons';
 import { useSettings } from '../../context/SettingsContext';
+import NutricionHub from './NutricionHub';
 
-export default function PetDisplay({ activePet, onCartillaClick, onClothesClick, onRemindersClick, remindersCount }) {
+export default function PetDisplay({ activePet, onCartillaClick, onRemindersClick, onNutricionClick, onWaterClick, nutricionRefreshKey, remindersCount }) {
   const { t } = useSettings();
   const imageUrl = activePet?.imagen 
     ? `http://localhost:3000/uploads/${activePet.imagen}` 
@@ -13,13 +14,9 @@ export default function PetDisplay({ activePet, onCartillaClick, onClothesClick,
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-10 overflow-visible">
       
-      {/* Botón izquierdo*/}
+      {/* Botón izquierdo */}
       <div className="absolute left-0 top-1/2 -translate-y-1/2 flex flex-col gap-4 z-10">
-        <button onClick={onClothesClick} className={sideButtonStyle} title={t('nav_achievements')}>
-          <div className="group-hover:rotate-6 transition-transform relative z-10">
-            <HangerIcon />
-          </div>
-        </button>
+        <NutricionHub activePet={activePet} onClick={onNutricionClick} onWaterClick={onWaterClick} refreshKey={nutricionRefreshKey} />
       </div>
 
       {/* Botón derecho */}

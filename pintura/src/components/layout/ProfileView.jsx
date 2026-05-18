@@ -19,7 +19,7 @@ const CardWrapper = ({ children, className = "" }) => (
   </div>
 );
 
-export default function ProfileView({ onLogout, onEditPet, pets }) {
+export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate }) {
   const { t, language } = useSettings();
   const [user, setUser] = useState(null);
   const [isEditingContact, setIsEditingContact] = useState(false);
@@ -54,6 +54,7 @@ export default function ProfileView({ onLogout, onEditPet, pets }) {
       });
       const data = await res.json();
       setUser(data);
+      if (onUserUpdate) onUserUpdate(data);
       
       const fullPhone = data.telefono || '';
       let lada = '+52', phone = fullPhone;
@@ -120,6 +121,8 @@ export default function ProfileView({ onLogout, onEditPet, pets }) {
       if (res.ok) {
         const updated = await res.json();
         setUser(updated);
+        if (onUserUpdate) onUserUpdate(updated);
+
         const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
         localStorage.setItem("user", JSON.stringify({ ...savedUser, ...updated }));
         
@@ -424,6 +427,7 @@ export default function ProfileView({ onLogout, onEditPet, pets }) {
               body: JSON.stringify({ imagen: avatarId, colorAvatar: avatarColor })
             }).then(res => res.json()).then(data => {
                setUser(data);
+               if (onUserUpdate) onUserUpdate(data);
                const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
                localStorage.setItem("user", JSON.stringify({ ...savedUser, ...data }));
             });

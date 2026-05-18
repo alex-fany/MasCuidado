@@ -176,6 +176,23 @@ export const BellIcon = () => (
   </svg>
 );
 
+export const FoodBowlIcon = () => (
+  <svg width="32" height="32" viewBox="0 0 100 100">
+    <path d="M10,75 C10,85 20,90 50,90 C80,90 90,85 90,75 L85,45 C85,40 75,35 50,35 C25,35 15,40 15,45 Z" fill="white" opacity=".35" transform="translate(3, 3)"></path>
+    <path d="M10,72 C10,82 20,87 50,87 C80,87 90,82 90,72 L85,42 C85,37 75,32 50,32 C25,32 15,37 15,42 Z" fill="white"></path>
+    <path d="M15,42 C15,47 25,52 50,52 C75,52 85,47 85,42 L80,72 C80,77 70,82 50,82 C30,82 20,77 20,72 Z" fill="#2d9b96" stroke="#1a5d5a" strokeWidth="3"></path>
+  </svg>
+);
+
+export const WaterDropIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 100 100">
+    <path d="M50,95 C30,95 15,80 15,60 C15,40 50,5 50,5 C50,5 85,40 85,60 C85,80 70,95 50,95 Z" fill="#22d3ee" opacity=".3" transform="translate(2, 2)"></path>
+    <path d="M50,92 C30,92 15,77 15,57 C15,37 50,2 50,2 C50,2 85,37 85,57 C85,77 70,92 50,92 Z" fill="white"></path>
+    <path d="M50,85 C35,85 22,72 22,57 C22,45 50,15 50,15 C50,15 78,45 78,57 C78,72 65,85 50,85 Z" fill="#0891b2" stroke="#164e63" strokeWidth="3"></path>
+    <path d="M40,55 C40,50 45,45 50,45" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" opacity=".5" />
+  </svg>
+);
+
 export const LogoutIcon = () => (
   <svg width="24" height="24" viewBox="0 0 100 100">
     <path d="M30,20H20c-5,0-10,5-10,10v40c0,5,5,10,10,10h10" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round"></path>

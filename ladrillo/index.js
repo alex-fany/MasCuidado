@@ -6,7 +6,8 @@ const authRoutes = require('./src/routes/authRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const mascotaRoutes = require('./src/routes/mascotaRoutes');
 const recordatorioRoutes = require('./src/routes/recordatorioRoutes');
-const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes'); // Nueva
+const googleCalendarRoutes = require('./src/routes/googleCalendarRoutes');
+const nutricionRoutes = require('./src/routes/nutricionRoutes');
 
 const app = express();
 
@@ -22,7 +23,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/mascotas', mascotaRoutes);
 app.use('/api/recordatorios', recordatorioRoutes);
-app.use('/api/google-calendar', googleCalendarRoutes); // Nueva
+app.use('/api/google-calendar', googleCalendarRoutes);
+app.use('/api/nutricion', nutricionRoutes);
 
 app.get("/", (req, res) => {
   res.json({ mensaje: "Servidor MasCuidado funcionando" });

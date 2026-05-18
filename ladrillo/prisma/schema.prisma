@@ -15,14 +15,57 @@ model CatalogoEspecie {
   @@map("catalogo_especie")
 }
 
-model CatalogoRopa {
-  id                 Int                  @id @default(autoincrement()) @map("id_prenda")
-  nombrePrenda       String               @map("nombre_prenda") @db.VarChar(100)
-  categoria          String?              @map("categoria") @db.VarChar(50)
-  urlAsset           String?              @map("url_asset") @db.VarChar(255)
-  mascotaVirtualItem MascotaVirtualItem[]
+model ConfiguracionNutricion {
+  id             String   @id @default(uuid()) @map("id_config_nutricion")
+  mascotaId      String   @unique @map("id_mascota")
+  metaAguaDiaria Int      @default(4) @map("meta_agua_diaria")
+  reinicioAguaDias Int    @default(1) @map("reinicio_agua_dias")
+  creadoEn       DateTime @default(now()) @map("creado_en")
+  actualizadoEn  DateTime @updatedAt @map("actualizado_en")
+  porcionDiaria  Float    @default(0) @map("porcion_diaria")
+  unidadMedida   String   @default("g") @map("unidad_medida") @db.VarChar(10)
+  mascota        Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
 
-  @@map("catalogo_ropa")
+  @@map("configuracion_nutricion")
+}
+
+model InventarioAlimento {
+  id               String   @id @default(uuid()) @map("id_inventario")
+  mascotaId        String   @map("id_mascota")
+  marca            String   @map("marca") @db.VarChar(100)
+  tipo             String   @map("tipo") @db.VarChar(50)
+  fechaCompra      DateTime @default(now()) @map("fecha_compra")
+  costo            Decimal? @map("costo") @db.Decimal(10, 2)
+  estado           String   @default("Activo") @map("estado") @db.VarChar(20)
+  cantidadRestante Float    @map("cantidad_restante")
+  cantidadTotal    Float    @map("cantidad_total")
+  unidadMedida     String   @default("g") @map("unidad_medida") @db.VarChar(10)
+  mascota          Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+  compartidoCon    CompartirAlimento[]
+
+  @@map("inventario_alimento")
+}
+
+model CompartirAlimento {
+  id                String             @id @default(uuid()) @map("id_compartir")
+  inventarioId      String             @map("id_inventario")
+  mascotaId         String             @map("id_mascota")
+  inventario        InventarioAlimento @relation(fields: [inventarioId], references: [id], onDelete: Cascade)
+  mascota           Mascota            @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+
+  @@unique([inventarioId, mascotaId])
+  @@map("compartir_alimento")
+}
+
+model RegistroHidratacion {
+  id        String   @id @default(uuid()) @map("id_registro_agua")
+  mascotaId String   @map("id_mascota")
+  fechaHora DateTime @default(now()) @map("fecha_hora")
+  cantidad  Int      @default(1) @map("cantidad_tazones")
+  mascota   Mascota  @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
+
+  @@index([mascotaId, fechaHora])
+  @@map("registro_hidratacion")
 }
 
 model ClinicaFavorita {
@@ -54,55 +97,37 @@ model HistorialMedico {
 }
 
 model Mascota {
-  id                String            @id @default(uuid()) @map("id_mascota")
-  usuarioId         String            @map("id_usuario")
-  especieId         Int?              @map("id_especie")
-  nombre            String            @map("nombre") @db.VarChar(100)
-  fechaNacimiento   DateTime?         @map("fecha_nacimiento") @db.Date
-  sexo              String?           @map("sexo") @db.Char(1)
-  color             String?           @map("color") @db.VarChar(100)
-  senasParticulares String?           @map("senas_particulares")
-  creadoEn          DateTime          @default(now()) @map("creado_en")
-  genero            String?           @map("genero")
-  peso              Float?            @map("peso")
-  tipo              String?           @map("tipo") @db.VarChar(50)
-  edad              Int?              @map("edad")
-  imagen            String?           @map("imagen")
-  raza              String?           @map("raza") @db.VarChar(100)
-  padecimientos     String?           @map("padecimientos")
-  medicamentos      String?           @map("medicamentos")
-  fotosCartilla     Json?             @map("fotos_cartilla")
-  clinicasFavoritas ClinicaFavorita[]
-  historialMedico   HistorialMedico[]
-  especie           CatalogoEspecie?  @relation(fields: [especieId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  usuario           Usuario           @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
-  mascotaVirtual    MascotaVirtual?
-  recordatorios     Recordatorio[]
-  vacunas           Vacuna[]
+  id                   String                  @id @default(uuid()) @map("id_mascota")
+  usuarioId            String                  @map("id_usuario")
+  especieId            Int?                    @map("id_especie")
+  nombre               String                  @map("nombre") @db.VarChar(100)
+  fechaNacimiento      DateTime?               @map("fecha_nacimiento") @db.Date
+  sexo                 String?                 @map("sexo") @db.Char(1)
+  color                String?                 @map("color") @db.VarChar(100)
+  senasParticulares    String?                 @map("senas_particulares")
+  creadoEn             DateTime                @default(now()) @map("creado_en")
+  genero               String?                 @map("genero")
+  peso                 Float?                  @map("peso")
+  tipo                 String?                 @map("tipo") @db.VarChar(50)
+  edad                 Int?                    @map("edad")
+  imagen               String?                 @map("imagen")
+  raza                 String?                 @map("raza") @db.VarChar(100)
+  medicamentos         String?                 @map("medicamentos")
+  padecimientos        String?                 @map("padecimientos")
+  fotosCartilla        Json?                   @map("fotos_cartilla")
+  clinicasFavoritas    ClinicaFavorita[]
+  nutricionConfig      ConfiguracionNutricion?
+  historialMedico      HistorialMedico[]
+  inventariosAlimento  InventarioAlimento[]
+  especie              CatalogoEspecie?        @relation(fields: [especieId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  usuario              Usuario                 @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  recordatorios        Recordatorio[]
+  registrosHidratacion RegistroHidratacion[]
+  vacunas              Vacuna[]
+  compartirAlimento    CompartirAlimento[]
 
   @@index([usuarioId], map: "idx_mascota_usuario")
   @@map("mascota")
-}
-
-model MascotaVirtual {
-  id                 Int                  @id @default(autoincrement()) @map("id_mascota_virtual")
-  mascotaId          String               @unique @map("id_mascota")
-  mascota            Mascota              @relation(fields: [mascotaId], references: [id], onDelete: Cascade)
-  mascotaVirtualItem MascotaVirtualItem[]
-
-  @@map("mascota_virtual")
-}
-
-model MascotaVirtualItem {
-  id               Int            @id @default(autoincrement()) @map("id_registro")
-  mascotaVirtualId Int            @map("id_mascota_virtual")
-  prendaId         Int            @map("id_prenda")
-  slot             String         @map("slot") @db.VarChar(50)
-  mascotaVirtual   MascotaVirtual @relation(fields: [mascotaVirtualId], references: [id], onDelete: Cascade)
-  catalogoRopa     CatalogoRopa   @relation(fields: [prendaId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([mascotaVirtualId, slot])
-  @@map("mascota_virtual_item")
 }
 
 model Recordatorio {

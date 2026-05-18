@@ -3,6 +3,7 @@ import InfoBubble from './InfoBubble';
 import PetDisplay from './PetDisplay';
 import { CloseIcon, CheckIcon } from '../common/Icons';
 import EditCartillaModal from '../layout/EditCartillaModal';
+import NutricionModal from '../layout/NutricionModal';
 import { useSettings } from '../../context/SettingsContext';
 
 export default function HomeView({ activePet, reminders, onPetUpdated }) {
@@ -10,6 +11,10 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
   const [isCartillaOpen, setIsCartillaOpen] = useState(false);
   const [isRemindersModalOpen, setIsRemindersModalOpen] = useState(false);
   const [isEditCartillaOpen, setIsEditCartillaOpen] = useState(false);
+  const [isNutricionModalOpen, setIsNutricionModalOpen] = useState(false);
+  const [isWaterConfirmOpen, setIsWaterConfirmOpen] = useState(false);
+  const [nutricionRefreshKey, setNutricionRefreshKey] = useState(0);
+  const [isWaterLoading, setIsWaterLoading] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [selectedVaccineGroup, setSelectedVaccineGroup] = useState(null);
   const [prefillVaccine, setPrefillVaccine] = useState(null);
@@ -22,6 +27,34 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
     const correctedDate = new Date(date.getTime() + userTimezoneOffset);
     return correctedDate.toLocaleDateString(dateLocale, options);
+  };
+
+  const handleNutricionSave = () => {
+    setNutricionRefreshKey(prev => prev + 1);
+  };
+
+  const handleAddWaterConfirm = async () => {
+    if (!activePet || isWaterLoading) return;
+    setIsWaterLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/nutricion/${activePet.id}/agua`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` 
+        },
+        body: JSON.stringify({ cantidad: 1 })
+      });
+      if (res.ok) {
+        setNutricionRefreshKey(prev => prev + 1);
+        setIsWaterConfirmOpen(false);
+      }
+    } catch (err) {
+      console.error("Error al registrar agua:", err);
+    } finally {
+      setIsWaterLoading(false);
+    }
   };
 
   // Recordatorios unificados
@@ -123,12 +156,22 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
           <PetDisplay
             activePet={activePet}
             onCartillaClick={() => setIsCartillaOpen(true)}
-            onClothesClick={() => {}}
             onRemindersClick={() => setIsRemindersModalOpen(true)}
+            onNutricionClick={() => setIsNutricionModalOpen(true)}
+            onWaterClick={() => setIsWaterConfirmOpen(true)}
+            nutricionRefreshKey={nutricionRefreshKey}
             remindersCount={upcomingReminders.length}
           />
         </div>
       </main>
+
+      {/* Modal Nutrición */}
+      <NutricionModal 
+        isOpen={isNutricionModalOpen}
+        onClose={() => setIsNutricionModalOpen(false)}
+        pet={activePet}
+        onSave={handleNutricionSave}
+      />
 
       {/* Modal Agenda Semanal */}
       {isRemindersModalOpen && (
@@ -377,6 +420,32 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
           onSave={() => onPetUpdated(false)}
           prefillVaccineName={prefillVaccine}
         />
+      )}
+
+      {/* Modal Confirmación Agua */}
+      {isWaterConfirmOpen && (
+        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
+           <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-cyan-500/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
+              <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-cyan-500/10">
+                <span className="text-4xl animate-bounce">💧</span>
+              </div>
+              <h3 className="text-cyan-600 font-black text-2xl mb-2 italic tracking-tighter">{t('nutri_water_confirm_title')}</h3>
+              <p className="text-[var(--brand-text)] text-xs font-bold mb-8 leading-relaxed opacity-60">
+                {t('nutri_water_confirm_desc')} <span className="text-cyan-600">{activePet?.nombre}</span>
+              </p>
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={handleAddWaterConfirm} 
+                  disabled={isWaterLoading}
+                  className="w-full py-4 bg-cyan-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-cyan-700 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                >
+                  {isWaterLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : '✓'}
+                  {t('nutri_water_add_btn')}
+                </button>
+                <button onClick={() => setIsWaterConfirmOpen(false)} className="w-full py-3 bg-[var(--brand-surface-muted)] text-[var(--brand-text)] font-black rounded-xl text-[10px] uppercase tracking-widest hover:opacity-70 transition-all">{t('profile_cancel')}</button>
+              </div>
+           </div>
+        </div>
       )}
     </div>
   );

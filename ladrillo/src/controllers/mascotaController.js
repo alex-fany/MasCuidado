@@ -21,7 +21,7 @@ exports.createMascota = async (req, res) => {
         senasParticulares,
         padecimientos,
         medicamentos,
-        imagen, // Guardamos la referencia de la imagen
+        imagen,
         usuarioId: userId
       }
     });
@@ -41,7 +41,6 @@ exports.getMascotas = async (req, res) => {
       where: { usuarioId: userId },
       include: {
         especie: true,
-        mascotaVirtual: true,
         clinicasFavoritas: true,
         vacunas: true
       },

@@ -163,6 +163,7 @@ export default function App() {
             activePet={activePet}
             pets={pets}
             setActivePetId={setActivePetId}
+            user={user}
           />
 
           <main className="flex-1 w-full overflow-hidden relative flex flex-col">
@@ -172,7 +173,7 @@ export default function App() {
             
             {currentView === 'map' && <MapView activePet={activePet} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />}
             {currentView === 'calendar' && <CalendarView activePet={activePet} pets={pets} onRefreshRemindersGlobal={(type) => fetchReminders(token, type)} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />}
-            {currentView === 'profile' && <ProfileView onLogout={handleLogout} onEditPet={handleEditPetGlobal} pets={pets} />}
+            {currentView === 'profile' && <ProfileView onLogout={handleLogout} onEditPet={handleEditPetGlobal} pets={pets} onUserUpdate={setUser} />}
             {currentView === 'logros' && <AchievementsView user={user} pets={pets} reminders={reminders} />}
           </main>
 

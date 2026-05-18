@@ -9,6 +9,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
   const [currentDate, setCurrentMonth] = useState(new Date());
   const today = new Date();
   const [reminders, setReminders] = useState([]);
+  const [nutriEvents, setNutriEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -23,16 +24,23 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
     setLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch("/api/recordatorios", {
+      // Obtener Recordatorios
+      const resRem = await fetch("/api/recordatorios", {
         headers: { "Authorization": `Bearer ${token}` }
       });
-      const data = await res.json();
-      if (res.ok) {
-        setReminders(data);
-        if (onRefreshRemindersGlobal) onRefreshRemindersGlobal(toastType);
-      }
+      const dataRem = await resRem.json();
+      if (resRem.ok) setReminders(dataRem);
+
+      // Obtener Eventos de Nutrición
+      const resNutri = await fetch("/api/nutricion/eventos", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const dataNutri = await resNutri.json();
+      if (resNutri.ok) setNutriEvents(dataNutri);
+
+      if (onRefreshRemindersGlobal) onRefreshRemindersGlobal(toastType);
     } catch (error) {
-      console.error("Error fetching reminders:", error);
+      console.error("Error fetching calendar data:", error);
     } finally {
       setLoading(false);
     }
@@ -65,7 +73,19 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
       });
     });
 
-    // Añadir Vacunas de todos los pets registrados
+    // Añadir Eventos de Nutrición (Predicciones)
+    nutriEvents.forEach(e => {
+        events.push({
+            id: e.id,
+            titulo: `${t('nutri_calendar_event')} (${e.titulo})`,
+            fecha: normalizeDate(e.fecha),
+            type: 'food_depletion',
+            pet: e.pet,
+            originalData: e
+        });
+    });
+
+    // Añadir vacunas de todos los pets registrados
     pets.forEach(pet => {
       pet.vacunas?.forEach(v => {
         // Dosis Pasada
@@ -93,7 +113,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
     });
 
     return events;
-  }, [reminders, pets, t, language]);
+  }, [reminders, nutriEvents, pets, t, language]);
 
   const monthNames = language === 'en' 
     ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
@@ -195,7 +215,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
                   {dayEvents.length > 0 && (
                     <div className="absolute bottom-1.5 lg:bottom-2 flex gap-0.5">
                        {dayEvents.map((e, idx) => (
-                         <span key={idx} className={`w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : e.type.startsWith('vaccine') ? 'bg-purple-500' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />
+                         <span key={idx} className={`w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : e.type.startsWith('vaccine') ? 'bg-purple-500' : e.type === 'food_depletion' ? 'bg-orange-500' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />
                        ))}
                     </div>
                   )}
@@ -220,21 +240,21 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
             <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-2.5 pb-4 px-1 overflow-x-visible min-h-0">
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map(event => (
-                  <div key={event.id} onClick={() => handleEventClick(event)} className={`p-3 rounded-[1.8rem] border flex items-center gap-3.5 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
-                    <div className={`w-9 h-9 rounded-[1.1rem] flex items-center justify-center overflow-hidden text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
-                      {event.pet?.imagen ? <img src={`http://localhost:3000/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>}
+                  <div key={event.id} onClick={() => handleEventClick(event)} className={`p-3 rounded-[1.8rem] border flex items-center gap-3.5 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
+                    <div className={`w-9 h-9 rounded-[1.1rem] flex items-center justify-center overflow-hidden text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
+                      {event.type === 'food_depletion' ? '🥣' : (event.pet?.imagen ? <img src={`http://localhost:3000/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>)}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between gap-1.5">
-                        <p className={`font-black text-sm leading-tight truncate transition-colors ${event.type.startsWith('vaccine') ? 'text-purple-700' : 'text-[var(--brand-text)] group-hover:text-[var(--brand-primary)]'}`}>{event.titulo}</p>
+                        <p className={`font-black text-sm leading-tight truncate transition-colors ${event.type.startsWith('vaccine') ? 'text-purple-700' : event.type === 'food_depletion' ? 'text-orange-700' : 'text-[var(--brand-text)] group-hover:text-[var(--brand-primary)]'}`}>{event.titulo}</p>
                         <div className="flex items-center gap-1 shrink-0">
                           {event.type === 'reminder' && event.originalData.idEventoGoogle && <GoogleCalendarBrandIcon />}
-                          <span className={`font-black text-[7px] uppercase tracking-tighter opacity-60 ${event.type.startsWith('vaccine') ? 'text-purple-600' : 'text-[var(--brand-primary)]'}`}>
-                             {event.type.startsWith('vaccine') ? '💉' : new Date(event.originalData?.fechaHora || event.fecha).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                          <span className={`font-black text-[7px] uppercase tracking-tighter opacity-60 ${event.type.startsWith('vaccine') ? 'text-purple-600' : event.type === 'food_depletion' ? 'text-orange-600' : 'text-[var(--brand-primary)]'}`}>
+                             {event.type.startsWith('vaccine') ? '💉' : event.type === 'food_depletion' ? '🥣' : new Date(event.originalData?.fechaHora || event.fecha).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>
-                      <p className={`text-[9px] font-black uppercase tracking-widest italic ${event.type.startsWith('vaccine') ? 'text-purple-600 opacity-80' : 'text-[var(--brand-primary)] opacity-80'}`}>{event.pet?.nombre}</p>
+                      <p className={`text-[9px] font-black uppercase tracking-widest italic ${event.type.startsWith('vaccine') ? 'text-purple-600 opacity-80' : event.type === 'food_depletion' ? 'text-orange-600 opacity-80' : 'text-[var(--brand-text)] opacity-80'}`}>{event.pet?.nombre}</p>
                     </div>
                   </div>
                 ))

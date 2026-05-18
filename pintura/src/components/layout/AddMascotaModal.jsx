@@ -178,8 +178,8 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
             <Input label={t('form_breed')} placeholder={t('ph_breed')} value={formData.raza} onChange={(e) => setFormData({ ...formData, raza: e.target.value })} />
 
             <div className="grid grid-cols-2 gap-4">
-              <Input label={t('form_age')} type="number" value={formData.edad} onChange={(e) => setFormData({ ...formData, edad: e.target.value })} />
-              <Input label={t('form_weight')} type="number" step="0.1" value={formData.peso} onChange={(e) => setFormData({ ...formData, peso: e.target.value })} />
+              <Input label={t('form_age')} type="number" min={0} value={formData.edad} onChange={(e) => setFormData({ ...formData, edad: e.target.value })} />
+              <Input label={t('form_weight')} type="number" step="0.1" min={0} value={formData.peso} onChange={(e) => setFormData({ ...formData, peso: e.target.value })} />
             </div>
 
             <div className="space-y-2 pb-4 text-left">
