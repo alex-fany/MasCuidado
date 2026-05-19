@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
 exports.sendResetEmail = async (email, resetLink) => {
 
   await transporter.sendMail({
-    from: `"Mascotas App" <${process.env.EMAIL_USER}>`,
+    from: `"Más Cuidado App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Recuperar contraseña',
     html: `
@@ -24,6 +24,14 @@ exports.sendResetEmail = async (email, resetLink) => {
       </a>
 
       <p>Este enlace expira en 15 minutos.</p>
+      <p style="
+          font-size:10px;
+          color:#6b7280;
+          line-height:1.6;
+        ">
+          Si no solicitaste este cambio, puedes ignorar
+          este correo sin problema.
+        </p>
     `
   });
 };

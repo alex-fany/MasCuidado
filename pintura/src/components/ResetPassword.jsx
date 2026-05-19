@@ -26,6 +26,9 @@ export default function ResetPassword({ token }) {
       const data = await res.json();
 
       setMessage(data.message);
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 2000);
 
     } catch (error) {
 
@@ -43,13 +46,16 @@ export default function ResetPassword({ token }) {
         <h2 className="text-3xl font-black text-center">
           Nueva contraseña
         </h2>
-
+        <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">Escribe una nueva contraseña:</label>
+                
         <input
           type="password"
-          placeholder="Nueva contraseña"
+          placeholder="********"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-4 rounded-2xl"
+          className="w-full px-5 py-3.5 rounded-2xl border-2 bg-[var(--brand-surface-muted)]
+                      text-[var(--brand-text)] font-bold placeholder:text-[var(--brand-text)]/30
+                      focus:outline-none focus:bg-[var(--brand-surface)] border-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
         />
 
         <button
