@@ -9,16 +9,43 @@ export default function ForgotPasswordForm({onLoginClick}) {
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    
-    // Simulación de envío
-    setTimeout(() => {
-      setIsLoading(false)
-      setSent(true)
-    }, 1500)
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+
+      setIsLoading(true);
+
+      const res = await fetch(
+        "http://localhost:3000/api/auth/forgot-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      console.log(data);
+
+      setSent(true);
+
+    } catch (error) {
+
+      console.error(error);
+      alert("Error al enviar correo");
+
+    } finally {
+
+      setIsLoading(false);
+
+    }
+  };
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">

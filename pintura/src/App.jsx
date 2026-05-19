@@ -3,6 +3,7 @@ import Card from "./components/Card"
 import LoginForm from "./components/LoginForm"
 import RegisterForm from "./components/RegisterForm"
 import ForgotPasswordForm from "./components/ForgotPasswordForm"
+import ResetPassword from "./components/ResetPassword"
 
 // Layout y Vistas
 import DashboardHeader from "./components/layout/DashboardHeader"
@@ -113,7 +114,22 @@ export default function App() {
       fetchReminders(savedToken);
     }
   }, [fetchPets, fetchReminders])
+  
+  useEffect(() => {
 
+    const path = window.location.pathname;
+
+    if (path.startsWith("/reset-password/")) {
+
+      const token = path.split("/")[2];
+
+      setPage({
+        type: "reset",
+        token
+      });
+    }
+
+  }, []);
   const handleLoginSuccess = (userData) => {
     const savedToken = localStorage.getItem("token");
     setUser(userData); setToken(savedToken); setPage("dashboard");
@@ -217,6 +233,7 @@ export default function App() {
                                 {page === "login" && <LoginForm onRegisterClick={() => setPage("register")} onForgotClick={() => setPage("forgot")} onLoginSuccess={handleLoginSuccess} />}
                                 {page === "register" && <RegisterForm onLoginClick={() => setPage("login")} />}
                                 {page === "forgot" && <ForgotPasswordForm onLoginClick={() => setPage("login")} />}
+                                {typeof page === "object" && page.type === "reset" && (<ResetPassword token={page.token} />)}
                             </div>
                         </Card>
                     </div>

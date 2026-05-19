@@ -162,7 +162,8 @@ model Usuario {
   mascotas           Mascota[]
   recordatorios      Recordatorio[]
   settings           UserSettings?
-
+  reset_token       String?
+  reset_token_exp   DateTime?
   @@map("usuario")
 }
 

@@ -6,6 +6,9 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_secreta_super_segura';
 
+const crypto = require('crypto');
+const { sendResetEmail } = require('../services/mailService');
+
 // Registro tradicional
 exports.register = async (req, res) => {
   try {
@@ -135,4 +138,144 @@ exports.googleLogin = async (req, res) => {
     console.error("Error Google Auth:", error);
     res.status(401).json({ error: "Autenticación de Google fallida" });
   }
+};
+
+exports.forgotPassword = async (req, res) => {
+
+  try {
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "El correo es obligatorio"
+      });
+    }
+
+    // Buscar usuario
+    const user = await prisma.Usuario.findUnique({
+      where: {
+        correo: email
+      }
+    });
+
+    // No revelar si existe o no
+    if (!user) {
+      return res.json({
+        message: "Si el correo existe, se enviaron instrucciones"
+      });
+    }
+
+    // Crear token seguro
+    const resetToken =
+      crypto.randomBytes(32).toString("hex");
+
+    // Expiración 15 minutos
+    const expires =
+      new Date(Date.now() + 15 * 60 * 1000);
+
+    // Guardar token
+    await prisma.Usuario.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        reset_token: resetToken,
+        reset_token_exp: expires
+      }
+    });
+
+    // Link frontend
+    const resetLink =
+      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    // Enviar correo
+    await sendResetEmail(
+      email,
+      resetLink
+    );
+
+    res.json({
+      message: "Si el correo existe, se enviaron instrucciones"
+    });
+
+  } catch (error) {
+
+    console.error("ERROR forgotPassword:");
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error al enviar correo"
+    });
+
+  }
+
+};
+exports.resetPassword = async (req, res) => {
+
+  try {
+
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: "Datos incompletos"
+      });
+    }
+
+    // Buscar usuario por token
+    const user = await prisma.Usuario.findFirst({
+      where: {
+        reset_token: token
+      }
+    });
+
+    // Token inválido
+    if (!user) {
+      return res.status(400).json({
+        error: "Token inválido"
+      });
+    }
+
+    // Verificar expiración
+    if (
+      !user.reset_token_exp ||
+      user.reset_token_exp < new Date()
+    ) {
+      return res.status(400).json({
+        error: "Token expirado"
+      });
+    }
+
+    // Hash contraseña
+    const hashedPassword =
+      await bcrypt.hash(newPassword, 10);
+
+    // Actualizar contraseña
+    await prisma.Usuario.update({
+      where: {
+        id: user.id
+      },
+      data: {
+        password: hashedPassword,
+        reset_token: null,
+        reset_token_exp: null
+      }
+    });
+
+    res.json({
+      message: "Contraseña actualizada correctamente"
+    });
+
+  } catch (error) {
+
+    console.error("ERROR resetPassword:");
+    console.error(error);
+
+    res.status(500).json({
+      error: "Error al actualizar contraseña"
+    });
+
+  }
+
 };
