@@ -46,25 +46,25 @@ export default function InfoBubble({ activeReminder, activePet }) {
   const timeLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
 
   return (
-    <div className="w-full max-w-sm mb-8 z-30 animate-float-gentle relative pointer-events-none">
-      <div className="bg-[#e6fcfb] rounded-[2rem] p-5 shadow-[0_20px_40px_-15px_rgba(45,155,150,0.4)] relative border-4 border-white pointer-events-auto">
-        <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#2d9b96] text-white px-6 py-1.5 rounded-full font-black text-lg shadow-md whitespace-nowrap">
+    <div className="w-full max-w-[300px] xs:max-w-xs sm:max-w-sm mb-4 sm:mb-8 z-30 animate-float-gentle relative pointer-events-none">
+      <div className="bg-[#e6fcfb] rounded-[1.8rem] sm:rounded-[2rem] p-3.5 sm:p-5 shadow-[0_20px_40px_-15px_rgba(45,155,150,0.4)] relative border-4 border-white pointer-events-auto">
+        <div className="absolute -top-3.5 sm:-top-4 left-1/2 -translate-x-1/2 bg-[#2d9b96] text-white px-4 sm:px-6 py-1 sm:py-1.5 rounded-full font-black text-sm sm:text-lg shadow-md whitespace-nowrap">
           {activeReminder ? t('home_reminder_label') : t('home_tip_label')}
         </div>
         
-        <div className="mt-4 flex items-center justify-center gap-3 text-center min-h-[60px]">
+        <div className="mt-2.5 sm:mt-4 flex items-center justify-center gap-2 sm:gap-3 text-center min-h-[48px] sm:min-h-[60px]">
           {activeReminder ? (
             <>
-              <div className="flex-shrink-0 text-[#2d9b96]">
+              <div className="flex-shrink-0 text-[#2d9b96] scale-90 sm:scale-100">
                 <ClockIcon />
               </div>
-              <p className="text-[#1a5d5a] font-bold text-lg leading-tight">
+              <p className="text-[#1a5d5a] font-bold text-sm sm:text-base md:text-lg leading-tight">
                 {activeReminder.titulo} {language === 'en' ? 'at' : language === 'pt' ? 'às' : 'a las'} <br/>
                 <span className="font-black">{new Date(activeReminder.fechaHora).toLocaleTimeString(timeLocale, { hour: '2-digit', minute: '2-digit' })}</span>
               </p>
             </>
           ) : (
-            <p className="text-[#1a5d5a] font-bold text-lg leading-tight italic">
+            <p className="text-[#1a5d5a] font-bold text-xs sm:text-sm md:text-base leading-snug sm:leading-tight italic">
               {randomTip}
             </p>
           )}

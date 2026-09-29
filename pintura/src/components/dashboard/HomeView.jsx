@@ -148,13 +148,13 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
-      <main className="w-full flex-1 flex flex-col items-center px-4 justify-center">
-        <div className="w-full max-w-2xl flex justify-center shrink-0">
+    <div className="flex-1 w-full flex flex-col items-center justify-center relative overflow-y-auto custom-scrollbar no-scrollbar px-2 sm:px-4 py-2 sm:py-6">
+      <main className="w-full max-w-2xl flex-1 flex flex-col items-center justify-center my-auto">
+        <div className="w-full flex justify-center shrink-0">
           <InfoBubble activeReminder={todaysReminder} activePet={activePet} />
         </div>
 
-        <div className="w-full max-w-2xl flex flex-col items-center justify-center -mt-6 md:-mt-8 shrink-0">
+        <div className="w-full flex flex-col items-center justify-center -mt-2 sm:-mt-4 md:-mt-6 shrink-0">
           <PetDisplay
             activePet={activePet}
             onCartillaClick={() => setIsCartillaOpen(true)}
@@ -214,30 +214,30 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
       {isCartillaOpen && (
         <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
            <div 
-             className="bg-[var(--brand-modal-bg)] rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[var(--brand-border-strong)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300 overflow-hidden"
+             className="bg-[var(--brand-modal-bg)] rounded-[2rem] sm:rounded-[3rem] w-full max-w-lg p-5 sm:p-8 shadow-2xl relative border-2 sm:border-4 border-[var(--brand-border-strong)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300 overflow-hidden"
              style={{ background: 'var(--brand-modal-gradient)' }}
            >
-              <div className="absolute top-8 right-8 flex items-center gap-3 z-50">
+              <div className="absolute top-5 sm:top-8 right-5 sm:right-8 flex items-center gap-2 sm:gap-3 z-50">
                 <PDFDownloadLink 
                   document={<PetRecordPDF pet={activePet} t={t} language={language} />} 
                   fileName={`Cartilla_${activePet?.nombre || 'Mascota'}.pdf`}
-                  className="px-4 py-2 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-full border-2 border-emerald-500/20 text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm"
+                  className="px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-full border-2 border-emerald-500/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 sm:gap-2 shadow-sm"
                 >
                   {({ loading }) => (loading ? '...' : `📄 ${t('form_export_pdf')}`)}
                 </PDFDownloadLink>
 
-                <button onClick={() => setIsCartillaOpen(false)} className="hover:scale-110 active:scale-90 transition-transform duration-200 bg-[var(--brand-surface-muted)] p-2 rounded-full shadow-sm">
+                <button onClick={() => setIsCartillaOpen(false)} className="hover:scale-110 active:scale-90 transition-transform duration-200 bg-[var(--brand-surface-muted)] p-1.5 sm:p-2 rounded-full shadow-sm">
                   <CloseIcon />
                 </button>
               </div>
               
-              <div className="flex items-center gap-4 mb-8 text-left shrink-0">
-                <div className="w-20 h-20 rounded-3xl bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/20 flex items-center justify-center text-4xl shadow-inner">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8 text-left shrink-0 pr-24 sm:pr-36">
+                <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/20 flex items-center justify-center text-3xl sm:text-4xl shadow-inner shrink-0">
                    {activePet.realAvatar}
                 </div>
-                <div>
-                   <h2 className="text-3xl font-black text-[var(--brand-primary)] italic tracking-tighter leading-none">{activePet.nombre}</h2>
-                   <p className="text-[10px] font-black text-[var(--brand-text)] opacity-40 uppercase tracking-[0.2em] mt-1 italic">{t(`pet_${activePet.tipo?.toLowerCase()}`)} • {activePet.raza}</p>
+                <div className="truncate">
+                   <h2 className="text-2xl sm:text-3xl font-black text-[var(--brand-primary)] italic tracking-tighter leading-none truncate">{activePet.nombre}</h2>
+                   <p className="text-[9px] sm:text-[10px] font-black text-[var(--brand-text)] opacity-40 uppercase tracking-[0.2em] mt-1 italic truncate">{t(`pet_${activePet.tipo?.toLowerCase()}`)} • {activePet.raza}</p>
                 </div>
               </div>
 

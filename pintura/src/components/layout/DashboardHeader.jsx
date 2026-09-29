@@ -21,42 +21,42 @@ export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEd
   const userName = userData.nombreCompleto || userData.nombre_completo || userData.nombre || "Usuario";
 
   return (
-    <header className="w-full p-4 flex justify-between items-center relative z-[100] shrink-0 text-left">
-      <div className="flex items-center gap-3">
+    <header className="w-full px-3 xs:px-4 py-2.5 xs:py-3 sm:py-4 flex justify-between items-center relative z-[100] shrink-0 text-left">
+      <div className="flex items-center gap-2 xs:gap-3 min-w-0">
         <button 
           onClick={onConfigClick}
-          className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-lg active:scale-95 group"
+          className="w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-lg active:scale-95 group shrink-0"
         >
-          <div className="animate-spin-slow">
+          <div className="animate-spin-slow scale-90 sm:scale-100">
             <SettingsIcon />
           </div>
         </button>
-        <div className="flex flex-col items-start leading-tight">
-          <span className="text-[var(--brand-accent)] text-[10px] font-black uppercase tracking-[0.2em] opacity-80 italic">{t('header_welcome')}</span>
-          <span className="text-white text-xl font-black tracking-tighter italic drop-shadow-md truncate max-w-[120px]">
+        <div className="flex flex-col items-start leading-tight min-w-0">
+          <span className="text-[var(--brand-accent)] text-[8px] xs:text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] sm:tracking-[0.2em] opacity-80 italic">{t('header_welcome')}</span>
+          <span className="text-white text-base xs:text-lg sm:text-xl font-black tracking-tighter italic drop-shadow-md truncate max-w-[85px] xs:max-w-[120px] sm:max-w-[160px]">
             {userName}
           </span>
         </div>
       </div>
 
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative shrink-0" ref={dropdownRef}>
         <button 
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`h-12 px-4 rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center gap-3 hover:bg-white/20 transition-all shadow-lg active:scale-95 group relative ${pets.length === 0 ? 'ripple-effect' : ''}`}
+          className={`h-10 xs:h-11 sm:h-12 px-2.5 xs:px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center gap-2 sm:gap-3 hover:bg-white/20 transition-all shadow-lg active:scale-95 group relative ${pets.length === 0 ? 'ripple-effect' : ''}`}
         >
-          <div className="w-8 h-8 rounded-xl bg-[var(--brand-primary)] flex items-center justify-center text-lg shadow-inner group-hover:scale-110 transition-transform">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--brand-primary)] flex items-center justify-center text-base sm:text-lg shadow-inner group-hover:scale-110 transition-transform shrink-0">
             {activePet?.realAvatar || '🐾'}
           </div>
-          <span className="text-white font-black text-sm tracking-tight italic">
+          <span className="text-white font-black text-xs xs:text-sm tracking-tight italic truncate max-w-[65px] xs:max-w-[90px] sm:max-w-none">
             {activePet?.nombre || (language === 'en' ? 'Select' : language === 'pt' ? 'Selecionar' : 'Seleccionar')}
           </span>
-          <div className={`text-white/40 transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>
+          <div className={`text-white/40 text-xs sm:text-sm transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`}>
             ▼
           </div>
         </button>
 
         {isDropdownOpen && (
-          <div className="absolute right-0 mt-3 w-72 bg-[var(--brand-modal-bg)] backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border-4 border-[var(--brand-border-strong)] overflow-hidden animate-in zoom-in-95 slide-in-from-top-2 duration-200">
+          <div className="absolute right-0 mt-3 w-64 xs:w-72 bg-[var(--brand-modal-bg)] backdrop-blur-2xl rounded-[2rem] sm:rounded-[2.5rem] shadow-2xl border-2 sm:border-4 border-[var(--brand-border-strong)] overflow-hidden animate-in zoom-in-95 slide-in-from-top-2 duration-200">
             <div className="max-h-[340px] overflow-y-auto custom-scrollbar flex flex-col pt-4">
               <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)]/40 ml-5 mb-3">{t('profile_pack')}</p>
               

@@ -169,53 +169,53 @@ export default function AchievementsView({ user, pets, reminders }) {
   }, [progress]);
 
   return (
-    <section className="h-full w-full max-w-[1600px] mx-auto flex flex-col px-10 pt-0 pb-14 animate-in fade-in slide-in-from-bottom-4 duration-1000 overflow-hidden relative text-left">
+    <section className="h-full w-full max-w-[1600px] mx-auto flex flex-col px-3 sm:px-6 md:px-10 pt-0 pb-28 sm:pb-20 animate-in fade-in slide-in-from-bottom-4 duration-1000 overflow-y-auto custom-scrollbar no-scrollbar relative text-left">
       <FloatingOrb color="var(--brand-primary)" size={300} duration={20} delay={0} />
       <FloatingOrb color="#f59e0b" size={200} duration={25} delay={2} />
 
-      <header className="mb-4 p-5 bg-black/20 backdrop-blur-2xl rounded-[2.5rem] border-2 border-white/10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 relative z-10 overflow-hidden">
-        <div className="flex items-center gap-6 relative z-10">
-          <motion.div whileHover={{ rotate: 10, scale: 1.05 }} className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${currentRank.color} flex items-center justify-center text-3xl shadow-xl ${currentRank.glow} relative`}>
-             <div className="absolute inset-0 rounded-2xl border-2 border-white/20 animate-pulse"></div>
+      <header className="mb-4 p-3.5 sm:p-5 bg-black/20 backdrop-blur-2xl rounded-[1.8rem] sm:rounded-[2.5rem] border-2 border-white/10 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 shrink-0 relative z-10 overflow-hidden">
+        <div className="flex items-center gap-3.5 sm:gap-6 relative z-10 w-full md:w-auto">
+          <motion.div whileHover={{ rotate: 10, scale: 1.05 }} className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${currentRank.color} flex items-center justify-center text-2xl sm:text-3xl shadow-xl ${currentRank.glow} relative shrink-0`}>
+             <div className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-white/20 animate-pulse"></div>
              {currentRank.icon}
           </motion.div>
-          <div className="text-left">
-            <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-[0.4em] mb-1 italic opacity-80">{language === 'en' ? 'Honor Status' : 'Estado de Honor'}</p>
-            <h2 className="text-2xl font-black text-white tracking-tighter italic leading-none">{currentRank.name[language] || currentRank.name.es} <span className="text-xs not-italic opacity-20 font-light ml-2">Lvl.{Math.floor(progress/10) + 1}</span></h2>
-            <div className="flex items-center gap-3 mt-3">
-               <div className="px-3 py-1 rounded-xl bg-black/30 border border-white/5"><span className="text-amber-500 font-black text-[9px] italic uppercase tracking-widest">{displayXP} XP</span></div>
-               <span className="text-[8px] font-black text-white/30 uppercase tracking-widest italic border-l border-white/10 pl-3">{completedCount}/{achievements.length} {language === 'en' ? 'Unlocked' : 'Desbloqueados'}</span>
+          <div className="text-left flex-1 min-w-0">
+            <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-[0.3em] sm:tracking-[0.4em] mb-0.5 sm:mb-1 italic opacity-80">{language === 'en' ? 'Honor Status' : 'Estado de Honor'}</p>
+            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tighter italic leading-none truncate">{currentRank.name[language] || currentRank.name.es} <span className="text-xs not-italic opacity-20 font-light ml-1 sm:ml-2">Lvl.{Math.floor(progress/10) + 1}</span></h2>
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
+               <div className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-xl bg-black/30 border border-white/5"><span className="text-amber-500 font-black text-[8px] sm:text-[9px] italic uppercase tracking-widest">{displayXP} XP</span></div>
+               <span className="text-[7px] sm:text-[8px] font-black text-white/30 uppercase tracking-widest italic border-l border-white/10 pl-2 sm:pl-3">{completedCount}/{achievements.length} {language === 'en' ? 'Unlocked' : 'Desbloqueados'}</span>
             </div>
           </div>
         </div>
-        <div className="flex-1 max-w-lg w-full flex flex-col gap-2 relative z-10">
-           <div className="flex justify-between items-end mb-0.5 px-1"><span className="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">{language === 'en' ? 'Journey Progress' : 'Senda de Maestría'}</span><span className="text-lg font-black text-white italic tracking-widest">{Math.round(progress)}%</span></div>
-           <div className="h-3 bg-black/60 rounded-full overflow-hidden border-2 border-white/5 shadow-inner p-0.5"><motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1.5, ease: "circOut" }} className={`h-full rounded-full bg-gradient-to-r ${currentRank.color} relative shadow-[0_0_15px_rgba(255,255,255,0.2)]`} /></div>
+        <div className="flex-1 max-w-lg w-full flex flex-col gap-1.5 sm:gap-2 relative z-10">
+           <div className="flex justify-between items-end mb-0.5 px-1"><span className="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">{language === 'en' ? 'Journey Progress' : 'Senda de Maestría'}</span><span className="text-base sm:text-lg font-black text-white italic tracking-widest">{Math.round(progress)}%</span></div>
+           <div className="h-2.5 sm:h-3 bg-black/60 rounded-full overflow-hidden border-2 border-white/5 shadow-inner p-0.5"><motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1.5, ease: "circOut" }} className={`h-full rounded-full bg-gradient-to-r ${currentRank.color} relative shadow-[0_0_15px_rgba(255,255,255,0.2)]`} /></div>
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 space-y-8 pb-12 relative z-10 no-scrollbar">
+      <div className="flex-1 space-y-6 sm:space-y-8 pb-8 relative z-10">
         {categories.map((cat, catIdx) => (
-          <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: catIdx * 0.05 }} className="space-y-6">
-            <div className="flex items-center gap-4 border-l-4 border-[var(--brand-primary)] pl-4">
-               <div className="text-[var(--brand-primary)] opacity-50 scale-90">{cat.icon}</div>
-               <h3 className="text-lg font-black text-white/80 italic tracking-tight uppercase leading-none">{cat.name[language] || cat.name.es}</h3>
+          <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: catIdx * 0.05 }} className="space-y-4 sm:space-y-6">
+            <div className="flex items-center gap-3 sm:gap-4 border-l-4 border-[var(--brand-primary)] pl-3 sm:pl-4">
+               <div className="text-[var(--brand-primary)] opacity-50 scale-85 sm:scale-90">{cat.icon}</div>
+               <h3 className="text-base sm:text-lg font-black text-white/80 italic tracking-tight uppercase leading-none">{cat.name[language] || cat.name.es}</h3>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3.5 sm:gap-5">
                {achievements.filter(a => a.category === cat.id).map((a) => (
-                  <motion.div key={a.id} whileHover={{ y: -5, scale: 1.02 }} className={`relative p-6 rounded-[2.5rem] border-2 transition-all duration-500 flex flex-col items-center text-center group overflow-hidden ${a.completed ? 'bg-white/[0.04] border-white/10 shadow-xl backdrop-blur-sm' : 'bg-black/30 border-transparent opacity-45 grayscale-[80%]'}`}>
+                  <motion.div key={a.id} whileHover={{ y: -5, scale: 1.02 }} className={`relative p-4 sm:p-6 rounded-[1.8rem] sm:rounded-[2.5rem] border-2 transition-all duration-500 flex flex-col items-center text-center group overflow-hidden ${a.completed ? 'bg-white/[0.04] border-white/10 shadow-xl backdrop-blur-sm' : 'bg-black/30 border-transparent opacity-45 grayscale-[80%]'}`}>
                     {a.completed && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer pointer-events-none" />}
-                    <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl mb-5 relative transition-all duration-700 ${a.completed ? `bg-gradient-to-br ${a.color} shadow-lg` : 'bg-white/5'}`}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-[1.5rem] flex items-center justify-center text-2xl sm:text-3xl mb-3 sm:mb-5 relative transition-all duration-700 ${a.completed ? `bg-gradient-to-br ${a.color} shadow-lg` : 'bg-white/5'}`}>
                        {a.completed && <div className={`absolute inset-0 rounded-[1.5rem] blur-xl opacity-30 bg-gradient-to-br ${a.color}`}></div>}
                        <span className="relative z-10 group-hover:scale-110 transition-transform duration-500">{a.icon}</span>
                     </div>
-                    <h4 className={`text-base font-black italic tracking-tight mb-2 ${a.completed ? 'text-white' : 'text-white/60'}`}>{a.title[language] || a.title.es}</h4>
-                    <p className={`text-xs font-bold leading-relaxed px-2 mb-5 line-clamp-3 ${a.completed ? 'text-white/60' : 'text-white/40'}`}>{a.desc[language] || a.desc.es}</p>
-                    <div className="mt-auto w-full flex items-center justify-between pt-4 border-t border-white/5">
-                       <span className={`text-[10px] font-black italic ${a.completed ? 'text-[var(--brand-primary)]' : 'text-white/20'}`}>+{a.points} XP</span>
-                       {a.completed && <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border border-white/10"><CheckIcon /></div>}
+                    <h4 className={`text-sm sm:text-base font-black italic tracking-tight mb-1.5 sm:mb-2 ${a.completed ? 'text-white' : 'text-white/60'}`}>{a.title[language] || a.title.es}</h4>
+                    <p className={`text-[11px] sm:text-xs font-bold leading-relaxed px-1 sm:px-2 mb-3 sm:mb-5 line-clamp-3 ${a.completed ? 'text-white/60' : 'text-white/40'}`}>{a.desc[language] || a.desc.es}</p>
+                    <div className="mt-auto w-full flex items-center justify-between pt-3 sm:pt-4 border-t border-white/5">
+                       <span className={`text-[9px] sm:text-[10px] font-black italic ${a.completed ? 'text-[var(--brand-primary)]' : 'text-white/20'}`}>+{a.points} XP</span>
+                       {a.completed && <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white shadow-lg border border-white/10 scale-90 sm:scale-100"><CheckIcon /></div>}
                     </div>
-                    <div className={`absolute top-4 right-5 text-[7px] font-black uppercase tracking-widest opacity-20 italic ${a.tier === 'gold' ? 'text-amber-400' : a.tier === 'silver' ? 'text-slate-300' : 'text-orange-500'}`}>{t(`tier_${a.tier}`)}</div>
+                    <div className={`absolute top-3.5 sm:top-4 right-4 sm:right-5 text-[7px] font-black uppercase tracking-widest opacity-20 italic ${a.tier === 'gold' ? 'text-amber-400' : a.tier === 'silver' ? 'text-slate-300' : 'text-orange-500'}`}>{t(`tier_${a.tier}`)}</div>
                     </motion.div>
                ))}
             </div>

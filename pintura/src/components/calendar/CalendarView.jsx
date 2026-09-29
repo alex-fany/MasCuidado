@@ -173,33 +173,33 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
   const dateLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
 
   return (
-    <section className="h-full w-full max-w-5xl mx-auto flex flex-col px-4 pt-0 pb-28 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden text-left">
-      <header className="mb-3 flex justify-between items-center px-6 shrink-0 relative z-[20]">
+    <section className="h-full w-full max-w-5xl mx-auto flex flex-col px-3 sm:px-4 pt-0 pb-28 sm:pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto custom-scrollbar no-scrollbar text-left">
+      <header className="mb-3 flex flex-col xs:flex-row xs:items-center justify-between gap-2.5 px-2 sm:px-6 shrink-0 relative z-[20]">
         <div>
-          <h2 className="text-3xl font-black text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] tracking-tighter italic text-left">{t('nav_calendar')}</h2>
-          <p className="text-[var(--brand-accent)] font-black text-[9px] uppercase tracking-[0.3em] mt-0.5 ml-1 opacity-80 italic text-left">{t('cal_plan')}</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.15)] tracking-tighter italic text-left">{t('nav_calendar')}</h2>
+          <p className="text-[var(--brand-accent)] font-black text-[8px] sm:text-[9px] uppercase tracking-[0.3em] mt-0.5 ml-1 opacity-80 italic text-left">{t('cal_plan')}</p>
         </div>
-        <div className="flex items-center gap-1.5 bg-[var(--brand-primary)]/40 backdrop-blur-md p-1 rounded-full border border-white/20 shadow-xl">
-          <button onClick={prevMonth} className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/30 text-white rounded-full transition-all active:scale-95 border border-white/10"><ArrowLeftIcon /></button>
-          <div className="bg-[var(--brand-surface)] px-4 py-1.5 rounded-full shadow-inner border border-[var(--brand-primary)]/40 min-w-[130px]">
-            <p className="text-[var(--brand-primary)] font-black text-[9px] uppercase tracking-[0.2em] text-center italic">{monthNames[currentMonth]} <span className="opacity-40">{currentYear}</span></p>
+        <div className="flex items-center gap-1.5 bg-[var(--brand-primary)]/40 backdrop-blur-md p-1 rounded-full border border-white/20 shadow-xl self-end xs:self-auto">
+          <button onClick={prevMonth} className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/10 hover:bg-white/30 text-white rounded-full transition-all active:scale-95 border border-white/10"><ArrowLeftIcon /></button>
+          <div className="bg-[var(--brand-surface)] px-3 sm:px-4 py-1 sm:py-1.5 rounded-full shadow-inner border border-[var(--brand-primary)]/40 min-w-[110px] sm:min-w-[130px]">
+            <p className="text-[var(--brand-primary)] font-black text-[8px] sm:text-[9px] uppercase tracking-[0.2em] text-center italic">{monthNames[currentMonth]} <span className="opacity-40">{currentYear}</span></p>
           </div>
-          <button onClick={nextMonth} className="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/30 text-white rounded-full transition-all active:scale-95 border border-white/10"><ArrowRightIcon /></button>
+          <button onClick={nextMonth} className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center bg-white/10 hover:bg-white/30 text-white rounded-full transition-all active:scale-95 border border-white/10"><ArrowRightIcon /></button>
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 max-h-[100%] overflow-visible relative z-[10] pb-2 min-h-0">
-        <div className="lg:col-span-7 bg-[var(--brand-surface-glass)] backdrop-blur-xl rounded-[2.5rem] p-5 border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col h-full animate-in zoom-in-95 duration-500 relative overflow-hidden min-h-0">
-          <div className="grid grid-cols-7 gap-1.5 mb-4 mt-1 shrink-0 px-1">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 relative z-[10] pb-4">
+        <div className="lg:col-span-7 bg-[var(--brand-surface-glass)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-3.5 sm:p-5 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col animate-in zoom-in-95 duration-500 relative overflow-hidden">
+          <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-2.5 sm:mb-4 mt-1 shrink-0 px-0.5 sm:px-1">
             {dayNames.map((d, index) => (
-              <div key={index} className="text-center text-[var(--brand-primary)] font-black text-[9px] opacity-40 uppercase tracking-[0.1em] italic">{d}</div>
+              <div key={index} className="text-center text-[var(--brand-primary)] font-black text-[8px] sm:text-[9px] opacity-40 uppercase tracking-[0.1em] italic">{d}</div>
             ))}
           </div>
           <div 
-            className="grid grid-cols-7 gap-1.5 flex-1 overflow-visible text-left min-h-0 px-1"
-            style={{ gridTemplateRows: `repeat(${rowCount}, 1fr)` }}
+            className="grid grid-cols-7 gap-1 sm:gap-1.5 flex-1 overflow-visible text-left px-0.5 sm:px-1"
+            style={{ gridTemplateRows: `repeat(${rowCount}, minmax(36px, 1fr))` }}
           >
-            {blanks.map(b => <div key={`b-${b}`} className="w-full h-full" />)}
+            {blanks.map(b => <div key={`b-${b}`} className="w-full h-full min-h-[36px] sm:min-h-[44px]" />)}
             {days.map(d => {
               const dateObj = new Date(currentYear, currentMonth, d);
               const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
@@ -210,12 +210,12 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
               );
 
               return (
-                <button key={d} onClick={() => setSelectedDate(dateObj)} className={`w-full h-full rounded-xl lg:rounded-2xl flex flex-col items-center justify-center relative transition-all duration-300 text-xs font-black ${isSelected ? 'bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] shadow-lg scale-105 z-10 border-2 border-[var(--brand-border-strong)]' : isToday ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] ring-1 ring-[var(--brand-primary)] shadow-sm' : 'text-[var(--brand-text)] opacity-70 hover:opacity-100 hover:bg-[var(--brand-surface)] hover:text-[var(--brand-primary)] hover:scale-105 bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/10'}`}>
+                <button key={d} onClick={() => setSelectedDate(dateObj)} className={`w-full h-full min-h-[36px] sm:min-h-[44px] py-1 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center relative transition-all duration-300 text-[11px] sm:text-xs font-black ${isSelected ? 'bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] shadow-lg scale-105 z-10 border-2 border-[var(--brand-border-strong)]' : isToday ? 'bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] ring-1 ring-[var(--brand-primary)] shadow-sm' : 'text-[var(--brand-text)] opacity-70 hover:opacity-100 hover:bg-[var(--brand-surface)] hover:text-[var(--brand-primary)] hover:scale-105 bg-[var(--brand-primary)]/5 border border-[var(--brand-primary)]/10'}`}>
                   {d}
                   {dayEvents.length > 0 && (
-                    <div className="absolute bottom-1.5 lg:bottom-2 flex gap-0.5">
+                    <div className="absolute bottom-1 sm:bottom-1.5 flex gap-0.5">
                        {dayEvents.map((e, idx) => (
-                         <span key={idx} className={`w-1 h-1 lg:w-1.5 lg:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : e.type.startsWith('vaccine') ? 'bg-purple-500' : e.type === 'food_depletion' ? 'bg-orange-500' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />
+                         <span key={idx} className={`w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full ${isSelected ? 'bg-[var(--brand-button-text)]' : e.type.startsWith('vaccine') ? 'bg-purple-500' : e.type === 'food_depletion' ? 'bg-orange-500' : 'bg-[var(--brand-primary)]'} ${isSelected ? '' : 'animate-pulse'}`} />
                        ))}
                     </div>
                   )}
@@ -225,28 +225,28 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
           </div>
         </div>
 
-        <div className="lg:col-span-5 flex flex-col gap-6 h-full min-h-0 overflow-visible">
-          <div className="bg-[var(--brand-modal-gradient)] backdrop-blur-xl rounded-[2.5rem] p-5 border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col h-full border-dashed border-[var(--brand-secondary)]/30 overflow-hidden px-4 min-h-0 relative">
-            <div className="flex items-center justify-between mb-4 shrink-0 px-1 relative z-10">
-               <div className="flex items-center gap-2.5">
+        <div className="lg:col-span-5 flex flex-col gap-6 overflow-visible">
+          <div className="bg-[var(--brand-modal-gradient)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-5 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col border-dashed border-[var(--brand-secondary)]/30 overflow-hidden relative min-h-[280px]">
+            <div className="flex items-center justify-between mb-3 sm:mb-4 shrink-0 px-1 relative z-10">
+               <div className="flex items-center gap-2 sm:gap-2.5">
                 <div className="p-1 rounded-full bg-[var(--brand-primary)]/10 shadow-sm border border-[var(--brand-primary)]/20 scale-90"><ClockIcon /></div>
-                <h3 className="text-xl font-black text-[var(--brand-text)] tracking-tighter italic text-left">{t('cal_events')}</h3>
+                <h3 className="text-lg sm:text-xl font-black text-[var(--brand-text)] tracking-tighter italic text-left">{t('cal_events')}</h3>
               </div>
               <div className="bg-[var(--brand-surface)]/50 px-2.5 py-1 rounded-full border border-[var(--brand-primary)]/20 shadow-sm backdrop-blur-sm">
                 <p className="text-[8px] font-black text-[var(--brand-primary)] uppercase tracking-tighter italic">{selectedDate.toLocaleDateString(dateLocale, { day: 'numeric', month: 'short' })}</p>
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar space-y-2.5 pb-4 px-1 overflow-x-visible min-h-0">
+            <div className="max-h-[260px] lg:max-h-[380px] overflow-y-auto pr-1 custom-scrollbar space-y-2 sm:space-y-2.5 pb-3 px-0.5">
               {selectedDayEvents.length > 0 ? (
                 selectedDayEvents.map(event => (
-                  <div key={event.id} onClick={() => handleEventClick(event)} className={`p-3 rounded-[1.8rem] border flex items-center gap-3.5 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
-                    <div className={`w-9 h-9 rounded-[1.1rem] flex items-center justify-center overflow-hidden text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
+                  <div key={event.id} onClick={() => handleEventClick(event)} className={`p-2.5 sm:p-3 rounded-[1.4rem] sm:rounded-[1.8rem] border flex items-center gap-3 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
+                    <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-[1rem] sm:rounded-[1.1rem] flex items-center justify-center overflow-hidden text-base sm:text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
                       {event.type === 'food_depletion' ? '🥣' : (event.pet?.imagen ? <img src={`http://localhost:3000/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>)}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between gap-1.5">
-                        <p className={`font-black text-sm leading-tight truncate transition-colors ${event.type.startsWith('vaccine') ? 'text-purple-700' : event.type === 'food_depletion' ? 'text-orange-700' : 'text-[var(--brand-text)] group-hover:text-[var(--brand-primary)]'}`}>{event.titulo}</p>
+                        <p className={`font-black text-xs sm:text-sm leading-tight truncate transition-colors ${event.type.startsWith('vaccine') ? 'text-purple-700' : event.type === 'food_depletion' ? 'text-orange-700' : 'text-[var(--brand-text)] group-hover:text-[var(--brand-primary)]'}`}>{event.titulo}</p>
                         <div className="flex items-center gap-1 shrink-0">
                           {event.type === 'reminder' && event.originalData.idEventoGoogle && <GoogleCalendarBrandIcon />}
                           <span className={`font-black text-[7px] uppercase tracking-tighter opacity-60 ${event.type.startsWith('vaccine') ? 'text-purple-600' : event.type === 'food_depletion' ? 'text-orange-600' : 'text-[var(--brand-primary)]'}`}>
@@ -254,15 +254,15 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
                           </span>
                         </div>
                       </div>
-                      <p className={`text-[9px] font-black uppercase tracking-widest italic ${event.type.startsWith('vaccine') ? 'text-purple-600 opacity-80' : event.type === 'food_depletion' ? 'text-orange-600 opacity-80' : 'text-[var(--brand-text)] opacity-80'}`}>{event.pet?.nombre}</p>
+                      <p className={`text-[8px] sm:text-[9px] font-black uppercase tracking-widest italic ${event.type.startsWith('vaccine') ? 'text-purple-600 opacity-80' : event.type === 'food_depletion' ? 'text-orange-600 opacity-80' : 'text-[var(--brand-text)] opacity-80'}`}>{event.pet?.nombre}</p>
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center flex flex-col items-center justify-center gap-3 border-2 border-dashed border-[var(--brand-primary)]/20 rounded-[2.5rem] bg-[var(--brand-surface)]/30 backdrop-blur-sm flex-1 py-4 shrink-0">
-                  <div className="text-4xl opacity-20 filter grayscale drop-shadow-lg">🐾</div>
+                <div className="text-center flex flex-col items-center justify-center gap-2.5 border-2 border-dashed border-[var(--brand-primary)]/20 rounded-[2rem] bg-[var(--brand-surface)]/30 backdrop-blur-sm py-6 shrink-0">
+                  <div className="text-3xl sm:text-4xl opacity-20 filter grayscale drop-shadow-lg">🐾</div>
                   <div className="space-y-0.5 text-center">
-                    <p className="font-black text-[var(--brand-text)] opacity-40 text-sm tracking-tight italic">{t('cal_no_activities')}</p>
+                    <p className="font-black text-[var(--brand-text)] opacity-40 text-xs sm:text-sm tracking-tight italic">{t('cal_no_activities')}</p>
                     <p className="text-[var(--brand-secondary)] text-[7px] font-black uppercase tracking-[0.2em] opacity-40">{t('cal_lets_play')}</p>
                   </div>
                 </div>
@@ -272,10 +272,10 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
             <div className="px-1 pt-2 shrink-0">
               <button 
                 onClick={() => { setEditingReminder(null); setIsAddModalOpen(true); }}
-                className="w-full py-2.5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2.5 group active:translate-y-0.5 border-b-4 border-black/10"
+                className="w-full py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-2xl sm:rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group active:translate-y-0.5 border-b-4 border-black/10"
               >
-                <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center relative overflow-hidden transition-transform duration-500">
-                  <span className="text-lg leading-none">+</span>
+                <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center relative overflow-hidden transition-transform duration-500">
+                  <span className="text-base leading-none">+</span>
                 </div>
                 <span className="text-xs uppercase tracking-[0.1em] italic">{t('cal_schedule')}</span>
               </button>
