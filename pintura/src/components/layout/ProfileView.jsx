@@ -12,7 +12,7 @@ const LADAS = [
 
 const CardWrapper = ({ children, className = "" }) => (
   <div 
-    className={`rounded-[2.5rem] border-4 border-[var(--brand-border-strong)] shadow-xl overflow-hidden flex flex-col ${className}`}
+    className={`rounded-[2rem] sm:rounded-[2.5rem] border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-xl overflow-hidden flex flex-col ${className}`}
     style={{ background: 'var(--brand-modal-gradient)' }}
   >
     {children}
@@ -173,10 +173,10 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
   const dateLocale = language === 'en' ? 'en-US' : language === 'pt' ? 'pt-BR' : 'es-ES';
 
   return (
-    <section className="h-full w-full max-w-[1400px] mx-auto flex flex-col px-6 pt-2 pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-hidden text-left">
+    <section className="h-full w-full max-w-[1400px] mx-auto flex flex-col px-4 sm:px-6 pt-2 pb-28 sm:pb-24 animate-in fade-in slide-in-from-bottom-4 duration-700 overflow-y-auto custom-scrollbar no-scrollbar text-left">
       
       {/* Header */}
-      <header className="mb-4 flex justify-between items-center px-2 shrink-0">
+      <header className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-3 px-1 sm:px-2 shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] border-2 border-[var(--brand-border-strong)] flex items-center justify-center text-[var(--brand-button-text)] shadow-lg rotate-3">
             <UsersIcon />
@@ -187,65 +187,65 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 self-end sm:self-auto">
            <button 
             onClick={() => setShowDeleteConfirm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--brand-danger-muted)]/10 text-[var(--brand-danger)]/60 font-black rounded-full border border-[var(--brand-danger)]/5 hover:bg-[var(--brand-danger-muted)] hover:text-[var(--brand-danger)] transition-all text-[9px] uppercase tracking-widest active:scale-95"
+            className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-[var(--brand-danger-muted)]/10 text-[var(--brand-danger)]/70 font-black rounded-full border border-[var(--brand-danger)]/10 hover:bg-[var(--brand-danger-muted)] hover:text-[var(--brand-danger)] transition-all text-[8px] sm:text-[9px] uppercase tracking-widest active:scale-95"
           >
             {t('profile_deactivate')}
           </button>
           <button 
             onClick={() => setShowLogoutConfirm(true)} 
-            className="flex items-center gap-2 px-5 py-2 bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] border border-[var(--brand-border-strong)] text-[var(--brand-button-text)] font-black rounded-full shadow-md hover:opacity-80 transition-all text-[10px] uppercase tracking-widest active:scale-95"
+            className="flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] border border-[var(--brand-border-strong)] text-[var(--brand-button-text)] font-black rounded-full shadow-md hover:opacity-80 transition-all text-[9px] sm:text-[10px] uppercase tracking-widest active:scale-95"
           >
             <LogoutIcon /> {t('profile_logout')}
           </button>
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-6">
         
         {/* Identidad */}
-        <div className="lg:col-span-4 flex flex-col gap-5 min-h-0">
-          <CardWrapper className="flex-1 justify-center p-8 text-center relative overflow-hidden">
-            <div className="absolute top-6 left-1/2 -translate-x-1/2">
-               <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
+        <div className="lg:col-span-4 flex flex-col gap-5">
+          <CardWrapper className="justify-center p-6 sm:p-8 text-center relative overflow-hidden">
+            <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2">
+               <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-3.5 sm:px-4 py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
                  {t('profile_active')}
                </span>
             </div>
 
-            <div className="relative mx-auto mt-12 mb-6 group cursor-pointer" onClick={() => setIsAvatarSelectorOpen(true)}>
-              <div className="w-36 h-36 rounded-[3rem] bg-[var(--brand-primary)] flex items-center justify-center text-6xl text-white border-8 border-[var(--brand-border-strong)] shadow-2xl relative z-10 rotate-2 group-hover:rotate-0 transition-transform">
+            <div className="relative mx-auto mt-8 sm:mt-12 mb-4 sm:mb-6 group cursor-pointer" onClick={() => setIsAvatarSelectorOpen(true)}>
+              <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-[2.2rem] sm:rounded-[3rem] bg-[var(--brand-primary)] flex items-center justify-center text-5xl sm:text-6xl text-white border-4 sm:border-8 border-[var(--brand-border-strong)] shadow-2xl relative z-10 rotate-2 group-hover:rotate-0 transition-transform">
                 {renderAvatar()}
               </div>
               <div className="absolute -inset-2 bg-[var(--brand-primary)]/10 rounded-[2.5rem] blur-xl -z-10 animate-pulse"></div>
-              <div className="absolute bottom-0 right-0 w-10 h-10 bg-[var(--brand-primary)] rounded-full border-4 border-[var(--brand-modal-bg)] flex items-center justify-center text-[var(--brand-button-text)] text-sm shadow-lg z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute bottom-0 right-0 w-8 h-8 sm:w-10 sm:h-10 bg-[var(--brand-primary)] rounded-full border-2 sm:border-4 border-[var(--brand-modal-bg)] flex items-center justify-center text-[var(--brand-button-text)] text-xs sm:text-sm shadow-lg z-20 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                  ✎
               </div>
             </div>
             
-            <div className="mb-8 flex justify-center items-center gap-2 group relative">
+            <div className="mb-6 sm:mb-8 flex justify-center items-center gap-2 group relative">
               {!isEditingName ? (
                 <>
-                  <h3 className="text-2xl font-black text-[var(--brand-primary)] italic tracking-tight leading-tight px-2 group-hover:opacity-60 transition-opacity">
+                  <h3 className="text-xl sm:text-2xl font-black text-[var(--brand-primary)] italic tracking-tight leading-tight px-2 group-hover:opacity-60 transition-opacity">
                     {user.nombreCompleto || user.nombre_completo}
                   </h3>
                   <button 
                     onClick={() => setIsEditingName(true)}
-                    className="w-6 h-6 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center scale-75 opacity-0 group-hover:opacity-100 transition-all hover:bg-[var(--brand-primary)] hover:text-white"
+                    className="w-6 h-6 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center scale-75 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 transition-all hover:bg-[var(--brand-primary)] hover:text-white"
                   >
                     ✎
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2 w-full max-w-xs">
                    <input 
                      type="text"
                      value={form.nombreCompleto}
                      onChange={(e) => setForm({...form, nombreCompleto: e.target.value})}
                      autoFocus
                      maxLength={30}
-                     className={`w-full text-center text-xl font-black text-[var(--brand-primary)] italic bg-[var(--brand-surface-muted)] border-2 rounded-2xl p-2 outline-none transition-all ${errors.nombreCompleto ? 'border-red-500 shadow-inner' : 'border-[var(--brand-primary)]/20 focus:border-[var(--brand-primary)] shadow-sm'}`}
+                     className={`w-full text-center text-lg sm:text-xl font-black text-[var(--brand-primary)] italic bg-[var(--brand-surface-muted)] border-2 rounded-2xl p-2 outline-none transition-all ${errors.nombreCompleto ? 'border-red-500 shadow-inner' : 'border-[var(--brand-primary)]/20 focus:border-[var(--brand-primary)] shadow-sm'}`}
                      placeholder={t('form_name')}
                    />
                    <div className="flex gap-2">
@@ -267,9 +267,9 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         </div>
 
         {/* Datos Detallados */}
-        <div className="lg:col-span-4 flex flex-col min-h-0">
-          <CardWrapper className="flex-1 p-8 relative">
-            <div className="flex items-center justify-between mb-8 border-b border-[var(--brand-primary)]/10 pb-4">
+        <div className="lg:col-span-4 flex flex-col">
+          <CardWrapper className="p-6 sm:p-8 relative">
+            <div className="flex items-center justify-between mb-6 sm:mb-8 border-b border-[var(--brand-primary)]/10 pb-4">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-lg bg-[var(--brand-primary)]/10 flex items-center justify-center text-[var(--brand-primary)] scale-75"><SettingsIcon /></div>
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] opacity-80 italic">{t('profile_info')}</h4>
@@ -308,16 +308,16 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                 <div className="space-y-4 animate-in fade-in duration-500">
                   <div className="space-y-1">
                     <p className="text-[10px] font-black text-[var(--brand-primary)] uppercase tracking-widest italic ml-1 opacity-60">{t('profile_email')}</p>
-                    <div className="bg-[var(--brand-surface-muted)] p-4 rounded-2xl border border-[var(--brand-primary)]/10 shadow-inner">
-                      <span className="font-bold text-[var(--brand-text)] text-sm">{user.correo}</span>
+                    <div className="bg-[var(--brand-surface-muted)] p-3.5 sm:p-4 rounded-2xl border border-[var(--brand-primary)]/10 shadow-inner break-all">
+                      <span className="font-bold text-[var(--brand-text)] text-xs sm:text-sm">{user.correo}</span>
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <p className="text-[10px] font-black text-[var(--brand-primary)] uppercase tracking-widest italic ml-1 opacity-60">{t('profile_phone')}</p>
-                    <div className="bg-[var(--brand-surface-muted)] p-4 rounded-2xl border border-[var(--brand-primary)]/10 shadow-inner flex items-center gap-3">
+                    <div className="bg-[var(--brand-surface-muted)] p-3.5 sm:p-4 rounded-2xl border border-[var(--brand-primary)]/10 shadow-inner flex items-center gap-3">
                       <div className="text-[var(--brand-primary)] opacity-60"><PhoneIcon /></div>
-                      <span className="font-black text-[var(--brand-text)] text-sm tracking-widest">{user.telefono || "Sin número"}</span>
+                      <span className="font-black text-[var(--brand-text)] text-xs sm:text-sm tracking-wider sm:tracking-widest">{user.telefono || "Sin número"}</span>
                     </div>
                   </div>
                 </div>
@@ -329,14 +329,14 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                       type="email"
                       value={form.email}
                       onChange={(e) => setForm({...form, email: e.target.value})}
-                      className={`w-full px-5 py-3.5 bg-[var(--brand-surface-muted)] border-2 rounded-2xl font-bold text-sm outline-none transition-all ${errors.email ? 'border-red-500 shadow-inner' : 'border-transparent focus:border-[var(--brand-primary)] shadow-sm'}`}
+                      className={`w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-[var(--brand-surface-muted)] border-2 rounded-2xl font-bold text-xs sm:text-sm outline-none transition-all ${errors.email ? 'border-red-500 shadow-inner' : 'border-transparent focus:border-[var(--brand-primary)] shadow-sm'}`}
                     />
                     {errors.email && <p className="text-[8px] font-black text-red-500 uppercase italic ml-2">{errors.email}</p>}
                   </div>
                   
                   <div className="space-y-1 text-left w-full">
                     <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">{t('profile_phone')}</label>
-                    <div className={`flex gap-2 h-[52px] rounded-2xl border-2 transition-all ${errors.telefono ? 'border-red-500 shadow-inner' : 'border-transparent'}`}>
+                    <div className={`flex gap-2 h-[48px] sm:h-[52px] rounded-2xl border-2 transition-all ${errors.telefono ? 'border-red-500 shadow-inner' : 'border-transparent'}`}>
                       <select name="lada" value={form.lada} onChange={(e) => setForm({...form, lada: e.target.value})} className="w-20 bg-[var(--brand-surface-muted)] border-2 border-[var(--brand-primary)]/10 rounded-xl text-[var(--brand-text)] font-black text-[10px] outline-none p-2 shadow-inner appearance-none cursor-pointer">
                         {LADAS.map(l => <option key={l.code} value={l.code}>{l.country} {l.code}</option>)}
                       </select>
@@ -346,7 +346,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                         value={form.telefono}
                         onChange={(e) => setForm({...form, telefono: e.target.value.replace(/\D/g, '')})}
                         placeholder={t('ph_phone_num')}
-                        className="flex-1 h-full px-5 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] rounded-xl text-[var(--brand-text)] font-bold text-sm outline-none shadow-inner"
+                        className="flex-1 h-full px-4 sm:px-5 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] rounded-xl text-[var(--brand-text)] font-bold text-xs sm:text-sm outline-none shadow-inner"
                       />
                     </div>
                     {errors.telefono && <p className="text-[8px] font-black text-red-500 uppercase italic ml-2 mt-1">{errors.telefono}</p>}
@@ -364,9 +364,9 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         </div>
 
         {/* Manada */}
-        <div className="lg:col-span-4 flex flex-col min-h-0">
-          <CardWrapper className="flex-1 p-6">
-            <div className="flex items-center justify-between mb-6 border-b border-[var(--brand-primary)]/10 pb-4">
+        <div className="lg:col-span-4 flex flex-col">
+          <CardWrapper className="p-5 sm:p-6">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-[var(--brand-primary)]/10 pb-3 sm:pb-4">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-lg bg-[var(--brand-primary)]/10 flex items-center justify-center text-[var(--brand-primary)] scale-75"><CalendarIcon /></div>
                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] opacity-80 italic">{t('profile_pack')}</h4>
@@ -376,12 +376,12 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
+            <div className="max-h-[300px] sm:max-h-[360px] lg:max-h-[420px] overflow-y-auto custom-scrollbar space-y-2.5 sm:space-y-3 pr-1">
               {pets?.length > 0 ? (
                 pets.map((m) => (
-                  <div key={m.id} className="bg-[var(--brand-surface)] p-3 rounded-2xl flex items-center justify-between border border-[var(--brand-primary)]/10 shadow-sm transition-all hover:scale-[1.02] group">
+                  <div key={m.id} className="bg-[var(--brand-surface)] p-3 rounded-2xl flex items-center justify-between border border-[var(--brand-primary)]/10 shadow-sm transition-all hover:scale-[1.01] sm:hover:scale-[1.02] group">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[var(--brand-primary)]/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner overflow-hidden border border-[var(--brand-primary)]/10">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--brand-primary)]/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner overflow-hidden border border-[var(--brand-primary)]/10 shrink-0">
                         {m.imagen ? (
                           <img src={`http://localhost:3000/uploads/${m.imagen}`} alt={m.nombre} className="w-full h-full object-cover" />
                         ) : (
@@ -395,7 +395,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                     </div>
                     <button 
                       onClick={() => onEditPet(m)}
-                      className="w-8 h-8 rounded-lg bg-[var(--brand-primary)]/10 flex items-center justify-center text-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:text-white transition-all scale-75 group-hover:scale-100 opacity-0 group-hover:opacity-100 shadow-sm"
+                      className="w-8 h-8 rounded-lg bg-[var(--brand-primary)]/10 flex items-center justify-center text-[var(--brand-primary)] hover:bg-[var(--brand-primary)] hover:text-white transition-all scale-90 sm:scale-75 sm:group-hover:scale-100 opacity-90 sm:opacity-0 sm:group-hover:opacity-100 shadow-sm shrink-0"
                       title="Editar Mascota"
                     >
                       ✎
@@ -403,8 +403,8 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                   </div>
                 ))
               ) : (
-                <div className="py-20 text-center opacity-20 flex flex-col items-center gap-2 grayscale">
-                   <div className="text-5xl">🦴</div>
+                <div className="py-12 sm:py-20 text-center opacity-20 flex flex-col items-center gap-2 grayscale">
+                   <div className="text-4xl sm:text-5xl">🦴</div>
                    <p className="text-[9px] font-black uppercase italic tracking-widest">{t('profile_no_members')}</p>
                 </div>
               )}

@@ -138,26 +138,26 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
     <>
       <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[9999] flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-300">
         <div 
-          className="rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[var(--brand-primary)]/20 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300"
+          className="rounded-[2rem] sm:rounded-[3rem] w-full max-w-lg p-5 sm:p-8 shadow-2xl relative border-2 sm:border-4 border-[var(--brand-primary)]/20 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300"
           style={{ background: 'var(--brand-modal-gradient)' }}
         >
           
-          <button type="button" onClick={onClose} className="absolute top-8 right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-2 rounded-full">
+          <button type="button" onClick={onClose} className="absolute top-5 sm:top-8 right-5 sm:right-8 hover:scale-110 active:scale-90 transition-transform duration-200 z-50 bg-[var(--brand-surface-muted)] p-1.5 sm:p-2 rounded-full">
             <CloseIcon />
           </button>
 
-          <h2 className="text-4xl font-black text-[var(--brand-primary)] mb-2 shrink-0 tracking-tighter italic text-left">
+          <h2 className="text-2xl sm:text-4xl pr-12 font-black text-[var(--brand-primary)] mb-2 shrink-0 tracking-tighter italic text-left">
             {editReminder ? t('form_edit_rem') : t('form_new_rem')}
           </h2>
 
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden text-left mt-4">
-            <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-5 pb-6">
-              {error && <div className="p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[11px] font-black border-2 border-[var(--brand-danger)]/10">{error}</div>}
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden text-left mt-3 sm:mt-4">
+            <div className="flex-1 overflow-y-auto pr-2 sm:pr-4 custom-scrollbar space-y-3.5 sm:space-y-5 pb-4 sm:pb-6">
+              {error && <div className="p-3 sm:p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[10px] sm:text-[11px] font-black border-2 border-[var(--brand-danger)]/10">{error}</div>}
 
-              <div className="space-y-2 text-left">
+              <div className="space-y-1.5 sm:space-y-2 text-left">
                 <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">{t('form_select_pet')}</label>
                 <select
-                  className="w-full px-5 py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] focus:bg-[var(--brand-surface)] rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none transition-all appearance-none cursor-pointer shadow-sm"
+                  className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] focus:bg-[var(--brand-surface)] rounded-[1.2rem] sm:rounded-[1.5rem] text-[var(--brand-text)] font-bold text-xs sm:text-base outline-none transition-all appearance-none cursor-pointer shadow-sm"
                   value={formData.mascotaId}
                   onChange={(e) => setFormData({ ...formData, mascotaId: e.target.value })}
                   required
@@ -174,7 +174,7 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
                 required
               />
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Input label={t('form_rem_date')} type="date" value={formData.fecha} onChange={(e) => setFormData({ ...formData, fecha: e.target.value })} required />
                 <Input label={t('form_rem_time')} type="time" value={formData.hora} onChange={(e) => setFormData({ ...formData, hora: e.target.value })} required />
               </div>
@@ -208,8 +208,8 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
               </div>
             </div>
 
-            <div className="pt-4 shrink-0">
-              <button type="submit" className="w-full py-5 bg-[var(--brand-primary)] text-[var(--brand-button-text)] rounded-[1.5rem] text-lg shadow-2xl font-black hover:bg-[var(--brand-secondary)] transition-all">
+            <div className="pt-3 sm:pt-4 shrink-0">
+              <button type="submit" className="w-full py-3.5 sm:py-5 bg-[var(--brand-primary)] text-[var(--brand-button-text)] rounded-[1.2rem] sm:rounded-[1.5rem] text-base sm:text-lg shadow-2xl font-black hover:bg-[var(--brand-secondary)] transition-all">
                 {editReminder ? t('form_save') : t('form_add_rem')}
               </button>
             </div>
