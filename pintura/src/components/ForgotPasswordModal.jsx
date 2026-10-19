@@ -13,7 +13,7 @@ export default function ForgotPasswordModal({
   const handleSubmit = async () => {
 
     const res = await fetch(
-      'http://localhost:3000/api/auth/forgot-password',
+      '/api/auth/forgot-password',
       {
         method: 'POST',
         headers: {

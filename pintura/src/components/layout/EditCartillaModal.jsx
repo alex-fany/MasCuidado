@@ -348,7 +348,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
              </div>
              <div className="grid grid-cols-3 gap-3">
                 {fotosExistentes.map((f, i) => (
-                  <div key={`old-${i}`} className="aspect-square rounded-2xl overflow-hidden border-2 border-emerald-500/20 relative shadow-sm"><img src={`http://localhost:3000/uploads/${f}`} className="w-full h-full object-cover" alt="Cartilla" /></div>
+                  <div key={`old-${i}`} className="aspect-square rounded-2xl overflow-hidden border-2 border-emerald-500/20 relative shadow-sm"><img src={f.startsWith("http") ? f : `/uploads/${f}`} className="w-full h-full object-cover" alt="Cartilla" /></div>
                 ))}
                 {fotosCartilla.map((f, i) => (
                   <div key={`new-${i}`} className="aspect-square rounded-2xl overflow-hidden border-2 border-emerald-500/40 relative shadow-md animate-in zoom-in-90">
@@ -423,3 +423,4 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
     </div>
   );
 }
+

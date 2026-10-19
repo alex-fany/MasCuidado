@@ -287,7 +287,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-1">
                          {activePet.fotosCartilla.map((f, i) => (
                            <div key={i} onClick={() => setSelectedPhoto(f)} className="w-24 h-24 rounded-2xl border-2 border-emerald-500/10 overflow-hidden shrink-0 shadow-sm hover:scale-105 transition-transform cursor-pointer">
-                              <img src={`http://localhost:3000/uploads/${f}`} className="w-full h-full object-cover" alt="Cartilla" />
+                              <img src={f.startsWith('http') ? f : `/uploads/${f}`} className="w-full h-full object-cover" alt="Cartilla" />
                            </div>
                          ))}
                       </div>
@@ -417,7 +417,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
               <CloseIcon />
            </button>
            <img 
-             src={`http://localhost:3000/uploads/${selectedPhoto}`} 
+             src={selectedPhoto?.startsWith("http") ? selectedPhoto : `/uploads/${selectedPhoto}`} 
              alt="Zoom Cartilla" 
              className="max-w-full max-h-full object-contain rounded-xl shadow-2xl animate-in zoom-in-95 duration-500" 
            />
@@ -462,3 +462,4 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
     </div>
   );
 }
+

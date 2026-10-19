@@ -56,7 +56,6 @@ export default function ThemeSection() {
               {tItem.colors.map((color, i) => (
                 <div 
                   key={i}
-                  style={{ backgroundColor: color }}
                   className={`w-10 h-10 rounded-full border-4 border-[var(--brand-surface)] shadow-lg relative transition-transform group-hover:translate-x-1`}
                   style={{ backgroundColor: color, zIndex: 30 - i }}
                 />

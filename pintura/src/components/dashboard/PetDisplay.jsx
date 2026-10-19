@@ -6,7 +6,7 @@ import NutricionHub from './NutricionHub';
 export default function PetDisplay({ activePet, onCartillaClick, onRemindersClick, onNutricionClick, onWaterClick, nutricionRefreshKey, remindersCount }) {
   const { t } = useSettings();
   const imageUrl = activePet?.imagen 
-    ? `http://localhost:3000/uploads/${activePet.imagen}` 
+    ? (activePet.imagen.startsWith('http') ? activePet.imagen : `/uploads/${activePet.imagen}`) 
     : null;
 
   const sideButtonStyle = "w-12 h-12 xs:w-14 xs:h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center transition-all duration-300 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-lg relative group overflow-visible bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] hover:shadow-xl hover:ring-4 hover:ring-[var(--brand-accent)]/30 active:translate-y-0.5 text-[var(--brand-button-text)]";

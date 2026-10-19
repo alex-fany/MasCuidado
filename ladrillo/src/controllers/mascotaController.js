@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { uploadToCloudinary } = require('../config/cloudinary');
 
 // Crear mascota
 exports.createMascota = async (req, res) => {
@@ -6,8 +7,11 @@ exports.createMascota = async (req, res) => {
     const userId = req.user.id;
     const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares, padecimientos, medicamentos } = req.body;
 
-    // Si hay un archivo subido, guardamos su nombre
-    const imagen = req.file ? req.file.filename : null;
+    // Si hay un archivo subido, lo subimos a Cloudinary
+    let imagen = null;
+    if (req.file) {
+      imagen = await uploadToCloudinary(req.file.buffer, 'mascotas');
+    }
 
     const mascota = await prisma.Mascota.create({
       data: {
@@ -105,14 +109,16 @@ exports.updateMascota = async (req, res) => {
 
     // Manejar archivos (imagen principal y fotos de cartilla)
     if (req.files) {
-      if (req.files.imagen) {
-        data.imagen = req.files.imagen[0].filename;
+      if (req.files.imagen && req.files.imagen[0]) {
+        data.imagen = await uploadToCloudinary(req.files.imagen[0].buffer, 'mascotas');
       }
-      if (req.files.fotosCartilla) {
+      if (req.files.fotosCartilla && req.files.fotosCartilla.length > 0) {
         // Obtener fotos actuales para no perderlas o reemplazarlas
         const currentPet = await prisma.Mascota.findUnique({ where: { id } });
-        const existingPhotos = Array.isArray(currentPet.fotosCartilla) ? currentPet.fotosCartilla : [];
-        const newPhotos = req.files.fotosCartilla.map(f => f.filename);
+        const existingPhotos = Array.isArray(currentPet?.fotosCartilla) ? currentPet.fotosCartilla : [];
+        const newPhotos = await Promise.all(
+          req.files.fotosCartilla.map(f => uploadToCloudinary(f.buffer, 'cartillas'))
+        );
         data.fotosCartilla = [...existingPhotos, ...newPhotos];
       }
     }

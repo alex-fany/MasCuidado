@@ -5,16 +5,8 @@ const { verifyToken } = require('../middlewares/auth');
 const multer = require('multer');
 const path = require('path');
 
-// Configuración de almacenamiento para Multer
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Carpeta donde se guardarán las imágenes
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'mascota-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Configuración de almacenamiento en memoria para Multer (subida directa a Cloudinary)
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,

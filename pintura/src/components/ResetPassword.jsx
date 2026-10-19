@@ -10,7 +10,7 @@ export default function ResetPassword({ token }) {
     try {
 
       const res = await fetch(
-        "http://localhost:3000/api/auth/reset-password",
+        "/api/auth/reset-password",
         {
           method: "POST",
           headers: {

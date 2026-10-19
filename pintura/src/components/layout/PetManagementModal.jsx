@@ -37,7 +37,7 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
         senasParticulares: pet.senasParticulares || ''
       });
       if (pet.imagen) {
-        setImagePreview(`http://localhost:3000/uploads/${pet.imagen}`);
+        setImagePreview(pet.imagen.startsWith("http") ? pet.imagen : `/uploads/${pet.imagen}`);
       } else {
         setImagePreview(null);
       }
@@ -220,3 +220,4 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
 };
 
 export default PetManagementModal;
+

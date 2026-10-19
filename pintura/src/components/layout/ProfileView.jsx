@@ -383,7 +383,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-[var(--brand-primary)]/5 flex items-center justify-center text-xl group-hover:scale-110 transition-transform shadow-inner overflow-hidden border border-[var(--brand-primary)]/10 shrink-0">
                         {m.imagen ? (
-                          <img src={`http://localhost:3000/uploads/${m.imagen}`} alt={m.nombre} className="w-full h-full object-cover" />
+                          <img src={m.imagen.startsWith("http") ? m.imagen : `/uploads/${m.imagen}`} alt={m.nombre} className="w-full h-full object-cover" />
                         ) : (
                           <span>{m.realAvatar || '🐾'}</span>
                         )}
@@ -470,3 +470,4 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
     </section>
   );
 }
+
