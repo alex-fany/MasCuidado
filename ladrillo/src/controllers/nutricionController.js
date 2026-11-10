@@ -1,4 +1,5 @@
 const prisma = require('../config/prisma');
+const { sessionUserId, petIds, requireOwnedPets, sendPetError } = require('../services/petAccess');
 
 // Conversión
 const factor = { 'g': 1, 'kg': 1000, 'oz': 28.3495, 'lb': 453.592, 't': 1000000 };
@@ -47,6 +48,8 @@ const getConsumoGrupo = async (inventario) => {
 exports.getEstadoNutricional = async (req, res) => {
     try {
         const { mascotaId } = req.params;
+        const userId = sessionUserId(req);
+        await requireOwnedPets(prisma, userId, [mascotaId], { foodGroups: true });
         const config = await prisma.ConfiguracionNutricion.findUnique({ where: { mascotaId } });
 
         let inventario = await prisma.InventarioAlimento.findFirst({
@@ -109,8 +112,7 @@ exports.getEstadoNutricional = async (req, res) => {
             agua: { hoy: aguaHoy, meta: config?.metaAguaDiaria || 4 }
         });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener estado nutricional' });
+        return sendPetError(res, error, 'Error al obtener estado nutricional');
     }
 };
 
@@ -118,9 +120,13 @@ exports.getEstadoNutricional = async (req, res) => {
 exports.registrarCompra = async (req, res) => {
     try {
         const { mascotaId } = req.params;
-        const { marca, tipo, cantidadTotal, costo, unidadMedida, compartidaConIds, resolveConflict } = req.body;
+        const userId = sessionUserId(req);
+        const { marca, tipo, cantidadTotal, costo, unidadMedida, compartidaConIds: requestedIds = [], resolveConflict } = req.body;
+        const compartidaConIds = petIds(requestedIds);
 
-        const mascotasGrupo = Array.from(new Set([mascotaId, ...(compartidaConIds || [])]));
+        // Se autorizan todos los integrantes y sus grupos antes de revelar nombres
+        // o modificar inventarios; no existen permisos de alimentación entre cuentas.
+        const mascotasGrupo = await requireOwnedPets(prisma, userId, [mascotaId, ...compartidaConIds], { foodGroups: true });
 
         // Buscar todos los bultos (costales, bolstas, o como le quieran decir) activos de los integrantes
         const bultosActivos = await prisma.InventarioAlimento.findMany({
@@ -160,12 +166,13 @@ exports.registrarCompra = async (req, res) => {
 
         // Limpiar viejos
         await prisma.InventarioAlimento.updateMany({
-            where: { OR: [ { id: { in: bultosUnicos.map(b => b.id) } }, { mascotaId: { in: mascotasGrupo }, estado: 'Activo' } ] },
+            where: { mascota: { usuarioId: userId }, OR: [ { id: { in: bultosUnicos.map(b => b.id) } }, { mascotaId: { in: mascotasGrupo }, estado: 'Activo' } ] },
             data: { estado: 'Agotado' }
         });
 
         await prisma.CompartirAlimento.deleteMany({
-            where: { OR: [ { inventarioId: { in: bultosUnicos.map(b => b.id) } }, { mascotaId: { in: mascotasGrupo } } ] }
+            where: { mascota: { usuarioId: userId }, inventario: { mascota: { usuarioId: userId } },
+                OR: [ { inventarioId: { in: bultosUnicos.map(b => b.id) } }, { mascotaId: { in: mascotasGrupo } } ] }
         });
 
         const nuevoTotal = fromGrams(pesoInicialGramos, unidadMedida);
@@ -179,8 +186,7 @@ exports.registrarCompra = async (req, res) => {
 
         res.status(201).json(nuevoBulto);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al procesar la compra' });
+        return sendPetError(res, error, 'Error al procesar la compra');
     }
 };
 
@@ -188,7 +194,10 @@ exports.registrarCompra = async (req, res) => {
 exports.actualizarCompartirActual = async (req, res) => {
     try {
         const { mascotaId } = req.params;
-        const { compartidaConIds, resolveConflict } = req.body;
+        const userId = sessionUserId(req);
+        const { compartidaConIds: requestedIds, resolveConflict } = req.body;
+        const compartidaConIds = petIds(requestedIds);
+        await requireOwnedPets(prisma, userId, [mascotaId, ...compartidaConIds], { foodGroups: true });
 
         // Encontrar bulto activo actual
         let inventario = await prisma.InventarioAlimento.findFirst({
@@ -250,7 +259,7 @@ exports.actualizarCompartirActual = async (req, res) => {
 
             // Actualizamos el bulto principal con el nuevo total y reseteamos fecha a hoy
             await prisma.InventarioAlimento.update({
-                where: { id: inventario.id },
+                where: { id: inventario.id, mascota: { usuarioId: userId } },
                 data: { 
                     cantidadTotal: fromGrams(granTotalGramos, inventario.unidadMedida),
                     cantidadRestante: fromGrams(granTotalGramos, inventario.unidadMedida),
@@ -261,13 +270,14 @@ exports.actualizarCompartirActual = async (req, res) => {
 
         // Desactivar los otros bultos fusionados
         await prisma.InventarioAlimento.updateMany({
-            where: { id: { in: bultosUnicosConf.map(b => b.id) } },
+            where: { id: { in: bultosUnicosConf.map(b => b.id) }, mascota: { usuarioId: userId } },
             data: { estado: 'Agotado' }
         });
 
         // Sincronizar Vinculaciones
         await prisma.CompartirAlimento.deleteMany({
             where: { 
+                mascota: { usuarioId: userId }, inventario: { mascota: { usuarioId: userId } },
                 OR: [
                     { inventarioId: inventario.id },
                     { mascotaId: { in: compartidaConIds }, inventario: { estado: 'Activo' } }
@@ -283,8 +293,7 @@ exports.actualizarCompartirActual = async (req, res) => {
 
         res.json({ message: 'Grupo actualizado' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al actualizar grupo' });
+        return sendPetError(res, error, 'Error al actualizar grupo');
     }
 };
 
@@ -292,6 +301,8 @@ exports.actualizarCompartirActual = async (req, res) => {
 exports.dejarDeCompartir = async (req, res) => {
     try {
         const { mascotaId } = req.params;
+        const userId = sessionUserId(req);
+        await requireOwnedPets(prisma, userId, [mascotaId], { foodGroups: true });
         
         const esDuenio = await prisma.InventarioAlimento.findFirst({
             where: { mascotaId, estado: 'Activo' },
@@ -302,12 +313,12 @@ exports.dejarDeCompartir = async (req, res) => {
             if (esDuenio.compartidoCon.length > 0) {
                 const sucesor = esDuenio.compartidoCon[0];
                 await prisma.InventarioAlimento.update({
-                    where: { id: esDuenio.id },
+                    where: { id: esDuenio.id, mascota: { usuarioId: userId } },
                     data: { mascotaId: sucesor.mascotaId }
                 });
-                await prisma.CompartirAlimento.delete({ where: { id: sucesor.id } });
+                await prisma.CompartirAlimento.delete({ where: { id: sucesor.id, mascota: { usuarioId: userId }, inventario: { mascota: { usuarioId: userId } } } });
             } else {
-                await prisma.InventarioAlimento.update({ where: { id: esDuenio.id }, data: { estado: 'Agotado' } });
+                await prisma.InventarioAlimento.update({ where: { id: esDuenio.id, mascota: { usuarioId: userId } }, data: { estado: 'Agotado' } });
             }
             return res.json({ message: 'Te has retirado del grupo.' });
         }
@@ -317,14 +328,13 @@ exports.dejarDeCompartir = async (req, res) => {
         });
 
         if (vinculacion) {
-            await prisma.CompartirAlimento.delete({ where: { id: vinculacion.id } });
+            await prisma.CompartirAlimento.delete({ where: { id: vinculacion.id, mascota: { usuarioId: userId }, inventario: { mascota: { usuarioId: userId } } } });
             return res.json({ message: 'Has dejado de usar esta comida.' });
         }
 
         res.status(404).json({ error: 'No se encontró comida activa' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al desvincular' });
+        return sendPetError(res, error, 'Error al desvincular');
     }
 };
 
@@ -332,36 +342,39 @@ exports.dejarDeCompartir = async (req, res) => {
 exports.updateConfig = async (req, res) => {
     try {
         const { mascotaId } = req.params;
+        const userId = sessionUserId(req);
+        await requireOwnedPets(prisma, userId, [mascotaId], { foodGroups: true });
         const { porcionDiaria, metaAguaDiaria, unidadMedida, reinicioAguaDias, vaciarAgua } = req.body;
 
         if (vaciarAgua) {
             const hoy = new Date(); hoy.setHours(0,0,0,0);
             await prisma.RegistroHidratacion.deleteMany({
-                where: { mascotaId, fechaHora: { gte: hoy, lt: new Date(hoy.getTime() + 86400000) } }
+                where: { mascotaId, mascota: { usuarioId: userId }, fechaHora: { gte: hoy, lt: new Date(hoy.getTime() + 86400000) } }
             });
         }
 
         const config = await prisma.ConfiguracionNutricion.upsert({
-            where: { mascotaId },
+            where: { mascotaId, mascota: { usuarioId: userId } },
             update: { porcionDiaria: parseFloat(porcionDiaria), metaAguaDiaria: parseInt(metaAguaDiaria), reinicioAguaDias: parseInt(reinicioAguaDias), unidadMedida },
             create: { mascotaId, porcionDiaria: parseFloat(porcionDiaria), metaAguaDiaria: parseInt(metaAguaDiaria), reinicioAguaDias: parseInt(reinicioAguaDias), unidadMedida }
         });
         res.json(config);
     } catch (error) {
-        res.status(500).json({ error: 'Error al guardar configuración.' });
+        return sendPetError(res, error, 'Error al guardar configuración.');
     }
 };
 
 // Obtener eventos para el calendario (Predicciones de comida)
 exports.getEventosNutricionales = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = sessionUserId(req);
 
         // Obtener todas las mascotas del usuario
         const mascotas = await prisma.Mascota.findMany({
             where: { usuarioId: userId }
         });
         const mascotaIds = mascotas.map(m => m.id);
+        await requireOwnedPets(prisma, userId, mascotaIds, { foodGroups: true });
 
         // Buscar todos los bultos activos vinculados a estas mascotas (propios o compartidos)
         const bultosActivos = await prisma.InventarioAlimento.findMany({
@@ -408,8 +421,7 @@ exports.getEventosNutricionales = async (req, res) => {
 
         res.json(eventos);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener eventos nutricionales' });
+        return sendPetError(res, error, 'Error al obtener eventos nutricionales');
     }
 };
 
@@ -417,11 +429,13 @@ exports.getEventosNutricionales = async (req, res) => {
 exports.registrarAgua = async (req, res) => {
     try {
         const { mascotaId } = req.params;
+        const userId = sessionUserId(req);
+        await requireOwnedPets(prisma, userId, [mascotaId], { foodGroups: true });
         const registro = await prisma.RegistroHidratacion.create({
             data: { mascotaId, cantidad: req.body.cantidad || 1 }
         });
         res.status(201).json(registro);
     } catch (error) {
-        res.status(500).json({ error: 'Error al registrar agua.' });
+        return sendPetError(res, error, 'Error al registrar agua.');
     }
 };

@@ -1,11 +1,13 @@
 const prisma = require('../config/prisma');
 const googleCalendarService = require('../services/googleCalendarService');
+const { PetAccessError, sessionUserId, requireOwnedPets, reminderId, sendPetError } = require('../services/petAccess');
 
 // Crear recordatorio
 exports.createRecordatorio = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     const { mascotaId, titulo, descripcion, fechaHora, syncGoogle } = req.body;
+    await requireOwnedPets(prisma, userId, [mascotaId]);
 
     // Guardar localmente en base de datos primero
     let recordatorio = await prisma.Recordatorio.create({
@@ -23,7 +25,7 @@ exports.createRecordatorio = async (req, res) => {
       const googleEventId = await googleCalendarService.createEvent(userId, recordatorio);
       if (googleEventId) {
         recordatorio = await prisma.Recordatorio.update({
-          where: { id: recordatorio.id },
+          where: { id: recordatorio.id, usuarioId: userId, mascota: { usuarioId: userId } },
           data: { idEventoGoogle: googleEventId }
         });
       }
@@ -31,23 +33,22 @@ exports.createRecordatorio = async (req, res) => {
 
     res.status(201).json(recordatorio);
   } catch (error) {
-    console.error("Error en createRecordatorio:", error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al crear el recordatorio');
   }
 };
 
 // Actualizar con sincronización bidireccional
 exports.updateRecordatorio = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
+    const id = reminderId(req.params.id);
     const { titulo, descripcion, fechaHora, syncGoogle } = req.body;
 
     const recordatorio = await prisma.Recordatorio.findUnique({
-      where: { id: parseInt(id), usuarioId: userId }
+      where: { id, usuarioId: userId, mascota: { usuarioId: userId } }
     });
 
-    if (!recordatorio) return res.status(404).json({ error: "No encontrado" });
+    if (!recordatorio) throw new PetAccessError(404, 'Mascota o recurso no disponible');
 
     let googleEventId = recordatorio.idEventoGoogle;
 
@@ -72,7 +73,7 @@ exports.updateRecordatorio = async (req, res) => {
 
     // Actualizar localmente en PostgreSQL
     await prisma.Recordatorio.update({
-      where: { id: parseInt(id) },
+      where: { id, usuarioId: userId, mascota: { usuarioId: userId } },
       data: {
         titulo,
         descripcion,
@@ -83,53 +84,51 @@ exports.updateRecordatorio = async (req, res) => {
 
     res.json({ message: "Recordatorio actualizado" });
   } catch (error) {
-    console.error("Error en updateRecordatorio:", error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al actualizar el recordatorio');
   }
 };
 
 // Eliminar con sincronización
 exports.deleteRecordatorio = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
+    const id = reminderId(req.params.id);
 
     const recordatorio = await prisma.Recordatorio.findUnique({
-      where: { id: parseInt(id), usuarioId: userId }
+      where: { id, usuarioId: userId, mascota: { usuarioId: userId } }
     });
 
-    if (!recordatorio) return res.status(404).json({ error: "No encontrado" });
+    if (!recordatorio) throw new PetAccessError(404, 'Mascota o recurso no disponible');
 
     // Eliminar de Google Calendar si existía
     if (recordatorio.idEventoGoogle) {
       try {
         await googleCalendarService.deleteEvent(userId, recordatorio.idEventoGoogle);
-      } catch (gErr) {
-        console.warn("Aviso al eliminar de Google Calendar:", gErr.message || gErr);
+      } catch {
+        console.warn('No se pudo confirmar la eliminación del evento de Google Calendar');
       }
     }
 
     // Eliminar localmente de PostgreSQL
-    await prisma.Recordatorio.delete({ where: { id: parseInt(id) } });
+    await prisma.Recordatorio.delete({ where: { id, usuarioId: userId, mascota: { usuarioId: userId } } });
 
     res.json({ message: "Eliminado con éxito" });
   } catch (error) {
-    console.error("Error en deleteRecordatorio:", error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al eliminar el recordatorio');
   }
 };
 
 // Obtener todos los recordatorios del usuario
 exports.getRecordatorios = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     const recordatorios = await prisma.Recordatorio.findMany({
-      where: { usuarioId: userId },
+      where: { usuarioId: userId, mascota: { usuarioId: userId } },
       include: { mascota: true },
       orderBy: { fechaHora: 'asc' }
     });
     res.json(recordatorios);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al obtener recordatorios');
   }
 };

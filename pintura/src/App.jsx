@@ -62,13 +62,16 @@ export default function App() {
         setReminders(data);
         if (toastType === 'registered') showToast(t('toast_rem_registered'));
         if (toastType === 'updated') showToast(t('toast_rem_updated'));
+        return true;
       }
+      return false;
     } catch (error) {
       console.error("Error fetching reminders:", error);
+      return false;
     }
   }, [t]);
 
-  const fetchPets = useCallback(async (authToken, actionType = null, showGeneralToast = true) => {
+  const fetchPets = useCallback(async (authToken, actionType = null, showGeneralToast = true, preferredPetId = null) => {
     if (!authToken) return;
     setLoadingPets(true);
     try {
@@ -83,9 +86,13 @@ export default function App() {
           realAvatar: emojiMap[p.tipo] || '🐾',
           virtualAvatar: '🐾'
         }));
+        // Al actualizar tras una importación, se conservan la nueva mascota y la sesión autenticada.
+        if (preferredPetId && (localStorage.getItem('token') !== authToken || !mapped.some(p => p.id === preferredPetId))) return null;
         setPets(mapped);
         
-        if (mapped.length > 0 && (!activePetId || actionType === 'registered')) {
+        if (preferredPetId) {
+           setActivePetId(preferredPetId);
+        } else if (mapped.length > 0 && (!activePetId || actionType === 'registered')) {
            setActivePetId(mapped[0].id);
         }
         
@@ -94,6 +101,7 @@ export default function App() {
           if (actionType === 'registered') showToast(t('toast_pet_registered'));
           if (actionType === 'updated') showToast(t('toast_pet_updated'));
         }
+        return mapped;
 
       }
     } catch (error) {
@@ -149,6 +157,18 @@ export default function App() {
     setIsEditPetOpen(true);
   };
 
+  const handlePetImported = async (pet) => {
+    if (!token || localStorage.getItem('token') !== token) return { refreshWarning: true };
+    // El resultado confirmado por el servidor actualiza el estado de mascotas que utiliza toda la aplicación.
+    // Se conserva este registro básico aunque falle el GET posterior; el POST nunca se repite.
+    setPets(previous => [{ ...pet, realAvatar: '🐾', virtualAvatar: '🐾' }, ...previous.filter(p => p.id !== pet.id)]);
+    setActivePetId(pet.id);
+    const refreshed = await fetchPets(token, null, false, pet.id);
+    if (localStorage.getItem('token') !== token) return { refreshWarning: true };
+    const remindersRefreshed = await fetchReminders(token);
+    return { refreshWarning: !refreshed || !remindersRefreshed };
+  };
+
   const handleNavigate = (viewId) => {
     if ((viewId === 'map' || viewId === 'calendar') && pets.length === 0) {
       showToast(t('toast_no_pets_access'), true);
@@ -197,7 +217,8 @@ export default function App() {
             {!isAddMascotaOpen && <BottomNav navItems={navItems} currentView={currentView} onNavigate={handleNavigate} />}
           </div>
 
-          <SettingsModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onLogout={handleLogout} />
+          <SettingsModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onLogout={handleLogout}
+            pets={pets} activePetId={activePet?.id} onPetImported={handlePetImported} />
           
           <AddMascotaModal 
             isOpen={isAddMascotaOpen} 

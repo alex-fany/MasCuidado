@@ -1,10 +1,11 @@
 const prisma = require('../config/prisma');
 const { uploadToCloudinary } = require('../config/cloudinary');
+const { PetAccessError, sessionUserId, requireOwnedPets, sendPetError } = require('../services/petAccess');
 
 // Crear mascota
 exports.createMascota = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares, padecimientos, medicamentos } = req.body;
 
     // Si hay un archivo subido, lo subimos a Cloudinary
@@ -32,15 +33,14 @@ exports.createMascota = async (req, res) => {
 
     res.status(201).json(mascota);
   } catch (error) {
-    console.error("Error en createMascota:", error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al crear la mascota');
   }
 };
 
 // Obtener todas las mascotas del usuario
 exports.getMascotas = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     const mascotas = await prisma.Mascota.findMany({
       where: { usuarioId: userId },
       include: {
@@ -50,15 +50,14 @@ exports.getMascotas = async (req, res) => {
         nutricionConfig: true,
         inventariosAlimento: {
             where: { estado: 'Activo' },
-            include: { compartidoCon: true }
+            include: { compartidoCon: { where: { mascota: { usuarioId: userId } } } }
         }
       },
       orderBy: { creadoEn: 'desc' }
     });
     res.json(mascotas);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al obtener mascotas');
   }
 };
 
@@ -66,25 +65,26 @@ exports.getMascotas = async (req, res) => {
 exports.getMascotaById = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = sessionUserId(req);
+    await requireOwnedPets(prisma, userId, [id]);
     const mascota = await prisma.Mascota.findUnique({
-      where: { id },
+      where: { id, usuarioId: userId },
       include: {
         historialMedico: true,
         vacunas: true,
-        recordatorios: true,
+        recordatorios: { where: { usuarioId: userId } },
         clinicasFavoritas: true,
         especie: true
       }
     });
 
     if (!mascota) {
-      return res.status(404).json({ error: "Mascota no encontrada" });
+      throw new PetAccessError(404, 'Mascota o recurso no disponible');
     }
 
     res.json(mascota);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al obtener la mascota');
   }
 };
 
@@ -92,6 +92,9 @@ exports.getMascotaById = async (req, res) => {
 exports.updateMascota = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = sessionUserId(req);
+    // La autorización precede a las subidas y a cualquier modificación de la cartilla.
+    await requireOwnedPets(prisma, userId, [id]);
     const { nombre, tipo, raza, edad, peso, genero, color, senasParticulares, padecimientos, medicamentos, vacunas } = req.body;
 
     const data = {
@@ -114,7 +117,8 @@ exports.updateMascota = async (req, res) => {
       }
       if (req.files.fotosCartilla && req.files.fotosCartilla.length > 0) {
         // Obtener fotos actuales para no perderlas o reemplazarlas
-        const currentPet = await prisma.Mascota.findUnique({ where: { id } });
+        const currentPet = await prisma.Mascota.findUnique({ where: { id, usuarioId: userId } });
+        if (!currentPet) throw new PetAccessError(404, 'Mascota o recurso no disponible');
         const existingPhotos = Array.isArray(currentPet?.fotosCartilla) ? currentPet.fotosCartilla : [];
         const newPhotos = await Promise.all(
           req.files.fotosCartilla.map(f => uploadToCloudinary(f.buffer, 'cartillas'))
@@ -125,7 +129,7 @@ exports.updateMascota = async (req, res) => {
 
     // Actualizar Mascota
     const mascota = await prisma.Mascota.update({
-      where: { id },
+      where: { id, usuarioId: userId },
       data,
       include: { vacunas: true }
     });
@@ -175,7 +179,7 @@ exports.updateMascota = async (req, res) => {
       });
       
       const vaccineOperations = [
-        prisma.Vacuna.deleteMany({ where: { mascotaId: id } })
+        prisma.Vacuna.deleteMany({ where: { mascotaId: id, mascota: { usuarioId: userId } } })
       ];
 
       if (finalVacunasToInsert.length > 0) {
@@ -190,14 +194,13 @@ exports.updateMascota = async (req, res) => {
     }
 
     const updatedMascota = await prisma.Mascota.findUnique({
-      where: { id },
+      where: { id, usuarioId: userId },
       include: { vacunas: true, clinicasFavoritas: true }
     });
 
     res.json(updatedMascota);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al actualizar la mascota');
   }
 };
 
@@ -205,20 +208,23 @@ exports.updateMascota = async (req, res) => {
 exports.deleteMascota = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = sessionUserId(req);
+    // La eliminación en cascada tampoco debe alcanzar vínculos de otra cuenta.
+    await requireOwnedPets(prisma, userId, [id], { foodGroups: true });
     await prisma.Mascota.delete({
-      where: { id }
+      where: { id, usuarioId: userId }
     });
     res.json({ message: "Mascota eliminada con éxito" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al eliminar la mascota');
   }
 };
 // Guardar clínica favorita
 exports.saveFavoriteClinic = async (req, res) => {
   try {
     const { id: mascotaId } = req.params;
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
+    await requireOwnedPets(prisma, userId, [mascotaId]);
     const { placeId, nombre, direccion, applyToAll } = req.body;
 
     if (applyToAll) {
@@ -229,7 +235,7 @@ exports.saveFavoriteClinic = async (req, res) => {
 
       // Guardar para cada una (eliminando anteriores)
       const operations = mascotas.map(pet => [
-        prisma.ClinicaFavorita.deleteMany({ where: { mascotaId: pet.id } }),
+        prisma.ClinicaFavorita.deleteMany({ where: { mascotaId: pet.id, mascota: { usuarioId: userId } } }),
         prisma.ClinicaFavorita.create({
           data: { mascotaId: pet.id, placeId, nombre, direccion }
         })
@@ -241,7 +247,7 @@ exports.saveFavoriteClinic = async (req, res) => {
 
     // Solo para una mascota
     await prisma.ClinicaFavorita.deleteMany({
-      where: { mascotaId }
+      where: { mascotaId, mascota: { usuarioId: userId } }
     });
 
     const favorita = await prisma.ClinicaFavorita.create({
@@ -255,7 +261,16 @@ exports.saveFavoriteClinic = async (req, res) => {
 
     res.status(201).json(favorita);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al guardar la clínica favorita');
   }
 };
+
+
+// Operaciones de respaldo: contrato v2, compatibilidad v1 e imágenes independientes.
+const { createPetBackupService } = require('../services/petBackupService');
+const { createPetBackupHandlers } = require('./petBackupController');
+const { createBackupImageService } = require('../services/backupImageService');
+const { cloudinary } = require('../config/cloudinary');
+Object.assign(exports, createPetBackupHandlers(createPetBackupService(prisma, {
+  images: createBackupImageService({ cloudinary })
+})));

@@ -3,16 +3,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CloseIcon, LogoutIcon } from '../common/Icons';
 import ThemeSection from './settings/sections/ThemeSection';
 import LanguageSection from './settings/sections/LanguageSection';
+import BackupSection from './settings/sections/BackupSection';
 import { useSettings } from '../../context/SettingsContext';
 
-export default function SettingsModal({ isOpen, onClose, onLogout }) {
+export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], activePetId, onPetImported }) {
   const { t, language } = useSettings();
   const [activeSection, setActiveSection] = useState('main');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [backupBusy, setBackupBusy] = useState(false);
 
   if (!isOpen) return null;
 
   const handleClose = () => {
+    if (backupBusy) return;
     setActiveSection('main');
     setShowLogoutConfirm(false);
     onClose();
@@ -20,7 +23,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout }) {
 
   const settingsItems = [
     { id: 'theme', label: language === 'en' ? "Theme & Style" : language === 'pt' ? "Tema e Estilo" : "Tema y Estilo", icon: "🎨", desc: language === 'en' ? "Customize colors and look" : language === 'pt' ? "Personalize cores e aparência" : "Personaliza colores y aspecto", active: true },
-    { id: 'backup', label: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", icon: "☁️", desc: language === 'en' ? "Save your pet info" : language === 'pt' ? "Proteja as informações do seu pet" : "Resguarda la info de tu mascota", active: false },
+    { id: 'backup', label: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", icon: "☁️", desc: language === 'en' ? "Save your pet info" : language === 'pt' ? "Proteja as informações do seu pet" : "Resguarda la info de tu mascota", active: true },
     { id: 'security', label: language === 'en' ? "Security" : language === 'pt' ? "Segurança" : "Seguridad", icon: "🔒", desc: language === 'en' ? "Change password and access" : language === 'pt' ? "Alterar senha e acessos" : "Cambiar contraseña y accesos", active: false },
     { id: 'language', label: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", icon: "🌐", desc: language === 'en' ? "Regional preferences" : language === 'pt' ? "Preferências regionais" : "Preferencias regionales", active: true },
     { id: 'privacy', label: language === 'en' ? "Privacy" : language === 'pt' ? "Privacidade" : "Privacidad", icon: "🛡️", desc: language === 'en' ? "Control shared data" : language === 'pt' ? "Controle de dados compartilhados" : "Control de datos compartidos", active: false },
@@ -29,6 +32,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout }) {
 
   const getHeaderInfo = () => {
     switch (activeSection) {
+      case 'backup': return { title: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", subtitle: language === 'en' ? "Independent copies" : language === 'pt' ? "Cópias independentes" : "Copias independientes" };
       case 'theme': return { title: language === 'en' ? "Theme & Style" : language === 'pt' ? "Tema e Estilo" : "Tema y Estilo", subtitle: language === 'en' ? "Visual Customization" : language === 'pt' ? "Personalização Visual" : "Personalización Visual" };
       case 'language': return { title: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", subtitle: language === 'en' ? "Regional Preferences" : language === 'pt' ? "Preferências Regionais" : "Preferencias Regionales" };
       default: return { title: language === 'en' ? "Settings" : language === 'pt' ? "Configurações" : "Configuración", subtitle: language === 'en' ? "System Adjustments" : language === 'pt' ? "Ajustes do Sistema" : "Ajustes del Sistema" };
@@ -66,7 +70,9 @@ export default function SettingsModal({ isOpen, onClose, onLogout }) {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    onClick={() => setActiveSection('main')}
+                    disabled={backupBusy}
+                    aria-label={language === 'en' ? 'Back' : language === 'pt' ? 'Voltar' : 'Volver'}
+                    onClick={() => !backupBusy && setActiveSection('main')}
                     className="p-2 -ml-2 hover:bg-[var(--brand-primary)]/10 rounded-xl text-[var(--brand-primary)] transition-colors active:scale-90"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
@@ -92,13 +98,13 @@ export default function SettingsModal({ isOpen, onClose, onLogout }) {
                 </motion.span>
               </div>
             </div>
-            <button onClick={handleClose} className="hover:scale-110 active:scale-90 transition-transform duration-200">
+            <button onClick={handleClose} disabled={backupBusy} aria-label={language === 'en' ? 'Close' : language === 'pt' ? 'Fechar' : 'Cerrar'} className="hover:scale-110 active:scale-90 transition-transform duration-200 disabled:opacity-40 disabled:cursor-wait">
               <CloseIcon />
             </button>
           </div>
           
           {/* Principal */}
-          <div className="flex-1 overflow-hidden flex flex-col">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             <AnimatePresence mode="wait">
               {activeSection === 'main' ? (
                 <motion.div 
@@ -136,9 +142,10 @@ export default function SettingsModal({ isOpen, onClose, onLogout }) {
                   </div>
                 </motion.div>
               ) : (
-                <div key="detail" className="flex-1 overflow-hidden">
+                <div key="detail" className="flex-1 min-h-0 overflow-hidden">
                   {activeSection === 'theme' && <ThemeSection />}
                   {activeSection === 'language' && <LanguageSection />}
+                  {activeSection === 'backup' && <BackupSection pets={pets} activePetId={activePetId} onPetImported={onPetImported} onBusyChange={setBackupBusy} />}
                 </div>
               )}
             </AnimatePresence>

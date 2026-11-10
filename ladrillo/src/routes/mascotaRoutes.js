@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mascotaController = require('../controllers/mascotaController');
 const { verifyToken } = require('../middlewares/auth');
+const { receiveBackupFile } = require('../middlewares/backupFile');
 const multer = require('multer');
 const path = require('path');
 
@@ -26,9 +27,15 @@ const multiUpload = upload.fields([
   { name: 'fotosCartilla', maxCount: 5 }
 ]);
 
-// Rutas actualizadas con soporte para archivo 'imagen'
+// Rutas base de mascotas
 router.post('/', verifyToken, upload.single('imagen'), mascotaController.createMascota);
 router.get('/', verifyToken, mascotaController.getMascotas);
+
+// Rutas de copia de seguridad (importar antes de :id para evitar colisiones)
+router.post('/import-backup', verifyToken, receiveBackupFile, mascotaController.importBackup);
+router.get('/:id/backup', verifyToken, mascotaController.exportBackup);
+
+// Rutas por ID
 router.get('/:id', verifyToken, mascotaController.getMascotaById);
 router.put('/:id', verifyToken, multiUpload, mascotaController.updateMascota);
 router.delete('/:id', verifyToken, mascotaController.deleteMascota);

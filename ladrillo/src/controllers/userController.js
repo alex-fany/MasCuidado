@@ -1,34 +1,48 @@
 const prisma = require('../config/prisma');
+const { sessionUserId, sendPetError } = require('../services/petAccess');
+
+// Campos requeridos por perfil, encabezado y logros. Los secretos quedan fuera
+// de la consulta y las mascotas solo aportan los datos usados por el modal.
+const publicProfileSelect = {
+  id: true, nombreCompleto: true, correo: true, telefono: true, fechaRegistro: true,
+  imagen: true, colorAvatar: true, googleId: true, estado: true,
+  mascotas: { select: { id: true, nombre: true } }
+};
+
+function publicProfile(user) {
+  const profile = Object.fromEntries(Object.keys(publicProfileSelect).filter(key => key !== 'mascotas').map(key => [key, user[key]]));
+  // La interfaz solo comprueba si existe el vínculo; no necesita el ID de Google.
+  profile.googleId = Boolean(user.googleId);
+  profile.mascotas = (user.mascotas || []).map(pet => ({ id: pet.id, nombre: pet.nombre }));
+  return profile;
+}
 
 exports.getMyProfile = async (req, res) => {
   try {
-    const userId = req.user.id; // Este id viene del token (UUID)
+    const userId = sessionUserId(req);
    
     const user = await prisma.Usuario.findUnique({
       where: { id: userId },
-      include: {
-        mascotas: true
-      }
+      select: publicProfileSelect
     });
 
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    res.json(user);
+    res.json(publicProfile(user));
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al obtener el perfil');
   }
 };
 
 exports.updateMyProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     const { nombre_completo, telefono, imagen, colorAvatar } = req.body;
 
     const currentUser = await prisma.Usuario.findUnique({
-      where: { id: userId }
+      where: { id: userId }, select: { id: true, googleId: true }
     });
 
     if (!currentUser) {
@@ -63,29 +77,25 @@ exports.updateMyProfile = async (req, res) => {
     const updatedUser = await prisma.Usuario.update({
       where: { id: userId },
       data: dataToUpdate,
-      include: {
-        mascotas: true
-      }
+      select: publicProfileSelect
     });
 
-    res.json(updatedUser);
+    res.json(publicProfile(updatedUser));
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al actualizar el perfil');
   }
 };
 
 exports.deleteAccount = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = sessionUserId(req);
     await prisma.Usuario.update({
       where: { id: userId },
       data: { estado: 'Inactivo' }
     });
     res.json({ message: "Cuenta desactivada con éxito" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
+    return sendPetError(res, error, 'Error al desactivar la cuenta');
   }
 };
