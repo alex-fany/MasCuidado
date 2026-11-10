@@ -1,13 +1,16 @@
 const { google } = require('googleapis');
 const prisma = require('../config/prisma');
 
-const oauth2Client = new google.auth.OAuth2(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI
-);
+// Función creadora para evitar usar un cliente global compartido (evita colisión de credenciales concurrentes)
+const createOAuthClient = () => {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+};
 
-// Obtener cliente de calendario autenticado para un usuario (luego vemos qué onda)
+// Obtener cliente de calendario autenticado para un usuario específico
 const getCalendarClient = async (userId) => {
   const user = await prisma.Usuario.findUnique({
     where: { id: userId },
@@ -18,11 +21,12 @@ const getCalendarClient = async (userId) => {
     throw new Error('No vinculado');
   }
 
-  oauth2Client.setCredentials({
+  const client = createOAuthClient();
+  client.setCredentials({
     refresh_token: user.googleRefreshToken
   });
 
-  return google.calendar({ version: 'v3', auth: oauth2Client });
+  return google.calendar({ version: 'v3', auth: client });
 };
 
 // Crear evento en Google Calendar
@@ -51,12 +55,12 @@ exports.createEvent = async (userId, reminder) => {
     return response.data.id;
   } catch (error) {
     if (error.message === 'No vinculado') return null;
-    console.error('Error Google Calendar (Create):', error);
+    console.error('Error Google Calendar (Create):', error.message || error);
     return null;
   }
 };
 
-// Actualizar evento
+// Actualizar evento en Google Calendar
 exports.updateEvent = async (userId, googleEventId, reminder) => {
   try {
     const calendar = await getCalendarClient(userId);
@@ -68,17 +72,25 @@ exports.updateEvent = async (userId, googleEventId, reminder) => {
       eventId: googleEventId,
       resource: {
         summary: `🐾 ${reminder.titulo}`,
-        description: reminder.descripcion,
+        description: reminder.descripcion || 'Recordatorio de +Cuidado',
         start: { dateTime: start.toISOString() },
         end: { dateTime: end.toISOString() },
       },
     });
+    return true;
   } catch (error) {
-    console.error('Error Google Calendar (Update):', error);
+    if (error.message === 'No vinculado') return false;
+    // Si el evento fue eliminado manualmente por el usuario en Google Calendar (404/410)
+    if (error.code === 404 || error.code === 410) {
+      console.warn(`Evento ${googleEventId} no encontrado en Google Calendar; probablemente fue eliminado manualmente.`);
+      return false;
+    }
+    console.error('Error Google Calendar (Update):', error.message || error);
+    return false;
   }
 };
 
-// Eliminar evento
+// Eliminar evento en Google Calendar
 exports.deleteEvent = async (userId, googleEventId) => {
   try {
     const calendar = await getCalendarClient(userId);
@@ -86,20 +98,32 @@ exports.deleteEvent = async (userId, googleEventId) => {
       calendarId: 'primary',
       eventId: googleEventId,
     });
+    return true;
   } catch (error) {
-    console.error('Error Google Calendar (Delete):', error);
+    if (error.message === 'No vinculado') return false;
+    if (error.code === 404 || error.code === 410) {
+      // Ya no existía en Google Calendar
+      return true;
+    }
+    console.error('Error Google Calendar (Delete):', error.message || error);
+    return false;
   }
 };
 
-exports.getAuthUrl = () => {
-  return oauth2Client.generateAuthUrl({
+// Generar URL de autorización con parámetro `state` seguro para vincular al usuario automáticamente
+exports.getAuthUrl = (userId) => {
+  const client = createOAuthClient();
+  return client.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: ['https://www.googleapis.com/auth/calendar']
+    scope: ['https://www.googleapis.com/auth/calendar'],
+    state: userId || ''
   });
 };
 
+// Intercambiar código por tokens
 exports.getTokens = async (code) => {
-  const { tokens } = await oauth2Client.getToken(code);
+  const client = createOAuthClient();
+  const { tokens } = await client.getToken(code);
   return tokens;
 };

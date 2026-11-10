@@ -7,7 +7,7 @@ exports.createRecordatorio = async (req, res) => {
     const userId = req.user.id;
     const { mascotaId, titulo, descripcion, fechaHora, syncGoogle } = req.body;
 
-    // Guardar localmente primero
+    // Guardar localmente en base de datos primero
     let recordatorio = await prisma.Recordatorio.create({
       data: {
         titulo,
@@ -18,7 +18,7 @@ exports.createRecordatorio = async (req, res) => {
       }
     });
 
-    // Sincronizar con Google si se solicitó (nomás que todavía no sirve por culpa del mugre Google)
+    // Sincronizar con Google si el usuario lo solicitó
     if (syncGoogle) {
       const googleEventId = await googleCalendarService.createEvent(userId, recordatorio);
       if (googleEventId) {
@@ -36,12 +36,12 @@ exports.createRecordatorio = async (req, res) => {
   }
 };
 
-// Actualizar con sincronización
+// Actualizar con sincronización bidireccional
 exports.updateRecordatorio = async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    const { titulo, descripcion, fechaHora } = req.body;
+    const { titulo, descripcion, fechaHora, syncGoogle } = req.body;
 
     const recordatorio = await prisma.Recordatorio.findUnique({
       where: { id: parseInt(id), usuarioId: userId }
@@ -49,25 +49,41 @@ exports.updateRecordatorio = async (req, res) => {
 
     if (!recordatorio) return res.status(404).json({ error: "No encontrado" });
 
-    // Actualizar localmente
+    let googleEventId = recordatorio.idEventoGoogle;
+
+    // Manejo de sincronización con Google Calendar
+    if (syncGoogle) {
+      if (googleEventId) {
+        // Si ya existía el evento en Google, lo actualizamos
+        await googleCalendarService.updateEvent(userId, googleEventId, {
+          titulo, descripcion, fechaHora
+        });
+      } else {
+        // Si no existía y el usuario activó la casilla al editar, creamos el evento
+        googleEventId = await googleCalendarService.createEvent(userId, {
+          titulo, descripcion, fechaHora
+        });
+      }
+    } else if (syncGoogle === false && googleEventId) {
+      // Si el usuario desmarcó la sincronización al editar, eliminamos el evento de Google
+      await googleCalendarService.deleteEvent(userId, googleEventId);
+      googleEventId = null;
+    }
+
+    // Actualizar localmente en PostgreSQL
     await prisma.Recordatorio.update({
       where: { id: parseInt(id) },
       data: {
         titulo,
         descripcion,
-        fechaHora: new Date(fechaHora)
+        fechaHora: new Date(fechaHora),
+        idEventoGoogle: googleEventId
       }
     });
 
-    // Sincronizar con Google si ya estaba vinculado
-    if (recordatorio.idEventoGoogle) {
-      await googleCalendarService.updateEvent(userId, recordatorio.idEventoGoogle, {
-        titulo, descripcion, fechaHora
-      });
-    }
-
     res.json({ message: "Recordatorio actualizado" });
   } catch (error) {
+    console.error("Error en updateRecordatorio:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -84,21 +100,26 @@ exports.deleteRecordatorio = async (req, res) => {
 
     if (!recordatorio) return res.status(404).json({ error: "No encontrado" });
 
-    // Eliminar de Google
+    // Eliminar de Google Calendar si existía
     if (recordatorio.idEventoGoogle) {
-      await googleCalendarService.deleteEvent(userId, recordatorio.idEventoGoogle);
+      try {
+        await googleCalendarService.deleteEvent(userId, recordatorio.idEventoGoogle);
+      } catch (gErr) {
+        console.warn("Aviso al eliminar de Google Calendar:", gErr.message || gErr);
+      }
     }
 
-    // Eliminar local
+    // Eliminar localmente de PostgreSQL
     await prisma.Recordatorio.delete({ where: { id: parseInt(id) } });
 
     res.json({ message: "Eliminado con éxito" });
   } catch (error) {
+    console.error("Error en deleteRecordatorio:", error);
     res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener todos
+// Obtener todos los recordatorios del usuario
 exports.getRecordatorios = async (req, res) => {
   try {
     const userId = req.user.id;

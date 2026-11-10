@@ -18,9 +18,40 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
   const [error, setError] = useState('');
   const [isLinkingModalOpen, setIsLinkingModalOpen] = useState(false);
 
-  // Obtener estado del usuario localmente
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const isGoogleLinked = user.isGoogleLinked;
+  // Obtener estado inicial del usuario localmente
+  const [isGoogleLinked, setIsGoogleLinked] = useState(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      return !!u.isGoogleLinked;
+    } catch (e) {
+      return false;
+    }
+  });
+
+  // Verificar estado real de vinculación en base de datos al abrir el modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    fetch('/api/google-calendar/status', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data?.isGoogleLinked === 'boolean') {
+          setIsGoogleLinked(data.isGoogleLinked);
+          try {
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            if (currentUser.isGoogleLinked !== data.isGoogleLinked) {
+              currentUser.isGoogleLinked = data.isGoogleLinked;
+              localStorage.setItem('user', JSON.stringify(currentUser));
+            }
+          } catch (e) {}
+        }
+      })
+      .catch(() => {});
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -66,26 +97,39 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
       
       const popup = window.open(url, 'GoogleAuth', 'width=500,height=600');
 
-      window.onmessage = async (event) => {
-        if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
-          const { refresh_token } = event.data;
-          await fetch('/api/google-calendar/save-token', {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify({ refresh_token })
-          });
+      const messageHandler = async (event) => {
+        if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
+          // Si por alguna razón llegó refresh_token en el evento, asegurar guardado como respaldo
+          if (event.data.refresh_token) {
+            try {
+              await fetch('/api/google-calendar/save-token', {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ refresh_token: event.data.refresh_token })
+              });
+            } catch (saveErr) {}
+          }
 
-          // Actualizar usuario en localStorage
-          user.isGoogleLinked = true;
-          localStorage.setItem('user', JSON.stringify(user));
+          // Actualizar usuario en estado y en localStorage
+          setIsGoogleLinked(true);
+          try {
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+            currentUser.isGoogleLinked = true;
+            localStorage.setItem('user', JSON.stringify(currentUser));
+          } catch (e) {}
           
           setIsLinkingModalOpen(false);
-          setFormData({ ...formData, syncGoogle: true });
+          setFormData(prev => ({ ...prev, syncGoogle: true }));
+          window.removeEventListener('message', messageHandler);
+        } else if (event.data?.type === 'GOOGLE_AUTH_ERROR') {
+          window.removeEventListener('message', messageHandler);
         }
       };
+
+      window.addEventListener('message', messageHandler);
     } catch (err) {
       alert(language === 'en' ? "Connection error" : "Error al conectar con Google");
     }
