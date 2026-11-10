@@ -49,7 +49,7 @@ export default function LoginForm({onRegisterClick, onForgotClick, onLoginSucces
         try {
           if (!window.__gsi_initialized) {
             google.accounts.id.initialize({
-              client_id: "609963966526-rn76n1sdo1ve12niph6t0lqq575i94cm.apps.googleusercontent.com",
+              client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
               callback: handleGoogleResponse,
               auto_select: false
             });
