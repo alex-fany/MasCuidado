@@ -97,9 +97,39 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
       
       const popup = window.open(url, 'GoogleAuth', 'width=500,height=600');
 
+      const markLinked = () => {
+        setIsGoogleLinked(true);
+        try {
+          const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+          currentUser.isGoogleLinked = true;
+          localStorage.setItem('user', JSON.stringify(currentUser));
+        } catch (e) {}
+        setIsLinkingModalOpen(false);
+        setFormData(prev => ({ ...prev, syncGoogle: true }));
+        try { popup?.close(); } catch (e) {}
+      };
+
+      // Sondeo activo (polling): detecta la vinculación en PostgreSQL sin depender del postMessage
+      const pollInterval = setInterval(async () => {
+        try {
+          const statusRes = await fetch('/api/google-calendar/status', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const statusData = await statusRes.json();
+          if (statusData?.isGoogleLinked) {
+            clearInterval(pollInterval);
+            window.removeEventListener('message', messageHandler);
+            markLinked();
+          }
+        } catch (e) {}
+      }, 1500);
+
+      // Limpiar sondeo tras 2 minutos
+      setTimeout(() => clearInterval(pollInterval), 120000);
+
       const messageHandler = async (event) => {
         if (event.data?.type === 'GOOGLE_AUTH_SUCCESS') {
-          // Si por alguna razón llegó refresh_token en el evento, asegurar guardado como respaldo
+          clearInterval(pollInterval);
           if (event.data.refresh_token) {
             try {
               await fetch('/api/google-calendar/save-token', {
@@ -113,18 +143,10 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
             } catch (saveErr) {}
           }
 
-          // Actualizar usuario en estado y en localStorage
-          setIsGoogleLinked(true);
-          try {
-            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-            currentUser.isGoogleLinked = true;
-            localStorage.setItem('user', JSON.stringify(currentUser));
-          } catch (e) {}
-          
-          setIsLinkingModalOpen(false);
-          setFormData(prev => ({ ...prev, syncGoogle: true }));
+          markLinked();
           window.removeEventListener('message', messageHandler);
         } else if (event.data?.type === 'GOOGLE_AUTH_ERROR') {
+          clearInterval(pollInterval);
           window.removeEventListener('message', messageHandler);
         }
       };
