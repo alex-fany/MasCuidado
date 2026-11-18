@@ -9,10 +9,14 @@ export default function LoginForm({onRegisterClick, onForgotClick, onLoginSucces
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [unverifiedEmail, setUnverifiedEmail] = useState(null)
+  const [resendingVerification, setResendingVerification] = useState(false)
+  const [resendNotice, setResendNotice] = useState("")
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+    setResendNotice("")
     setIsLoading(true)
 
     try {
@@ -24,10 +28,14 @@ export default function LoginForm({onRegisterClick, onForgotClick, onLoginSucces
 
       const data = await res.json()
       if (!res.ok) {
-        // Mapeo de errores
+        if (data.emailNotVerified) {
+          setUnverifiedEmail(data.email || email);
+          throw new Error(data.error || "Debes verificar tu correo antes de iniciar sesión.");
+        }
+        setUnverifiedEmail(null);
         if (data.error?.includes("Credenciales")) throw new Error(t('err_invalid_creds'));
         if (data.error?.includes("campos")) throw new Error(t('err_required_fields'));
-        throw new Error(t('err_invalid_creds'));
+        throw new Error(data.error || t('err_invalid_creds'));
       }
 
       localStorage.setItem("token", data.token)
@@ -40,6 +48,25 @@ export default function LoginForm({onRegisterClick, onForgotClick, onLoginSucces
       setIsLoading(false)
     }
   }
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    setResendingVerification(true);
+    setResendNotice("");
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: unverifiedEmail })
+      });
+      const data = await res.json();
+      setResendNotice(data.message || "Enlace enviado. Revisa tu bandeja.");
+    } catch {
+      setResendNotice("Error al reenviar el correo.");
+    } finally {
+      setResendingVerification(false);
+    }
+  };
 
   useEffect(() => {
     /* global google */
@@ -111,9 +138,28 @@ export default function LoginForm({onRegisterClick, onForgotClick, onLoginSucces
         </div>
 
         {error && (
-          <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-2 sm:p-3 text-[var(--brand-danger)] text-[11px] sm:text-xs font-black rounded-xl flex items-center gap-2 animate-shake text-left">
-            <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">!</span>
-            {error}
+          <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-2.5 sm:p-3 text-[var(--brand-danger)] text-[11px] sm:text-xs font-black rounded-xl flex flex-col gap-1.5 animate-shake text-left">
+            <div className="flex items-center gap-2">
+              <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shrink-0">!</span>
+              <span>{error}</span>
+            </div>
+            {unverifiedEmail && (
+              <div className="pt-1.5 border-t border-[var(--brand-danger)]/20 flex flex-col gap-1">
+                <button
+                  type="button"
+                  disabled={resendingVerification}
+                  onClick={handleResendVerification}
+                  className="text-left text-[11px] underline font-black text-[var(--brand-primary)] hover:opacity-80"
+                >
+                  {resendingVerification ? "Reenviando..." : "¿Reenviar enlace de verificación?"}
+                </button>
+                {resendNotice && (
+                  <span className="text-[10px] text-gray-700 italic font-semibold">
+                    {resendNotice}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
         )}
 

@@ -1,78 +1,137 @@
 import { useState } from "react";
+import Input from "./Input";
+import Button from "./Button";
 
 export default function ResetPassword({ token }) {
-
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    setError("");
+    setMessage("");
+
+    if (!password) {
+      setError("Ingresa una nueva contraseña");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden");
+      return;
+    }
+
+    setLoading(true);
 
     try {
-
-      const res = await fetch(
-        "/api/auth/reset-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            token,
-            newPassword: password
-          })
-        }
-      );
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          token,
+          newPassword: password
+        })
+      });
 
       const data = await res.json();
 
-      setMessage(data.message);
+      if (!res.ok) {
+        throw new Error(data.error || "Error al actualizar la contraseña");
+      }
+
+      setSuccess(true);
+      setMessage(data.message || "¡Contraseña actualizada correctamente!");
       setTimeout(() => {
         window.location.href = "/";
-      }, 2000);
+      }, 2500);
 
-    } catch (error) {
-
-      console.error(error);
-
-      setMessage("Error al actualizar contraseña");
+    } catch (err) {
+      setError(err.message || "Error al actualizar la contraseña");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="animate-in fade-in duration-700">
+    <div className="animate-in fade-in duration-700 p-2 sm:p-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-1 mb-2">
+          <h1 className="text-4xl font-black text-center text-[var(--brand-primary)] tracking-tighter drop-shadow-sm">+Cuidado</h1>
+          <h2 className="text-sm font-black text-center text-[var(--brand-text)] opacity-70 uppercase tracking-widest italic leading-none">
+            Restablecer Contraseña
+          </h2>
+        </div>
 
-      <div className="space-y-4">
-
-        <h2 className="text-3xl font-black text-center">
-          Nueva contraseña
-        </h2>
-        <label className="text-[10px] font-black text-[var(--brand-primary)] uppercase italic ml-2 opacity-70">Escribe una nueva contraseña:</label>
-                
-        <input
-          type="password"
-          placeholder="********"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-5 py-3.5 rounded-2xl border-2 bg-[var(--brand-surface-muted)]
-                      text-[var(--brand-text)] font-bold placeholder:text-[var(--brand-text)]/30
-                      focus:outline-none focus:bg-[var(--brand-surface)] border-[var(--brand-primary)] focus:border-[var(--brand-primary)]"
-        />
-
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-[#2d9b96] text-white p-4 rounded-2xl font-bold"
-        >
-          Guardar contraseña
-        </button>
-
-        {message && (
-          <p className="text-center text-sm">
-            {message}
-          </p>
+        {error && (
+          <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-3 text-[var(--brand-danger)] text-xs font-black rounded-2xl flex items-center gap-2 animate-shake text-left">
+            <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shrink-0">!</span>
+            <span>{error}</span>
+          </div>
         )}
 
-      </div>
+        {success ? (
+          <div className="bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/30 p-6 rounded-[2.5rem] text-center space-y-4 animate-in zoom-in duration-500">
+            <div className="w-16 h-16 bg-[var(--brand-primary)] rounded-full mx-auto flex items-center justify-center text-white text-3xl shadow-lg shadow-[var(--brand-primary)]/20">
+              ✓
+            </div>
+            <h3 className="text-lg font-black text-[var(--brand-primary)]">¡Contraseña Guardada!</h3>
+            <p className="text-xs text-[var(--brand-text)] font-semibold leading-relaxed">
+              {message} <br />
+              <span className="opacity-70">Redirigiéndote al inicio de sesión...</span>
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-3 text-left">
+              <Input
+                label="Nueva contraseña"
+                type="password"
+                placeholder="********"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
 
+              <Input
+                label="Confirmar contraseña"
+                type="password"
+                placeholder="********"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              loading={loading}
+              className="w-full py-4 shadow-xl shadow-[var(--brand-primary)]/20 text-xs uppercase font-black tracking-wider"
+            >
+              Guardar Contraseña
+            </Button>
+
+            <div className="pt-2 text-center">
+              <a
+                href="/"
+                className="text-[var(--brand-primary)] font-black text-[10px] uppercase tracking-[0.2em] hover:opacity-70 transition-all inline-block italic"
+              >
+                ← Volver al Login
+              </a>
+            </div>
+          </>
+        )}
+      </form>
     </div>
   );
 }

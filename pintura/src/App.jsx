@@ -4,6 +4,7 @@ import LoginForm from "./components/LoginForm"
 import RegisterForm from "./components/RegisterForm"
 import ForgotPasswordForm from "./components/ForgotPasswordForm"
 import ResetPassword from "./components/ResetPassword"
+import VerifyEmail from "./components/VerifyEmail"
 
 // Layout y Vistas
 import DashboardHeader from "./components/layout/DashboardHeader"
@@ -124,19 +125,20 @@ export default function App() {
   }, [fetchPets, fetchReminders])
   
   useEffect(() => {
-
     const path = window.location.pathname;
-
     if (path.startsWith("/reset-password/")) {
-
       const token = path.split("/")[2];
-
       setPage({
         type: "reset",
         token
       });
+    } else if (path.startsWith("/verify-email/")) {
+      const token = path.split("/")[2];
+      setPage({
+        type: "verify",
+        token
+      });
     }
-
   }, []);
   const handleLoginSuccess = (userData) => {
     const savedToken = localStorage.getItem("token");
@@ -255,6 +257,15 @@ export default function App() {
                                 {page === "register" && <RegisterForm onLoginClick={() => setPage("login")} />}
                                 {page === "forgot" && <ForgotPasswordForm onLoginClick={() => setPage("login")} />}
                                 {typeof page === "object" && page.type === "reset" && (<ResetPassword token={page.token} />)}
+                                {typeof page === "object" && page.type === "verify" && (
+                                  <VerifyEmail
+                                    token={page.token}
+                                    onGoToLogin={() => {
+                                      window.history.pushState({}, '', '/');
+                                      setPage("login");
+                                    }}
+                                  />
+                                )}
                             </div>
                         </Card>
                     </div>

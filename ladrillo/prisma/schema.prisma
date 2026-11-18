@@ -164,6 +164,9 @@ model Usuario {
   settings           UserSettings?
   reset_token       String?
   reset_token_exp   DateTime?
+  emailVerificado    Boolean        @default(false) @map("email_verificado")
+  verification_token String?        @map("verification_token")
+  verification_token_exp DateTime?  @map("verification_token_exp")
   @@map("usuario")
 }
 

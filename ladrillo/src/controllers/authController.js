@@ -2,12 +2,15 @@ const prisma = require('../config/prisma');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
+const crypto = require('crypto');
+const { sendVerificationEmail, sendResetEmail } = require('../services/mailService');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const JWT_SECRET = process.env.JWT_SECRET || 'mi_clave_secreta_super_segura';
 
-const crypto = require('crypto');
-const { sendResetEmail } = require('../services/mailService');
+const getFrontendBaseUrl = () => {
+  return (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+};
 
 // Registro tradicional
 exports.register = async (req, res) => {
@@ -28,18 +31,38 @@ exports.register = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExp = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
     const user = await prisma.Usuario.create({
       data: {
         nombreCompleto: name,
         correo: email,
-        password: hashedPassword
+        password: hashedPassword,
+        emailVerificado: false,
+        verification_token: verificationToken,
+        verification_token_exp: verificationExp
       }
     });
 
-    res.status(201).json({ message: "Usuario creado con éxito", userId: user.id });
+    const verificationLink = `${getFrontendBaseUrl()}/verify-email/${verificationToken}`;
+
+    // Enviar correo de verificación
+    try {
+      await sendVerificationEmail(email, verificationLink, name);
+    } catch (mailError) {
+      console.error("Error al enviar email de verificación:", mailError);
+      // Notificamos que se creó, pero advertimos si hubo un problema al enviar
+    }
+
+    res.status(201).json({
+      message: "Registro exitoso. Te hemos enviado un correo de verificación.",
+      userId: user.id,
+      email: user.correo,
+      requiresVerification: true
+    });
   } catch (error) {
-    console.error(error);
+    console.error("Error en register:", error);
     res.status(500).json({ error: "Error en el servidor al registrar" });
   }
 };
@@ -63,6 +86,15 @@ exports.login = async (req, res) => {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
 
+    // Verificar si el correo ya fue validado
+    if (user.emailVerificado === false) {
+      return res.status(403).json({
+        error: "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o solicita un nuevo enlace.",
+        emailNotVerified: true,
+        email: user.correo
+      });
+    }
+
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
@@ -72,7 +104,7 @@ exports.login = async (req, res) => {
         id: user.id, 
         nombre: user.nombreCompleto, 
         correo: user.correo,
-        isGoogleLinked: !!user.googleRefreshToken // Verificar vinculación
+        isGoogleLinked: !!user.googleRefreshToken
       }
     });
   } catch (error) {
@@ -108,21 +140,27 @@ exports.googleLogin = async (req, res) => {
         data: {
           nombreCompleto: name,
           correo: email,
-          googleId: googleId
+          googleId: googleId,
+          emailVerificado: true // Google ya valida el email
         }
       });
-    } else if (!user.googleId) {
-      user = await prisma.Usuario.update({
-        where: { id: user.id },
-        data: { googleId: googleId }
-      });
+    } else {
+      const updateData = {};
+      if (!user.googleId) updateData.googleId = googleId;
+      if (!user.emailVerificado) updateData.emailVerificado = true; // Si entra con Google se confirma
+      if (Object.keys(updateData).length > 0) {
+        user = await prisma.Usuario.update({
+          where: { id: user.id },
+          data: updateData
+        });
+      }
     }
-
-    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     if (user.estado === 'Inactivo') {
       return res.status(403).json({ error: "Esta cuenta se encuentra desactivada" });
     }
+
+    const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({
       message: "Login con Google exitoso",
@@ -131,7 +169,7 @@ exports.googleLogin = async (req, res) => {
         id: user.id, 
         nombre: user.nombreCompleto, 
         correo: user.correo,
-        isGoogleLinked: !!user.googleRefreshToken // Verificar vinculación
+        isGoogleLinked: !!user.googleRefreshToken
       }
     });
   } catch (error) {
@@ -140,122 +178,170 @@ exports.googleLogin = async (req, res) => {
   }
 };
 
-exports.forgotPassword = async (req, res) => {
-
+// Verificar correo mediante token
+exports.verifyEmail = async (req, res) => {
   try {
+    const token = req.body.token || req.query.token;
 
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        error: "El correo es obligatorio"
-      });
+    if (!token) {
+      return res.status(400).json({ error: "Token de verificación no proporcionado." });
     }
 
-    // Buscar usuario
-    const user = await prisma.Usuario.findUnique({
+    const user = await prisma.Usuario.findFirst({
       where: {
-        correo: email
+        verification_token: token
       }
     });
 
-    // No revelar si existe o no
     if (!user) {
-      return res.json({
-        message: "Si el correo existe, se enviaron instrucciones"
+      return res.status(400).json({ error: "El enlace de verificación no es válido o ya fue utilizado." });
+    }
+
+    if (!user.verification_token_exp || user.verification_token_exp < new Date()) {
+      return res.status(400).json({
+        error: "El enlace de verificación ha expirado.",
+        isExpired: true,
+        email: user.correo
       });
     }
 
-    // Crear token seguro
-    const resetToken =
-      crypto.randomBytes(32).toString("hex");
-
-    // Expiración 15 minutos
-    const expires =
-      new Date(Date.now() + 15 * 60 * 1000);
-
-    // Guardar token
     await prisma.Usuario.update({
-      where: {
-        id: user.id
-      },
+      where: { id: user.id },
+      data: {
+        emailVerificado: true,
+        verification_token: null,
+        verification_token_exp: null
+      }
+    });
+
+    res.json({
+      message: "¡Correo electrónico verificado con éxito! Ahora puedes iniciar sesión.",
+      email: user.correo
+    });
+  } catch (error) {
+    console.error("Error en verifyEmail:", error);
+    res.status(500).json({ error: "Error en el servidor al verificar el correo." });
+  }
+};
+
+// Reenviar correo de verificación
+exports.resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "El correo es obligatorio." });
+    }
+
+    const user = await prisma.Usuario.findUnique({
+      where: { correo: email }
+    });
+
+    if (!user) {
+      return res.json({
+        message: "Si la cuenta existe y no está verificada, hemos enviado un nuevo correo de verificación."
+      });
+    }
+
+    if (user.emailVerificado) {
+      return res.status(400).json({ error: "Este correo ya se encuentra verificado. Puedes iniciar sesión." });
+    }
+
+    const verificationToken = crypto.randomBytes(32).toString('hex');
+    const verificationExp = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+    await prisma.Usuario.update({
+      where: { id: user.id },
+      data: {
+        verification_token: verificationToken,
+        verification_token_exp: verificationExp
+      }
+    });
+
+    const verificationLink = `${getFrontendBaseUrl()}/verify-email/${verificationToken}`;
+
+    await sendVerificationEmail(email, verificationLink, user.nombreCompleto);
+
+    res.json({
+      message: "Se ha enviado un nuevo enlace de verificación a tu correo."
+    });
+  } catch (error) {
+    console.error("Error en resendVerification:", error);
+    res.status(500).json({ error: "Error al reenviar el correo de verificación." });
+  }
+};
+
+// Solicitar recuperación de contraseña
+exports.forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "El correo es obligatorio" });
+    }
+
+    const user = await prisma.Usuario.findUnique({
+      where: { correo: email }
+    });
+
+    // No revelar si existe o no por seguridad
+    if (!user) {
+      return res.json({
+        message: "Si el correo existe, se enviaron instrucciones."
+      });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const expires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+
+    await prisma.Usuario.update({
+      where: { id: user.id },
       data: {
         reset_token: resetToken,
         reset_token_exp: expires
       }
     });
 
-    // Link frontend
-    const resetLink =
-      `${process.env.FRONTEND_URL}reset-password/${resetToken}`;
+    const resetLink = `${getFrontendBaseUrl()}/reset-password/${resetToken}`;
 
-    // Enviar correo
-    await sendResetEmail(
-      email,
-      resetLink
-    );
+    await sendResetEmail(email, resetLink, user.nombreCompleto);
 
     res.json({
-      message: "Si el correo existe, se enviaron instrucciones"
+      message: "Si el correo existe, se enviaron instrucciones."
     });
-
   } catch (error) {
-
-    console.error("ERROR forgotPassword:");
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error al enviar correo"
-    });
-
+    console.error("ERROR forgotPassword:", error);
+    res.status(500).json({ error: "Error al enviar correo de recuperación." });
   }
-
 };
+
+// Restablecer contraseña
 exports.resetPassword = async (req, res) => {
-
   try {
-
     const { token, newPassword } = req.body;
 
     if (!token || !newPassword) {
-      return res.status(400).json({
-        error: "Datos incompletos"
-      });
+      return res.status(400).json({ error: "Datos incompletos" });
     }
 
-    // Buscar usuario por token
     const user = await prisma.Usuario.findFirst({
       where: {
         reset_token: token
       }
     });
 
-    // Token inválido
     if (!user) {
-      return res.status(400).json({
-        error: "Token inválido"
-      });
+      return res.status(400).json({ error: "Token inválido" });
     }
 
-    // Verificar expiración
-    if (
-      !user.reset_token_exp ||
-      user.reset_token_exp < new Date()
-    ) {
-      return res.status(400).json({
-        error: "Token expirado"
-      });
+    if (!user.reset_token_exp || user.reset_token_exp < new Date()) {
+      return res.status(400).json({ error: "Token expirado" });
     }
 
-    // Hash contraseña
-    const hashedPassword =
-      await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Actualizar contraseña
     await prisma.Usuario.update({
-      where: {
-        id: user.id
-      },
+      where: { id: user.id },
       data: {
         password: hashedPassword,
         reset_token: null,
@@ -266,16 +352,8 @@ exports.resetPassword = async (req, res) => {
     res.json({
       message: "Contraseña actualizada correctamente"
     });
-
   } catch (error) {
-
-    console.error("ERROR resetPassword:");
-    console.error(error);
-
-    res.status(500).json({
-      error: "Error al actualizar contraseña"
-    });
-
+    console.error("ERROR resetPassword:", error);
+    res.status(500).json({ error: "Error al actualizar contraseña" });
   }
-
 };

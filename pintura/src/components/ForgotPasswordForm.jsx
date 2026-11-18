@@ -8,12 +8,13 @@ export default function ForgotPasswordForm({onLoginClick}) {
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
+  const [error, setError] = useState("")
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
-
       setIsLoading(true);
 
       const res = await fetch(
@@ -30,20 +31,17 @@ export default function ForgotPasswordForm({onLoginClick}) {
       );
 
       const data = await res.json();
-
-      console.log(data);
+      if (!res.ok) {
+        throw new Error(data.error || "Error al enviar correo");
+      }
 
       setSent(true);
 
-    } catch (error) {
-
-      console.error(error);
-      alert("Error al enviar correo");
-
+    } catch (err) {
+      console.error(err);
+      setError(err.message || "Error al enviar correo");
     } finally {
-
       setIsLoading(false);
-
     }
   };
 
@@ -55,6 +53,13 @@ export default function ForgotPasswordForm({onLoginClick}) {
           <h1 className="text-4xl font-black text-center text-[var(--brand-primary)] tracking-tighter drop-shadow-sm">+Cuidado</h1>
           <h2 className="text-xl font-black text-center text-[var(--brand-text)] opacity-60 uppercase tracking-widest italic leading-none">{t('forgot_title')}</h2>
         </div>
+
+        {error && (
+          <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-3 text-[var(--brand-danger)] text-xs font-black rounded-2xl flex items-center gap-2 animate-shake text-left">
+            <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shrink-0">!</span>
+            <span>{error}</span>
+          </div>
+        )}
 
         {sent ? (
           <div className="bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/20 p-6 rounded-[2.5rem] text-center space-y-4 animate-in zoom-in duration-500">

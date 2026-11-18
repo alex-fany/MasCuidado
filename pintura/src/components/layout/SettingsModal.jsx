@@ -59,7 +59,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
           transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="relative w-full max-w-md bg-[var(--brand-modal-bg)] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.3)] rounded-[2.5rem] overflow-hidden border border-[var(--brand-primary)]/20 flex flex-col max-h-[85vh] backdrop-blur-xl"
+          className="relative w-full max-w-md bg-[var(--brand-modal-bg)] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.3)] rounded-[2.5rem] overflow-hidden border border-[var(--brand-primary)]/20 flex flex-col min-h-0 max-h-[85vh] supports-[height:100dvh]:max-h-[85dvh] backdrop-blur-xl"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-7 border-b border-[var(--brand-primary)]/10 bg-gradient-to-b from-[var(--brand-primary)]/5 to-transparent shrink-0">
@@ -112,7 +112,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="flex-1 overflow-y-auto py-3 px-4 no-scrollbar"
+                  className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain touch-pan-y py-3 px-4 no-scrollbar"
                 >
                   <div className="space-y-1.5 pb-4">
                     {settingsItems.map((item) => (
@@ -142,7 +142,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
                   </div>
                 </motion.div>
               ) : (
-                <div key="detail" className="flex-1 min-h-0 overflow-hidden">
+                <div key="detail" className="flex flex-col flex-1 min-h-0 overflow-hidden">
                   {activeSection === 'theme' && <ThemeSection />}
                   {activeSection === 'language' && <LanguageSection />}
                   {activeSection === 'backup' && <BackupSection pets={pets} activePetId={activePetId} onPetImported={onPetImported} onBusyChange={setBackupBusy} />}
