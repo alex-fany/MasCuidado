@@ -27,10 +27,51 @@ const sendMailWithRetry = async (options, retries = 3, delayMs = 2000) => {
 };
 
 /**
+ * Despachador de correos:
+ * Si BREVO_API_KEY está presente, envía por HTTPS (Puerto 443) evitando bloqueos de firewall en Render.
+ * De lo contrario, usa Nodemailer SMTP (ideal para Mailtrap en local).
+ */
+const sendEmail = async ({ to, subject, html, nombre = '' }) => {
+  if (process.env.BREVO_API_KEY) {
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_USER || 'mascuidado.app@gmail.com';
+    const senderName = process.env.BREVO_SENDER_NAME || 'Más Cuidado App';
+
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: senderName, email: senderEmail },
+        to: [{ email: to, name: nombre || undefined }],
+        subject: subject,
+        htmlContent: html
+      })
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('[Brevo API Error]', data);
+      throw new Error(data.message || 'Error al enviar correo vía Brevo API');
+    }
+    return data;
+  }
+
+  // Fallback SMTP
+  return sendMailWithRetry({
+    from: process.env.EMAIL_FROM || '"Más Cuidado App" <no-reply@mascuidado.app>',
+    to,
+    subject,
+    html
+  });
+};
+
+/**
  * Enviar correo de verificación de cuenta al registrarse
  */
 exports.sendVerificationEmail = async (email, verificationLink, nombre = '') => {
-  const fromAddress = process.env.EMAIL_FROM || '"Más Cuidado App" <no-reply@mascuidado.app>';
   const displayName = nombre ? `Hola ${nombre}` : '¡Hola!';
 
   const html = `
@@ -83,11 +124,11 @@ exports.sendVerificationEmail = async (email, verificationLink, nombre = '') => 
     </html>
   `;
 
-  return sendMailWithRetry({
-    from: fromAddress,
+  return sendEmail({
     to: email,
     subject: '🐾 Verifica tu correo en +Cuidado',
-    html
+    html,
+    nombre
   });
 };
 
@@ -95,7 +136,6 @@ exports.sendVerificationEmail = async (email, verificationLink, nombre = '') => 
  * Enviar correo para restablecer contraseña
  */
 exports.sendResetEmail = async (email, resetLink, nombre = '') => {
-  const fromAddress = process.env.EMAIL_FROM || '"Más Cuidado App" <no-reply@mascuidado.app>';
   const displayName = nombre ? `Hola ${nombre}` : '¡Hola!';
 
   const html = `
@@ -148,10 +188,10 @@ exports.sendResetEmail = async (email, resetLink, nombre = '') => {
     </html>
   `;
 
-  return sendMailWithRetry({
-    from: fromAddress,
+  return sendEmail({
     to: email,
     subject: '🔑 Recupera tu contraseña en +Cuidado',
-    html
+    html,
+    nombre
   });
 };
