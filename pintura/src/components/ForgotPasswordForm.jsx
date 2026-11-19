@@ -1,18 +1,24 @@
+import { validateAuthFields } from '../utils/formValidation';
 import { useState } from "react"
 import Input from "./Input"
 import Button from "./Button"
 import { useSettings } from "../context/SettingsContext"
 
 export default function ForgotPasswordForm({onLoginClick}) {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
   const [email, setEmail] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [sent, setSent] = useState(false)
   const [error, setError] = useState("")
+  const [emailError, setEmailError] = useState("")
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setEmailError("");
+
+    const errors = validateAuthFields('forgot', { email }, language);
+    if (errors.email) { setEmailError(errors.email); return; }
 
     try {
       setIsLoading(true);
@@ -25,13 +31,14 @@ export default function ForgotPasswordForm({onLoginClick}) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email.trim(),
           }),
         }
       );
 
       const data = await res.json();
       if (!res.ok) {
+        if (data.field === 'email') setEmailError(data.error);
         throw new Error(data.error || "Error al enviar correo");
       }
 
@@ -47,14 +54,14 @@ export default function ForgotPasswordForm({onLoginClick}) {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
 
         <div className="space-y-1 mb-2">
           <h1 className="text-4xl font-black text-center text-[var(--brand-primary)] tracking-tighter drop-shadow-sm">+Cuidado</h1>
           <h2 className="text-xl font-black text-center text-[var(--brand-text)] opacity-60 uppercase tracking-widest italic leading-none">{t('forgot_title')}</h2>
         </div>
 
-        {error && (
+        {error && !emailError && (
           <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-3 text-[var(--brand-danger)] text-xs font-black rounded-2xl flex items-center gap-2 animate-shake text-left">
             <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shrink-0">!</span>
             <span>{error}</span>
@@ -82,8 +89,12 @@ export default function ForgotPasswordForm({onLoginClick}) {
               type="email"
               placeholder="tu@correo.com"
               value={email}
-              onChange={(e)=>setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (emailError) setEmailError("");
+              }}
               required
+              error={emailError}
             />
 
             <Button type="submit" loading={isLoading} className="py-4 shadow-xl shadow-[var(--brand-primary)]/20">

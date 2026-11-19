@@ -1,3 +1,4 @@
+import CustomIcon from '../../../common/CustomIcon';
 import { useEffect, useRef, useState } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { useSettings } from '../../../../context/SettingsContext';
@@ -133,7 +134,7 @@ export default function BackupSection({ pets = [], activePetId, onPetImported, o
         {['export', 'import'].map(item => <button key={item} type="button" disabled={busy} aria-pressed={tab === item}
           onClick={() => { if (!operationRef.current) setTab(item); }}
           className={'flex-1 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all disabled:opacity-50 ' + (tab === item ? 'bg-[var(--brand-primary)] text-[var(--brand-button-text)] shadow-md' : 'text-[var(--brand-text)] opacity-60')}>
-          {item === 'export' ? '💾 ' + text.exportTab : '📥 ' + text.importTab}
+          {item === 'export' ? <><CustomIcon name="ICON-062" />{" "}{text.exportTab}</> : <><CustomIcon name="ICON-063" />{" "}{text.importTab}</>}
         </button>)}
       </div>
 
@@ -170,7 +171,7 @@ export default function BackupSection({ pets = [], activePetId, onPetImported, o
         <input ref={fileInputRef} type="file" accept=".json,application/json" disabled={busy} onChange={handleFileChange} className="hidden" aria-label={text.file} />
         {!selection ? <button type="button" disabled={busy} onClick={() => fileInputRef.current?.click()}
           className="w-full p-7 border-2 border-dashed border-[var(--brand-primary)]/40 rounded-3xl bg-[var(--brand-surface-muted)]/50 hover:bg-[var(--brand-primary)]/5 disabled:opacity-50 text-center">
-          <span className="block text-3xl mb-3">📁</span><span className="block font-black text-sm text-[var(--brand-primary)]">{text.file}</span>
+          <span className="block text-3xl mb-3"><CustomIcon name="ICON-064" /></span><span className="block font-black text-sm text-[var(--brand-primary)]">{text.file}</span>
           <span className="block mt-2 text-[11px] font-semibold text-[var(--brand-text)] opacity-60">{text.fileHint}</span>
         </button> : <form onSubmit={handleImport} className="p-4 bg-[var(--brand-surface)] rounded-3xl border-2 border-[var(--brand-primary)]/30 space-y-4 shadow-sm">
           <div className="flex justify-between gap-3 items-center">

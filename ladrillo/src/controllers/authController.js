@@ -17,17 +17,34 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    if (typeof name !== 'string' || !name.trim()) {
+      return res.status(400).json({ error: "El nombre es obligatorio", field: "name" });
     }
 
-    if (name.length > 30) {
-      return res.status(400).json({ error: "El nombre no puede exceder los 30 caracteres" });
+    if (name.trim().length > 30) {
+      return res.status(400).json({ error: "El nombre no puede exceder los 30 caracteres", field: "name" });
     }
 
-    const userExist = await prisma.Usuario.findUnique({ where: { correo: email } });
+    if (typeof email !== 'string' || !email.trim()) {
+      return res.status(400).json({ error: "El correo es obligatorio", field: "email" });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ error: "Ingresa un formato de correo válido", field: "email" });
+    }
+
+    if (typeof password !== 'string' || !password) {
+      return res.status(400).json({ error: "La contraseña es obligatoria", field: "password" });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres", field: "password" });
+    }
+
+    const userExist = await prisma.Usuario.findUnique({ where: { correo: email.trim().toLowerCase() } });
     if (userExist) {
-      return res.status(400).json({ error: "El correo ya está registrado" });
+      return res.status(400).json({ error: "Este correo ya está registrado", field: "email" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -36,8 +53,8 @@ exports.register = async (req, res) => {
 
     const user = await prisma.Usuario.create({
       data: {
-        nombreCompleto: name,
-        correo: email,
+        nombreCompleto: name.trim(),
+        correo: email.trim().toLowerCase(),
         password: hashedPassword,
         emailVerificado: false,
         verification_token: verificationToken,
@@ -52,7 +69,6 @@ exports.register = async (req, res) => {
       await sendVerificationEmail(email, verificationLink, name);
     } catch (mailError) {
       console.error("Error al enviar email de verificación:", mailError);
-      // Notificamos que se creó, pero advertimos si hubo un problema al enviar
     }
 
     res.status(201).json({
@@ -72,18 +88,30 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await prisma.Usuario.findUnique({ where: { correo: email } });
-    if (!user || !user.password) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
+    if (typeof email !== 'string' || !email.trim()) {
+      return res.status(400).json({ error: "Ingresa tu correo electrónico", field: "email" });
+    }
+
+    if (typeof password !== 'string' || !password) {
+      return res.status(400).json({ error: "Ingresa tu contraseña", field: "password" });
+    }
+
+    const user = await prisma.Usuario.findUnique({ where: { correo: email.trim().toLowerCase() } });
+    if (!user) {
+      return res.status(401).json({ error: "Credenciales inválidas", field: "email" });
+    }
+
+    if (!user.password) {
+      return res.status(401).json({ error: "Credenciales inválidas", field: "password" });
     }
 
     if (user.estado === 'Inactivo') {
-      return res.status(403).json({ error: "Esta cuenta se encuentra desactivada" });
+      return res.status(403).json({ error: "Esta cuenta se encuentra desactivada", field: "general" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: "Credenciales inválidas" });
+      return res.status(401).json({ error: "Credenciales inválidas", field: "password" });
     }
 
     // Verificar si el correo ya fue validado
@@ -91,10 +119,10 @@ exports.login = async (req, res) => {
       return res.status(403).json({
         error: "Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada o solicita un nuevo enlace.",
         emailNotVerified: true,
-        email: user.correo
+        email: user.correo,
+        field: "email"
       });
     }
-
     const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
 
     res.json({

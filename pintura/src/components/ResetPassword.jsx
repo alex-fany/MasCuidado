@@ -1,34 +1,31 @@
+import { useSettings } from '../context/SettingsContext';
+import { validateAuthFields, serverFieldErrors } from '../utils/formValidation';
 import { useState } from "react";
 import Input from "./Input";
 import Button from "./Button";
 
 export default function ResetPassword({ token }) {
+  const { language } = useSettings();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const validateClient = () => {
+    const errs = validateAuthFields('reset', { password, confirmPassword }, language);
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
     setError("");
     setMessage("");
 
-    if (!password) {
-      setError("Ingresa una nueva contraseña");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("La contraseña debe tener al menos 6 caracteres");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      return;
-    }
+    if (!validateClient()) return;
 
     setLoading(true);
 
@@ -47,6 +44,7 @@ export default function ResetPassword({ token }) {
       const data = await res.json();
 
       if (!res.ok) {
+        setFieldErrors(serverFieldErrors(data, ["password","confirmPassword"]));
         throw new Error(data.error || "Error al actualizar la contraseña");
       }
 
@@ -65,7 +63,7 @@ export default function ResetPassword({ token }) {
 
   return (
     <div className="animate-in fade-in duration-700 p-2 sm:p-4">
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div className="space-y-1 mb-2">
           <h1 className="text-4xl font-black text-center text-[var(--brand-primary)] tracking-tighter drop-shadow-sm">+Cuidado</h1>
           <h2 className="text-sm font-black text-center text-[var(--brand-text)] opacity-70 uppercase tracking-widest italic leading-none">
@@ -73,7 +71,7 @@ export default function ResetPassword({ token }) {
           </h2>
         </div>
 
-        {error && (
+        {error && !Object.values(fieldErrors).some(Boolean) && (
           <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-3 text-[var(--brand-danger)] text-xs font-black rounded-2xl flex items-center gap-2 animate-shake text-left">
             <span className="bg-[var(--brand-danger)] text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] shrink-0">!</span>
             <span>{error}</span>
@@ -99,8 +97,13 @@ export default function ResetPassword({ token }) {
                 type="password"
                 placeholder="********"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+              setError("");
+                  if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: '' }));
+                }}
                 required
+                error={fieldErrors.password}
               />
 
               <Input
@@ -108,8 +111,13 @@ export default function ResetPassword({ token }) {
                 type="password"
                 placeholder="********"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+              setError("");
+                  if (fieldErrors.confirmPassword) setFieldErrors(prev => ({ ...prev, confirmPassword: '' }));
+                }}
                 required
+                error={fieldErrors.confirmPassword}
               />
             </div>
 

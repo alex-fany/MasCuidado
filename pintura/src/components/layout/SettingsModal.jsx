@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CloseIcon, LogoutIcon } from '../common/Icons';
@@ -22,12 +23,12 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
   };
 
   const settingsItems = [
-    { id: 'theme', label: language === 'en' ? "Theme & Style" : language === 'pt' ? "Tema e Estilo" : "Tema y Estilo", icon: "🎨", desc: language === 'en' ? "Customize colors and look" : language === 'pt' ? "Personalize cores e aparência" : "Personaliza colores y aspecto", active: true },
-    { id: 'backup', label: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", icon: "☁️", desc: language === 'en' ? "Save your pet info" : language === 'pt' ? "Proteja as informações do seu pet" : "Resguarda la info de tu mascota", active: true },
-    { id: 'security', label: language === 'en' ? "Security" : language === 'pt' ? "Segurança" : "Seguridad", icon: "🔒", desc: language === 'en' ? "Change password and access" : language === 'pt' ? "Alterar senha e acessos" : "Cambiar contraseña y accesos", active: false },
-    { id: 'language', label: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", icon: "🌐", desc: language === 'en' ? "Regional preferences" : language === 'pt' ? "Preferências regionais" : "Preferencias regionales", active: true },
-    { id: 'privacy', label: language === 'en' ? "Privacy" : language === 'pt' ? "Privacidade" : "Privacidad", icon: "🛡️", desc: language === 'en' ? "Control shared data" : language === 'pt' ? "Controle de dados compartilhados" : "Control de datos compartidos", active: false },
-    { id: 'help', label: language === 'en' ? "Help" : language === 'pt' ? "Ajuda" : "Ayuda", icon: "❓", desc: language === 'en' ? "FAQ and support" : language === 'pt' ? "Perguntas frequentes e suporte" : "Preguntas frecuentes y soporte", active: false },
+    { id: 'theme', label: language === 'en' ? "Theme & Style" : language === 'pt' ? "Tema e Estilo" : "Tema y Estilo", icon: <CustomIcon name="ICON-059" />, desc: language === 'en' ? "Customize colors and look" : language === 'pt' ? "Personalize cores e aparência" : "Personaliza colores y aspecto", active: true },
+    { id: 'backup', label: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", icon: <CustomIcon name="ICON-044" />, desc: language === 'en' ? "Save your pet info" : language === 'pt' ? "Proteja as informações do seu pet" : "Resguarda la info de tu mascota", active: true },
+    { id: 'security', label: language === 'en' ? "Security" : language === 'pt' ? "Segurança" : "Seguridad", icon: <CustomIcon name="ICON-068" />, desc: language === 'en' ? "Change password and access" : language === 'pt' ? "Alterar senha e acessos" : "Cambiar contraseña y accesos", active: false },
+    { id: 'language', label: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", icon: <CustomIcon name="ICON-069" />, desc: language === 'en' ? "Regional preferences" : language === 'pt' ? "Preferências regionais" : "Preferencias regionales", active: true },
+    { id: 'privacy', label: language === 'en' ? "Privacy" : language === 'pt' ? "Privacidade" : "Privacidad", icon: <CustomIcon name="ICON-047" />, desc: language === 'en' ? "Control shared data" : language === 'pt' ? "Controle de dados compartilhados" : "Control de datos compartidos", active: false },
+    { id: 'help', label: language === 'en' ? "Help" : language === 'pt' ? "Ajuda" : "Ayuda", icon: <CustomIcon name="ICON-070" />, desc: language === 'en' ? "FAQ and support" : language === 'pt' ? "Perguntas frequentes e suporte" : "Preguntas frecuentes y soporte", active: false },
   ];
 
   const getHeaderInfo = () => {
@@ -187,7 +188,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
               className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-[var(--brand-primary)]/20 max-w-sm w-full text-center"
             >
               <div className="w-20 h-20 bg-[var(--brand-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[var(--brand-primary)]/10">
-                <span className="text-4xl">👋</span>
+                <span className="text-4xl"><CustomIcon name="ICON-061" /></span>
               </div>
               <h3 className="text-[var(--brand-primary)] font-black text-2xl mb-2 italic tracking-tighter">{t('profile_logout_confirm_title')}</h3>
               <p className="text-[var(--brand-text)] text-xs font-bold mb-8 leading-relaxed opacity-60">{t('profile_logout_confirm_desc')}</p>

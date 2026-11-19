@@ -8,10 +8,10 @@ export default function SectionWrapper({ children, title, subtitle, onBack }) {
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -300, opacity: 0 }}
       transition={{ type: "spring", stiffness: 260, damping: 30 }}
-      className="flex flex-col flex-1 min-h-0 overflow-hidden"
+      className="flex flex-col flex-1 min-h-0 w-full overflow-hidden"
     >
-      {/* El contenido se desplaza dentro del modal, incluso con poca altura disponible. */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain touch-pan-y px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] no-scrollbar">
+      {/* La altura se reparte con flex; el contenido largo tiene un único contenedor desplazable. */}
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-y-contain touch-pan-y px-4 pt-2 pb-[max(3rem,env(safe-area-inset-bottom))] custom-scrollbar">
         {children}
       </div>
     </motion.div>

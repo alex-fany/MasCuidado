@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useRef, useEffect } from 'react';
 import { CloseIcon } from '../common/Icons';
 import Input from '../Input';
@@ -128,8 +129,7 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden text-left">
           <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-5 pb-6">
             {error && (
-              <div className="p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[11px] font-black border-2 border-[var(--brand-danger)]/10 animate-bounce">
-                ⚠️ ERROR: {error}
+              <div className="p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[11px] font-black border-2 border-[var(--brand-danger)]/10 animate-bounce">{"\n                "}<CustomIcon name="ICON-033" />{" ERROR: "}{error}
               </div>
             )}
 
@@ -142,7 +142,7 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-[var(--brand-secondary)] flex flex-col items-center group-hover:scale-110 transition-transform">
-                    <span className="text-3xl">📸</span>
+                    <span className="text-3xl"><CustomIcon name="ICON-045" /></span>
                   </div>
                 )}
               </div>
@@ -154,9 +154,12 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
                 label={t('form_pet_name')}
                 placeholder={t('ph_pet_name')}
                 value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+                onChange={(e) => {
+                  setFormData({ ...formData, nombre: e.target.value });
+                  if (errors.nombre) setErrors(previous => ({ ...previous, nombre: '' }));
+                }}
                 required
-                error={!!errors.nombre}
+                error={errors.nombre}
               />
             </div>
 

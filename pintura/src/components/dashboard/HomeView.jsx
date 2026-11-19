@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useMemo } from 'react';
 import InfoBubble from './InfoBubble';
 import PetDisplay from './PetDisplay';
@@ -196,12 +197,12 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                     </p>
                   </div>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center opacity-40 group-hover:scale-110 transition-transform ${e.type === 'vaccine' ? 'bg-purple-500/10 text-purple-600' : 'bg-[var(--brand-primary)]/5 text-[var(--brand-primary)]'}`}>
-                     {e.type === 'vaccine' ? '💉' : '🔔'}
+                     {e.type === 'vaccine' ? <CustomIcon name="ICON-035" /> : <CustomIcon name="ICON-037" />}
                   </div>
                 </div>
               )) : (
                 <div className="py-10 text-center opacity-30">
-                   <div className="text-3xl mb-2">🎈</div>
+                   <div className="text-3xl mb-2"><CustomIcon name="ICON-038" /></div>
                    <p className="text-[10px] font-black uppercase tracking-widest">{t('home_no_activities')}</p>
                 </div>
               )}
@@ -223,7 +224,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                   fileName={`Cartilla_${activePet?.nombre || 'Mascota'}.pdf`}
                   className="px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-full border-2 border-emerald-500/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 sm:gap-2 shadow-sm"
                 >
-                  {({ loading }) => (loading ? '...' : `📄 ${t('form_export_pdf')}`)}
+                  {({ loading }) => (loading ? '...' : <><CustomIcon name="ICON-039" />{" "}{t('form_export_pdf')}</>)}
                 </PDFDownloadLink>
 
                 <button onClick={() => setIsCartillaOpen(false)} className="hover:scale-110 active:scale-90 transition-transform duration-200 bg-[var(--brand-surface-muted)] p-1.5 sm:p-2 rounded-full shadow-sm">
@@ -345,7 +346,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] mb-3 ml-1 italic opacity-80">{t('form_fav_clinic')}</h3>
                     {favoriteClinic ? (
                       <div className="p-4 bg-[var(--brand-surface)] rounded-2xl border border-[var(--brand-primary)]/10 flex items-start gap-3 shadow-sm">
-                        <div className="text-2xl mt-1">🏥</div>
+                        <div className="text-2xl mt-1"><CustomIcon name="ICON-040" /></div>
                         <div className="flex-1">
                           <p className="text-xs font-black text-[var(--brand-text)] leading-tight">{favoriteClinic.nombre}</p>
                           <p className="text-[9px] font-bold text-[var(--brand-text)] opacity-50 mt-1 leading-snug">{favoriteClinic.direccion}</p>
@@ -390,7 +391,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                        <div className="text-left flex-1 pb-4">
                           <p className={`text-xs font-black ${i === 0 ? 'text-[var(--brand-text)]' : 'text-[var(--brand-text)] opacity-40'}`}>{t('form_vac_applied')} {formatLocalDate(rec.fechaAplicacion, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                           {rec.proximaDosis && (
-                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">✨ {t('form_vac_next')}: {formatLocalDate(rec.proximaDosis, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1"><CustomIcon name="ICON-036" />{" "}{t('form_vac_next')}: {formatLocalDate(rec.proximaDosis, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                           )}
                        </div>
                     </div>
@@ -439,7 +440,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
         <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-cyan-500/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
               <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-cyan-500/10">
-                <span className="text-4xl animate-bounce">💧</span>
+                <span className="text-4xl animate-bounce"><CustomIcon name="ICON-041" /></span>
               </div>
               <h3 className="text-cyan-600 font-black text-2xl mb-2 italic tracking-tighter">{t('nutri_water_confirm_title')}</h3>
               <p className="text-[var(--brand-text)] text-xs font-bold mb-8 leading-relaxed opacity-60">

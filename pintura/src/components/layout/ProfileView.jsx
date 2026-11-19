@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useEffect, useState } from 'react';
 import { LogoutIcon, CheckIcon, ShieldIcon, CalendarIcon, TrophyIcon, SettingsIcon, UsersIcon, CloseIcon, PhoneIcon } from '../common/Icons';
 import Input from '../Input';
@@ -159,7 +160,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         return <div className="w-full h-full p-6" dangerouslySetInnerHTML={{ __html: avatarObj.svg.replace(/{{COLOR}}/g, user.colorAvatar || '#2d9b96') }} />;
       }
     }
-    return user?.googleId ? '🎨' : '👤';
+    return user?.googleId ? <CustomIcon name="ICON-059" /> : <CustomIcon name="ICON-043" />;
   };
 
   if (loading && !user) {
@@ -440,7 +441,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-[var(--brand-primary)]/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
               <div className="w-20 h-20 bg-[var(--brand-primary)]/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[var(--brand-primary)]/10">
-                <span className="text-4xl">👋</span>
+                <span className="text-4xl"><CustomIcon name="ICON-061" /></span>
               </div>
               <h3 className="text-[var(--brand-primary)] font-black text-2xl mb-2 italic tracking-tighter">{t('profile_logout_confirm_title')}</h3>
               <p className="text-[var(--brand-text)] text-xs font-bold mb-8 leading-relaxed opacity-60">{t('profile_logout_confirm_desc')}</p>
@@ -456,7 +457,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-[var(--brand-danger)]/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
               <div className="w-20 h-20 bg-[var(--brand-danger-muted)] rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-[var(--brand-danger)]/10">
-                <span className="text-4xl">⚠️</span>
+                <span className="text-4xl"><CustomIcon name="ICON-033" /></span>
               </div>
               <h3 className="text-[var(--brand-danger)] font-black text-2xl mb-2 italic tracking-tighter">{t('profile_delete_confirm_title')}</h3>
               <p className="text-[var(--brand-text)] text-xs font-bold mb-8 leading-relaxed opacity-60">{t('profile_delete_confirm_desc')}</p>

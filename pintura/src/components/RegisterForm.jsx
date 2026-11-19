@@ -1,33 +1,45 @@
+import { validateAuthFields, serverFieldErrors } from '../utils/formValidation';
 import { useState } from "react"
 import Input from "./Input"
 import Button from "./Button"
 import { useSettings } from "../context/SettingsContext"
 
 export default function RegisterForm({onLoginClick}) {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState({})
   const [isLoading, setIsLoading] = useState(false)
   const [registeredEmail, setRegisteredEmail] = useState(null)
   const [resending, setResending] = useState(false)
   const [resendMessage, setResendMessage] = useState("")
 
+  const validateClient = () => {
+    const errs = validateAuthFields('register', { name, email, password }, language);
+    setFieldErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
+
+    if (!validateClient()) return;
+
     setIsLoading(true)
 
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), password })
       })
 
       const data = await res.json()
       if (!res.ok) {
+        setFieldErrors(serverFieldErrors(data, ["name","email","password"]));
         if (data.error?.includes("registrado")) throw new Error(t('err_email_taken') || "El correo ya está registrado");
         if (data.error?.includes("campos")) throw new Error(t('err_required_fields') || "Todos los campos son obligatorios");
         throw new Error(data.error || t('err_generic') || "Error al registrarse");
@@ -36,7 +48,7 @@ export default function RegisterForm({onLoginClick}) {
       setRegisteredEmail(email)
 
     } catch (err) {
-      setError(err.message === "Failed to fetch" ? (t('err_server') || "Error de conexión") : err.message)
+      setError(err.message === "Failed to fetch" ? (t('err_server') || "Error de conexión con el servidor") : err.message)
     } finally {
       setIsLoading(false)
     }
@@ -114,28 +126,32 @@ export default function RegisterForm({onLoginClick}) {
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 sm:gap-4 lg:gap-5 text-left">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3.5 sm:gap-4 lg:gap-5 text-left" noValidate>
 
         <div className="space-y-0.5 sm:space-y-1 mb-1">
           <h1 className="text-3xl sm:text-4xl font-black text-center text-[var(--brand-primary)] tracking-tighter drop-shadow-sm">+Cuidado</h1>
           <h2 className="text-sm sm:text-base font-black text-center text-gray-700/80 uppercase tracking-widest italic">{t('register_title')}</h2>
         </div>
 
-        {error && (
+        {error && !Object.values(fieldErrors).some(Boolean) && (
           <div className="bg-[var(--brand-danger-muted)] border-2 border-[var(--brand-danger)]/10 p-3 sm:p-4 text-[var(--brand-danger)] text-xs sm:text-sm font-black rounded-2xl flex items-center gap-2 animate-shake">
-            <span className="bg-[var(--brand-danger)] text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px]">!</span>
+            <span className="bg-[var(--brand-danger)] text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shrink-0">!</span>
             {error}
           </div>
         )}
 
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-2.5 sm:space-y-3">
           <Input
             label={t('form_name')}
             placeholder={t('ph_name')}
             value={name}
-            onChange={(e)=>setName(e.target.value)}
+            onChange={(e) => {
+              setName(e.target.value);
+              setError("");
+              if (fieldErrors.name) setFieldErrors(prev => ({ ...prev, name: '' }));
+            }}
             required
-            error={!!error}
+            error={fieldErrors.name}
             maxLength={30}
           />
 
@@ -144,9 +160,13 @@ export default function RegisterForm({onLoginClick}) {
             type="email"
             placeholder={t('ph_email')}
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setError("");
+              if (fieldErrors.email) setFieldErrors(prev => ({ ...prev, email: '' }));
+            }}
             required
-            error={!!error}
+            error={fieldErrors.email}
           />
 
           <Input
@@ -154,9 +174,13 @@ export default function RegisterForm({onLoginClick}) {
             type="password"
             placeholder={t('ph_password')}
             value={password}
-            onChange={(e)=>setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setError("");
+              if (fieldErrors.password) setFieldErrors(prev => ({ ...prev, password: '' }));
+            }}
             required
-            error={!!error}
+            error={fieldErrors.password}
           />
         </div>
 

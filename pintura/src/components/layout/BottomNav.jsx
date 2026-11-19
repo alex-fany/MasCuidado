@@ -32,6 +32,8 @@ export default function BottomNav({ navItems, currentView, onNavigate }) {
                     )}
 
                     <button
+                      aria-label={item.label}
+                      aria-current={isActive ? 'page' : undefined}
                       onClick={() => onNavigate(item.id)}
                       className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center transition-all duration-500 border-2 sm:border-4 relative z-10 group
                         ${isActive
@@ -52,6 +54,8 @@ export default function BottomNav({ navItems, currentView, onNavigate }) {
             return (
               <button
                 key={item.id}
+                aria-label={item.label}
+                aria-current={isActive ? 'page' : undefined}
                 onClick={() => onNavigate(item.id)}
                 className={`flex-1 flex flex-col items-center justify-center py-2 sm:py-3 px-0.5 sm:px-1 rounded-2xl sm:rounded-3xl transition-all duration-300 relative group
                   ${isActive ? 'text-[var(--brand-text)]' : 'text-[var(--brand-primary)] hover:bg-[var(--brand-primary)]/10'}`}

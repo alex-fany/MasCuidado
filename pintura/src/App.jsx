@@ -1,3 +1,4 @@
+import CustomIcon from './components/common/CustomIcon';
 import { useState, useEffect, useCallback } from "react"
 import Card from "./components/Card"
 import LoginForm from "./components/LoginForm"
@@ -241,7 +242,7 @@ export default function App() {
           {toast.show && (
             <div className="fixed top-24 left-0 right-0 flex justify-center z-[10000] pointer-events-none px-4">
               <div className={`pointer-events-auto ${toast.isWarning ? 'bg-[var(--brand-danger)] border-[var(--brand-danger-muted)]/20 animate-shake-toast' : 'bg-[var(--brand-primary)] border-[var(--brand-border-strong)] animate-in slide-in-from-top-10 fade-in duration-500'} text-[var(--brand-button-text)] px-8 py-4 rounded-[2rem] shadow-2xl font-black text-sm border-4 flex items-center gap-3 text-center whitespace-nowrap`}>
-                {toast.isWarning ? '⚠️' : <StarIcon filled />} {toast.message}
+                {toast.isWarning ? <CustomIcon name="ICON-033" /> : <StarIcon filled />} {toast.message}
               </div>
             </div>
           )}

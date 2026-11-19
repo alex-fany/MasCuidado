@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useEffect } from 'react';
 import { FoodBowlIcon, WaterDropIcon } from '../common/Icons';
 import { useSettings } from '../../context/SettingsContext';
@@ -85,7 +86,7 @@ export default function NutricionHub({ activePet, onClick, onWaterClick, refresh
           {/* Badge de Alerta */}
           {alimento?.alerta && (
             <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-[var(--brand-border-strong)] flex items-center justify-center animate-bounce">
-              <span className="text-[8px] text-white">⚠️</span>
+              <span className="text-[8px] text-white"><CustomIcon name="ICON-033" /></span>
             </div>
           )}
         </button>

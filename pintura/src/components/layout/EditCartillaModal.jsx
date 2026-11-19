@@ -1,10 +1,13 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useEffect, useRef } from 'react';
 import { CloseIcon, CheckIcon, BellIcon, ClockIcon, TrashIcon } from '../common/Icons';
 import Input from '../Input';
+import { validateVisibleFields } from '../../utils/formValidation';
 import { useSettings } from '../../context/SettingsContext';
 
 export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefillVaccineName }) {
   const { t, language } = useSettings();
+  const fieldsRef = useRef(null);
   const [form, setForm] = useState({
     raza: '',
     edad: '',
@@ -178,6 +181,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
   };
 
   const handleSave = async () => {
+    if (!validateVisibleFields(fieldsRef.current, language)) return;
     setLoading(true);
     const formData = new FormData();
     Object.keys(form).forEach(key => formData.append(key, form[key]));
@@ -209,9 +213,12 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
           setSuccess(false);
           onClose();
         }, 2000);
+      } else {
+        const result = await res.json();
+        setErrorMsg(result.error || t('err_generic'));
       }
-    } catch (err) {
-      console.error("Error saving cartilla:", err);
+    } catch {
+      setErrorMsg(t('err_server'));
     } finally {
       setLoading(false);
     }
@@ -220,13 +227,12 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
   const purpleInputClass = "[&_input]:bg-purple-600/10 [&_input]:border-purple-500/20 [&_input]:focus:bg-purple-600/15 [&_input]:focus:border-purple-500 [&_label]:text-purple-600";
 
   return (
-    <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-xl animate-in fade-in duration-300 text-left">
+    <div ref={fieldsRef} className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-xl animate-in fade-in duration-300 text-left">
       <div className="absolute inset-0" onClick={onClose}></div>
       
       {errorMsg && (
         <div className="fixed top-10 left-0 right-0 flex justify-center z-[13000] pointer-events-none px-4">
-          <div className="bg-red-600 text-white px-8 py-3 rounded-full shadow-2xl font-black text-xs animate-shake-toast flex items-center gap-3 pointer-events-auto">
-             ⚠️ {errorMsg}
+          <div className="bg-red-600 text-white px-8 py-3 rounded-full shadow-2xl font-black text-xs animate-shake-toast flex items-center gap-3 pointer-events-auto">{"\n             "}<CustomIcon name="ICON-033" />{" "}{errorMsg}
           </div>
         </div>
       )}
@@ -235,7 +241,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
       {groupToDeleteIdx !== null && (
         <div className="fixed inset-0 z-[15000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-red-500/20 max-w-sm w-full text-center animate-in zoom-in-95">
-              <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-500/10 text-3xl">🗑️</div>
+              <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-500/10 text-3xl"><CustomIcon name="ICON-056" /></div>
               <h3 className="text-xl font-black text-red-600 mb-2 italic tracking-tighter">{t('form_del_group_confirm_title')}</h3>
               <p className="text-[var(--brand-text)] text-xs font-bold opacity-60 mb-8 leading-relaxed">{t('form_del_group_confirm_desc')}</p>
               <div className="flex flex-col gap-3">
@@ -253,7 +259,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
       {confirmDoseIdx !== null && (
         <div className="fixed inset-0 z-[14000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-purple-500/20 max-w-sm w-full text-center animate-in zoom-in-95">
-              <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-purple-500/10 text-3xl">💉</div>
+              <div className="w-20 h-20 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-purple-500/10 text-3xl"><CustomIcon name="ICON-035" /></div>
               <h3 className="text-xl font-black text-purple-600 mb-2 italic tracking-tighter">
                 {t('form_vac_already_today')}
               </h3>
@@ -330,11 +336,11 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
                 <textarea name="senasParticulares" placeholder={t('ph_notes')} value={form.senasParticulares} onChange={handleChange} className="w-full px-6 py-4 bg-[var(--brand-surface-muted)] border-2 border-transparent focus:border-[var(--brand-primary)] rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none transition-all resize-none h-24 text-sm shadow-sm" />
              </div>
              <div className="space-y-2 text-left">
-                <label className="text-[10px] font-black text-purple-600 uppercase italic ml-2 opacity-70">🧬 {t('form_conditions')}</label>
+                <label className="text-[10px] font-black text-purple-600 uppercase italic ml-2 opacity-70"><CustomIcon name="ICON-057" />{" "}{t('form_conditions')}</label>
                 <textarea name="padecimientos" placeholder="Alergias, cirugías, enfermedades crónicas..." value={form.padecimientos} onChange={handleChange} className="w-full px-6 py-4 bg-purple-500/5 border-2 border-transparent focus:border-purple-400 rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none h-24 resize-none text-sm shadow-sm" />
              </div>
              <div className="space-y-2 text-left">
-                <label className="text-[10px] font-black text-purple-600 uppercase italic ml-2 opacity-70">💊 {t('form_medications')}</label>
+                <label className="text-[10px] font-black text-purple-600 uppercase italic ml-2 opacity-70"><CustomIcon name="ICON-058" />{" "}{t('form_medications')}</label>
                 <textarea name="medicamentos" placeholder="Medicamentos actuales y dosis..." value={form.medicamentos} onChange={handleChange} className="w-full px-6 py-4 bg-purple-500/5 border-2 border-transparent focus:border-purple-400 rounded-[1.5rem] text-[var(--brand-text)] font-bold outline-none h-24 resize-none text-sm shadow-sm" />
              </div>
           </section>
@@ -343,7 +349,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
           <section className="space-y-4">
              <div className="flex justify-between items-center px-2">
                 <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 opacity-80 italic">{t('form_vac_physical')}</h3>
-                <button onClick={() => fotoInputRef.current?.click()} className="text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-4 py-1.5 rounded-full hover:bg-emerald-600 hover:text-white transition-all">📸 {t('form_vac_upload')}</button>
+                <button onClick={() => fotoInputRef.current?.click()} className="text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-4 py-1.5 rounded-full hover:bg-emerald-600 hover:text-white transition-all"><CustomIcon name="ICON-045" />{" "}{t('form_vac_upload')}</button>
                 <input type="file" ref={fotoInputRef} multiple accept="image/*" className="hidden" onChange={handleFotoChange} />
              </div>
              <div className="grid grid-cols-3 gap-3">
@@ -358,7 +364,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
                 ))}
                 {fotosExistentes.length === 0 && fotosCartilla.length === 0 && (
                    <div onClick={() => fotoInputRef.current?.click()} className="col-span-3 py-12 border-2 border-dashed border-emerald-200 rounded-[2.5rem] flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-emerald-50 transition-all group">
-                      <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">📄</span>
+                      <span className="text-3xl grayscale group-hover:grayscale-0 transition-all"><CustomIcon name="ICON-039" /></span>
                       <span className="text-[9px] font-black text-emerald-300 uppercase tracking-widest group-hover:text-emerald-500">{t('form_vac_digitalize')}</span>
                    </div>
                 )}
@@ -387,7 +393,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
                      </button>
                      
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label={t('form_vac_name')} value={group.nombre} onChange={(e) => handleUpdateGroupName(gIdx, e.target.value)} placeholder="Ej: Rabia..." className={purpleInputClass} />
+                        <Input label={t('form_vac_name')} value={group.nombre} onChange={(e) => handleUpdateGroupName(gIdx, e.target.value)} placeholder="Ej: Rabia..." required className={purpleInputClass} />
                         <Input label={t('form_vac_next_reinf')} type="date" value={group.proxima} onChange={(e) => handleUpdateGroupProxima(gIdx, e.target.value)} className={purpleInputClass} />
                      </div>
 
@@ -401,7 +407,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
                            {group.dosis.map((dose, dIdx) => (
                               <div key={dose.id} className={`p-3.5 rounded-2xl border flex items-center gap-4 relative group/dose transition-all ${dose.isNew ? 'animate-glow-new bg-purple-100 dark:bg-purple-900/30 border-purple-400 shadow-md' : 'bg-purple-500/5 border-purple-500/10'}`}>
                                  <div className="flex-1">
-                                    <Input label={t('form_vac_date_apply')} type="date" value={dose.fecha} onChange={(e) => handleUpdateDose(gIdx, dIdx, e.target.value)} className={purpleInputClass} />
+                                    <Input label={t('form_vac_date_apply')} type="date" value={dose.fecha} onChange={(e) => handleUpdateDose(gIdx, dIdx, e.target.value)} required className={purpleInputClass} />
                                  </div>
                                  <button onClick={() => handleRemoveDose(gIdx, dIdx)} className="w-8 h-8 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center opacity-0 group-hover/dose:opacity-100 transition-opacity hover:bg-red-500 hover:text-white">✕</button>
                               </div>

@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useMemo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrophyIcon, CheckIcon, StarIcon, ShieldIcon, CalendarIcon, FoodBowlIcon } from '../common/Icons';
@@ -51,13 +52,13 @@ export default function AchievementsView({ user, pets, reminders }) {
       id: 3, tier: 'bronze', category: 'essentials',
       title: { es: "Perfil Pro", en: "Pro Profile", pt: "Perfil Pro" },
       desc: { es: "Completa tu nombre e identidad visual.", en: "Complete your name and avatar.", pt: "Complete seu nome e avatar." },
-      completed: !!user?.nombreCompleto && !!user?.imagen, icon: "👤", points: 150, color: "from-orange-400 to-orange-700"
+      completed: !!user?.nombreCompleto && !!user?.imagen, icon: <CustomIcon name="ICON-043" />, points: 150, color: "from-orange-400 to-orange-700"
     },
     {
       id: 4, tier: 'bronze', category: 'essentials',
       title: { es: "Sincronizado", en: "Synced", pt: "Sincronizado" },
       desc: { es: "Vincula tu cuenta con Google Calendar.", en: "Link your account with Google.", pt: "Vincule sua conta ao Google." },
-      completed: !!user?.googleId, icon: "☁️", points: 200, color: "from-orange-400 to-orange-700"
+      completed: !!user?.googleId, icon: <CustomIcon name="ICON-044" />, points: 200, color: "from-orange-400 to-orange-700"
     },
 
     // Salud
@@ -65,25 +66,25 @@ export default function AchievementsView({ user, pets, reminders }) {
       id: 5, tier: 'bronze', category: 'health',
       title: { es: "Escudo Salud", en: "Health Shield", pt: "Escudo Saúde" },
       desc: { es: "Registra la primera vacuna.", en: "Register your first vaccine.", pt: "Registre sua primeira vacina." },
-      completed: pets.some(p => p.vacunas?.length > 0), icon: "💉", points: 150, color: "from-orange-400 to-orange-700"
+      completed: pets.some(p => p.vacunas?.length > 0), icon: <CustomIcon name="ICON-035" />, points: 150, color: "from-orange-400 to-orange-700"
     },
     {
       id: 6, tier: 'bronze', category: 'health',
       title: { es: "Bibliotecario", en: "Librarian", pt: "Bibliotecário" },
       desc: { es: "Sube una foto de cartilla física.", en: "Upload a physical record photo.", pt: "Envie uma foto da caderneta." },
-      completed: pets.some(p => p.fotosCartilla && JSON.parse(JSON.stringify(p.fotosCartilla)).length > 0), icon: "📸", points: 150, color: "from-orange-400 to-orange-700"
+      completed: pets.some(p => p.fotosCartilla && JSON.parse(JSON.stringify(p.fotosCartilla)).length > 0), icon: <CustomIcon name="ICON-045" />, points: 150, color: "from-orange-400 to-orange-700"
     },
     {
       id: 7, tier: 'silver', category: 'health',
       title: { es: "Héroe Clínico", en: "Clinical Hero", pt: "Herói Clínico" },
       desc: { es: "Registra 3 o más vacunas para una mascota.", en: "Register 3+ vaccines for a pet.", pt: "Registre 3+ vacinas para um pet." },
-      completed: pets.some(p => p.vacunas?.length >= 3), icon: "🩺", points: 300, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.vacunas?.length >= 3), icon: <CustomIcon name="ICON-046" />, points: 300, color: "from-slate-300 to-slate-500"
     },
     {
       id: 8, tier: 'silver', category: 'health',
       title: { es: "Protector", en: "Protector", pt: "Protetor" },
       desc: { es: "Agenda un refuerzo futuro de vacuna.", en: "Set a future booster dose.", pt: "Agende um reforço de vacina." },
-      completed: pets.some(p => p.vacunas?.some(v => !!v.proximaDosis)), icon: "🛡️", points: 250, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.vacunas?.some(v => !!v.proximaDosis)), icon: <CustomIcon name="ICON-047" />, points: 250, color: "from-slate-300 to-slate-500"
     },
 
     // Nutrición
@@ -91,25 +92,25 @@ export default function AchievementsView({ user, pets, reminders }) {
       id: 9, tier: 'bronze', category: 'nutrition',
       title: { es: "Proveedor", en: "Provider", pt: "Fornecedor" },
       desc: { es: "Registra tu primera compra de alimento.", en: "Register your first food purchase.", pt: "Registre sua primeira compra." },
-      completed: pets.some(p => p.inventariosAlimento?.length > 0), icon: "🥣", points: 150, color: "from-orange-400 to-orange-700"
+      completed: pets.some(p => p.inventariosAlimento?.length > 0), icon: <CustomIcon name="ICON-034" />, points: 150, color: "from-orange-400 to-orange-700"
     },
     {
       id: 10, tier: 'silver', category: 'nutrition',
       title: { es: "Socio del Cuenco", en: "Bowl Partner", pt: "Sócio da Tigela" },
       desc: { es: "Crea un grupo de comida compartida.", en: "Create a shared food group.", pt: "Crie um grupo de comida compartilhada." },
-      completed: pets.some(p => p.inventariosAlimento?.some(i => i.compartidoCon?.length > 0)), icon: "🤝", points: 350, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.inventariosAlimento?.some(i => i.compartidoCon?.length > 0)), icon: <CustomIcon name="ICON-048" />, points: 350, color: "from-slate-300 to-slate-500"
     },
     {
       id: 11, tier: 'silver', category: 'nutrition',
       title: { es: "Reserva Maestro", en: "Master Reserve", pt: "Reserva Mestre" },
       desc: { es: "Asegura el suministro: registra una compra de 10kg o más.", en: "Secure supply: register a purchase of 10kg or more.", pt: "Garanta o suprimento: registre uma compra de 10kg ou mais." },
-      completed: pets.some(p => p.inventariosAlimento?.some(i => (i.cantidadTotal * (factor[i.unidadMedida] || 1)) >= 10000)), icon: "📦", points: 200, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.inventariosAlimento?.some(i => (i.cantidadTotal * (factor[i.unidadMedida] || 1)) >= 10000)), icon: <CustomIcon name="ICON-049" />, points: 200, color: "from-slate-300 to-slate-500"
     },
     {
       id: 12, tier: 'silver', category: 'nutrition',
       title: { es: "Hidratación", en: "Hydration", pt: "Hidratação" },
       desc: { es: "Establece una meta de agua diaria.", en: "Set a daily water goal.", pt: "Defina uma meta de água." },
-      completed: pets.some(p => p.nutricionConfig?.metaAguaDiaria > 0), icon: "💧", points: 200, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.nutricionConfig?.metaAguaDiaria > 0), icon: <CustomIcon name="ICON-041" />, points: 200, color: "from-slate-300 to-slate-500"
     },
 
     // Maestría
@@ -117,25 +118,25 @@ export default function AchievementsView({ user, pets, reminders }) {
       id: 13, tier: 'gold', category: 'mastery',
       title: { es: "Expediente Oro", en: "Golden Record", pt: "Prontuário Ouro" },
       desc: { es: "Completa todos los datos médicos.", en: "Complete all medical fields.", pt: "Complete os dados médicos." },
-      completed: pets.some(p => p.raza && p.edad && p.peso && p.padecimientos && p.medicamentos), icon: "📜", points: 500, color: "from-amber-300 to-amber-600"
+      completed: pets.some(p => p.raza && p.edad && p.peso && p.padecimientos && p.medicamentos), icon: <CustomIcon name="ICON-050" />, points: 500, color: "from-amber-300 to-amber-600"
     },
     {
       id: 14, tier: 'silver', category: 'mastery',
       title: { es: "Explorador", en: "Scout", pt: "Explorador" },
       desc: { es: "Guarda una clínica favorita en el mapa.", en: "Save a favorite clinic on the map.", pt: "Salve uma clínica favorita." },
-      completed: pets.some(p => p.clinicasFavoritas?.length > 0), icon: "🏥", points: 250, color: "from-slate-300 to-slate-500"
+      completed: pets.some(p => p.clinicasFavoritas?.length > 0), icon: <CustomIcon name="ICON-040" />, points: 250, color: "from-slate-300 to-slate-500"
     },
     {
       id: 15, tier: 'silver', category: 'mastery',
       title: { es: "Agenda Maestra", en: "Master Agenda", pt: "Agenda Mestra" },
       desc: { es: "Mantén 5 recordatorios activos.", en: "Keep 5 active reminders.", pt: "Mantenha 5 lembretes ativos." },
-      completed: reminders.length >= 5, icon: "📅", points: 300, color: "from-slate-300 to-slate-500"
+      completed: reminders.length >= 5, icon: <CustomIcon name="ICON-051" />, points: 300, color: "from-slate-300 to-slate-500"
     },
     {
       id: 16, tier: 'gold', category: 'mastery',
       title: { es: "Planificador", en: "Planner", pt: "Planejador" },
       desc: { es: "Sincroniza 5 eventos con Google.", en: "Sync 5 events with Google.", pt: "Sincronize 5 eventos no Google." },
-      completed: reminders.filter(r => !!r.idEventoGoogle).length >= 5, icon: "⚡", points: 450, color: "from-amber-300 to-amber-600"
+      completed: reminders.filter(r => !!r.idEventoGoogle).length >= 5, icon: <CustomIcon name="ICON-052" />, points: 450, color: "from-amber-300 to-amber-600"
     }
   ], [user, pets, reminders]);
 
@@ -162,9 +163,9 @@ export default function AchievementsView({ user, pets, reminders }) {
   }, [totalPoints]);
   
   const currentRank = useMemo(() => {
-    if (progress >= 90) return { name: { es: "Protector Legendario", en: "Legendary Protector", pt: "Protetor Lendário" }, color: "from-amber-400 to-orange-600", glow: "shadow-amber-500/40", icon: "👑" };
-    if (progress >= 60) return { name: { es: "Cuidador Élite", en: "Elite Caregiver", pt: "Cuidador Elite" }, color: "from-emerald-400 to-teal-600", glow: "shadow-emerald-500/40", icon: "💎" };
-    if (progress >= 30) return { name: { es: "Cuidador Experto", en: "Expert Caregiver", pt: "Cuidador Experto" }, color: "from-blue-400 to-indigo-600", glow: "shadow-blue-500/40", icon: "🎖️" };
+    if (progress >= 90) return { name: { es: "Protector Legendario", en: "Legendary Protector", pt: "Protetor Lendário" }, color: "from-amber-400 to-orange-600", glow: "shadow-amber-500/40", icon: <CustomIcon name="ICON-053" /> };
+    if (progress >= 60) return { name: { es: "Cuidador Élite", en: "Elite Caregiver", pt: "Cuidador Elite" }, color: "from-emerald-400 to-teal-600", glow: "shadow-emerald-500/40", icon: <CustomIcon name="ICON-054" /> };
+    if (progress >= 30) return { name: { es: "Cuidador Experto", en: "Expert Caregiver", pt: "Cuidador Experto" }, color: "from-blue-400 to-indigo-600", glow: "shadow-blue-500/40", icon: <CustomIcon name="ICON-055" /> };
     return { name: { es: "Iniciado", en: "Novice", pt: "Iniciado" }, color: "from-purple-400 to-pink-600", glow: "shadow-purple-500/40", icon: "🐾" };
   }, [progress]);
 

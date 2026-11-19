@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CloseIcon, GoogleCalendarBrandIcon } from '../common/Icons';
 import Input from '../Input';
 import Button from '../Button';
+import { validateVisibleFields } from '../../utils/formValidation';
 import { useSettings } from '../../context/SettingsContext';
 
 export default function AddReminderModal({ isOpen, onClose, pets = [], onRefreshReminders, initialDate, editReminder, activePetId }) {
@@ -159,6 +160,7 @@ export default function AddReminderModal({ isOpen, onClose, pets = [], onRefresh
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateVisibleFields(e.currentTarget, language)) return;
     setLoading(true);
     setError('');
 

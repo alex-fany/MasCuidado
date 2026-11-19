@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { ClockIcon, ArrowLeftIcon, ArrowRightIcon, GoogleCalendarBrandIcon, CloseIcon } from '../common/Icons';
 import AddReminderModal from '../layout/AddReminderModal';
@@ -242,7 +243,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
                 selectedDayEvents.map(event => (
                   <div key={event.id} onClick={() => handleEventClick(event)} className={`p-2.5 sm:p-3 rounded-[1.4rem] sm:rounded-[1.8rem] border flex items-center gap-3 transition-all duration-300 group shadow-sm cursor-pointer relative shrink-0 ${event.type.startsWith('vaccine') ? 'bg-purple-600/10 border-purple-500/20 hover:bg-purple-600/15' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20 hover:bg-orange-500/15' : 'bg-[var(--brand-surface)]/80 backdrop-blur-sm border-[var(--brand-primary)]/10 hover:bg-[var(--brand-surface)]'}`}>
                     <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-[1rem] sm:rounded-[1.1rem] flex items-center justify-center overflow-hidden text-base sm:text-lg shadow-inner border shrink-0 transition-colors ${event.type.startsWith('vaccine') ? 'bg-purple-500/10 border-purple-500/20' : event.type === 'food_depletion' ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[var(--brand-surface-muted)] border-[var(--brand-primary)]/10 group-hover:bg-[var(--brand-primary)]/10'}`}>
-                      {event.type === 'food_depletion' ? '🥣' : (event.pet?.imagen ? <img src={event.pet.imagen.startsWith('http') ? event.pet.imagen : `/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>)}
+                      {event.type === 'food_depletion' ? <CustomIcon name="ICON-034" /> : (event.pet?.imagen ? <img src={event.pet.imagen.startsWith('http') ? event.pet.imagen : `/uploads/${event.pet.imagen}`} alt="Pet" className="w-full h-full object-cover" /> : <span className="group-hover:rotate-12 transition-transform scale-90">{event.pet?.tipo === 'Perro' ? '🐶' : event.pet?.tipo === 'Gato' ? '🐱' : '🐾'}</span>)}
                     </div>
                     <div className="flex-1 min-w-0 text-left">
                       <div className="flex items-center justify-between gap-1.5">
@@ -250,7 +251,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
                         <div className="flex items-center gap-1 shrink-0">
                           {event.type === 'reminder' && event.originalData.idEventoGoogle && <GoogleCalendarBrandIcon />}
                           <span className={`font-black text-[7px] uppercase tracking-tighter opacity-60 ${event.type.startsWith('vaccine') ? 'text-purple-600' : event.type === 'food_depletion' ? 'text-orange-600' : 'text-[var(--brand-primary)]'}`}>
-                             {event.type.startsWith('vaccine') ? '💉' : event.type === 'food_depletion' ? '🥣' : new Date(event.originalData?.fechaHora || event.fecha).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
+                             {event.type.startsWith('vaccine') ? <CustomIcon name="ICON-035" /> : event.type === 'food_depletion' ? <CustomIcon name="ICON-034" /> : new Date(event.originalData?.fechaHora || event.fecha).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       </div>
@@ -320,7 +321,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
                              {t('form_vac_applied')} {new Date(rec.fechaAplicacion).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}
                           </p>
                           {rec.proximaDosis && (
-                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">✨ {t('form_vac_next')}: {new Date(rec.proximaDosis).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                             <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1"><CustomIcon name="ICON-036" />{" "}{t('form_vac_next')}: {new Date(rec.proximaDosis).toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                           )}
                        </div>
                     </div>

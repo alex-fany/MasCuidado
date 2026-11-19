@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import CustomIcon from '../common/CustomIcon';
+import React, { useState, useEffect, useRef } from 'react';
 import { CloseIcon, FoodBowlIcon, CheckIcon, UsersIcon } from '../common/Icons';
 import Input from '../Input';
+import { validateVisibleFields } from '../../utils/formValidation';
 import { useSettings } from '../../context/SettingsContext';
 
 export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
-  const { t } = useSettings();
+  const { t, language } = useSettings();
+  const fieldsRef = useRef(null);
   const [activeTab, setActivePetTab] = useState('config');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -88,6 +91,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
   };
 
   const handleSaveConfig = async (resolveConflict = null) => {
+    if (!validateVisibleFields(fieldsRef.current, language)) return;
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -145,6 +149,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
   };
 
   const handleRegisterBuy = async (resolveConflict = null) => {
+    if (!validateVisibleFields(fieldsRef.current, language)) return;
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -207,7 +212,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
   const optionStyle = "bg-[var(--brand-modal-bg)] text-[var(--brand-text)]";
 
   return (
-    <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
+    <div ref={fieldsRef} className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl border-4 border-[var(--brand-primary)]/20 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[90vh]">
         
         {!conflictData && !success && (
@@ -329,7 +334,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
                               value={data.metaAguaDiaria}
                               onChange={(e) => setData({...data, metaAguaDiaria: e.target.value})}
                               placeholder="Ej: 4"
-                              suffix="🥣"
+                              suffix={<CustomIcon name="ICON-034" />}
                           />
                           <Input 
                               label={t('nutri_reset_frequency')}
@@ -338,7 +343,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
                               value={data.reinicioAguaDias}
                               onChange={(e) => setData({...data, reinicioAguaDias: e.target.value})}
                               placeholder="Ej: 1"
-                              suffix="📅"
+                              suffix={<CustomIcon name="ICON-051" />}
                           />
                         </div>
 
@@ -444,7 +449,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
         {conflictData && !success && (
           <div className="flex-1 flex flex-col items-center justify-center p-4 z-[60] animate-in fade-in duration-300">
              <div className="w-20 h-20 bg-orange-500/10 rounded-full flex items-center justify-center mb-6 border-4 border-orange-500/20">
-                <span className="text-4xl animate-pulse">⚠️</span>
+                <span className="text-4xl animate-pulse"><CustomIcon name="ICON-033" /></span>
              </div>
              <h3 className="text-orange-600 font-black text-2xl italic tracking-tighter mb-4 text-center uppercase leading-none">{t('nutri_conflict_title')}</h3>
              <div className="bg-[var(--brand-surface-muted)] p-6 rounded-[2rem] border-2 border-orange-500/10 w-full mb-8 text-center shadow-inner">
