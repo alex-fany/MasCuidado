@@ -40,13 +40,13 @@ export default function AchievementsView({ user, pets, reminders }) {
       id: 1, tier: 'bronze', category: 'essentials',
       title: { es: "Primer Amigo", en: "First Friend", pt: "Primeiro Amigo" },
       desc: { es: "Registra tu primera mascota.", en: "Register your first pet.", pt: "Registre seu primeiro pet." },
-      completed: pets.length > 0, icon: "🐾", points: 100, color: "from-orange-400 to-orange-700"
+      completed: pets.length > 0, icon: <CustomIcon name="ICON-071" />, points: 100, color: "from-orange-400 to-orange-700"
     },
     {
       id: 2, tier: 'silver', category: 'essentials',
       title: { es: "Líder de Manada", en: "Pack Leader", pt: "Líder da Matilha" },
       desc: { es: "Gestiona a 3 o más mascotas.", en: "Manage 3 or more pets.", pt: "Gerencie 3 ou mais animais." },
-      completed: pets.length >= 3, icon: "🐕", points: 250, color: "from-slate-300 to-slate-500"
+      completed: pets.length >= 3, icon: <CustomIcon name="ICON-072" />, points: 250, color: "from-slate-300 to-slate-500"
     },
     {
       id: 3, tier: 'bronze', category: 'essentials',
@@ -166,7 +166,7 @@ export default function AchievementsView({ user, pets, reminders }) {
     if (progress >= 90) return { name: { es: "Protector Legendario", en: "Legendary Protector", pt: "Protetor Lendário" }, color: "from-amber-400 to-orange-600", glow: "shadow-amber-500/40", icon: <CustomIcon name="ICON-053" /> };
     if (progress >= 60) return { name: { es: "Cuidador Élite", en: "Elite Caregiver", pt: "Cuidador Elite" }, color: "from-emerald-400 to-teal-600", glow: "shadow-emerald-500/40", icon: <CustomIcon name="ICON-054" /> };
     if (progress >= 30) return { name: { es: "Cuidador Experto", en: "Expert Caregiver", pt: "Cuidador Experto" }, color: "from-blue-400 to-indigo-600", glow: "shadow-blue-500/40", icon: <CustomIcon name="ICON-055" /> };
-    return { name: { es: "Iniciado", en: "Novice", pt: "Iniciado" }, color: "from-purple-400 to-pink-600", glow: "shadow-purple-500/40", icon: "🐾" };
+    return { name: { es: "Iniciado", en: "Novice", pt: "Iniciado" }, color: "from-purple-400 to-pink-600", glow: "shadow-purple-500/40", icon: <CustomIcon name="ICON-071" /> };
   }, [progress]);
 
   return (

@@ -1,3 +1,4 @@
+import CustomIcon from './common/CustomIcon';
 import { validateAuthFields, serverFieldErrors } from '../utils/formValidation';
 import { useState } from "react"
 import Input from "./Input"
@@ -86,7 +87,7 @@ export default function RegisterForm({onLoginClick}) {
 
           <div className="bg-[var(--brand-primary)]/10 border-2 border-[var(--brand-primary)]/30 p-6 rounded-[2.5rem] space-y-4 shadow-sm">
             <div className="w-16 h-16 bg-[var(--brand-primary)] rounded-full mx-auto flex items-center justify-center text-white text-3xl shadow-lg shadow-[var(--brand-primary)]/20">
-              📩
+              <CustomIcon name="ICON-073" />
             </div>
             <h3 className="text-base sm:text-lg font-black text-[var(--brand-primary)]">
               Verifica tu correo electrónico

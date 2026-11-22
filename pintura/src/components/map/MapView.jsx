@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { GoogleMap, useJsApiLoader, MarkerF, InfoWindow, Autocomplete } from '@react-google-maps/api';
 import { MapPinIcon, SearchIcon, ClinicFavoriteIcon } from '../common/Icons';
@@ -171,7 +172,7 @@ export default function MapView({ activePet, onPetUpdated }) {
   if (loadError) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10 text-center gap-4">
-        <div className="text-red-500 text-5xl">⚠️</div>
+        <div className="text-red-500 text-5xl"><CustomIcon name="ICON-033" /></div>
         <h3 className="text-[#2d9b96] font-black text-xl">{language === 'en' ? 'Connection Error' : language === 'pt' ? 'Erro de Conexão' : 'Error de Conexión'}</h3>
         <p className="text-gray-500 max-w-xs font-bold text-sm leading-relaxed">
           {language === 'en' ? 'Could not connect to Google Maps. Please restart the application.' : language === 'pt' ? 'Não foi possível conectar ao Google Maps. Reinicie o aplicativo.' : 'No se pudo conectar con Google Maps. Por favor, reinicia la aplicación.'}
@@ -183,7 +184,7 @@ export default function MapView({ activePet, onPetUpdated }) {
   if (!apiKey) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center p-10 text-center gap-4">
-        <div className="text-amber-500 text-5xl">🔑</div>
+        <div className="text-amber-500 text-5xl"><CustomIcon name="ICON-074" /></div>
         <h3 className="text-amber-600 font-black text-xl">{language === 'en' ? 'Key not detected' : language === 'pt' ? 'Chave não detectada' : 'Clave no detectada'}</h3>
         <p className="text-gray-500 max-w-xs font-bold text-sm">
           {language === 'en' ? 'Vite could not find your VITE_GOOGLE_MAPS_API_KEY. Did you restart the server?' : language === 'pt' ? 'Vite não encontrou sua VITE_GOOGLE_MAPS_API_KEY. Você reiniciou o servidor?' : 'Vite no encuentra tu VITE_GOOGLE_MAPS_API_KEY. ¿Reiniciaste el servidor?'}

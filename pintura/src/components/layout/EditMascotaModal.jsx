@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useRef, useEffect } from 'react';
 import { CloseIcon } from '../common/Icons';
 import Input from '../Input';
@@ -118,7 +119,7 @@ const EditMascotaModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
           <div className="flex-1 overflow-y-auto pr-4 custom-scrollbar space-y-5 pb-6">
             {error && (
               <div className="p-4 bg-[var(--brand-danger-muted)] text-[var(--brand-danger)] rounded-2xl text-[11px] font-black border-2 border-[var(--brand-danger)]/10 animate-bounce">
-                ⚠️ ERROR: {error}
+                <CustomIcon name="ICON-033" /> ERROR: {error}
               </div>
             )}
 
@@ -131,7 +132,7 @@ const EditMascotaModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
                   <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-[var(--brand-secondary)] flex flex-col items-center group-hover:scale-110 transition-transform">
-                    <span className="text-3xl">📸</span>
+                    <span className="text-3xl"><CustomIcon name="ICON-045" /></span>
                     <span className="text-[9px] font-black uppercase mt-1">Subir Foto</span>
                   </div>
                 )}
@@ -160,6 +161,7 @@ const EditMascotaModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
                   <option value="Tortuga">🐢 Tortuga</option>
                   <option value="Ave">🦜 Ave</option>
                   <option value="Hamster">🐹 Hámster</option>
+                  <option value="Pez">🐟 Pez</option>
                   <option value="Otro">🐾 Otro</option>
                 </select>
               </div>

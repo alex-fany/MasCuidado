@@ -1,3 +1,4 @@
+import CustomIcon from '../common/CustomIcon';
 import React, { useState, useEffect } from 'react';
 import { CloseIcon, CheckIcon } from '../common/Icons';
 import Input from '../Input';
@@ -166,7 +167,7 @@ export default function EditUserModal({ isOpen, onClose, user, onSave }) {
 
             {user?.googleId && (
               <p className="text-[10px] font-bold text-[var(--brand-text)] opacity-40 italic ml-2 mt-1 flex items-center gap-1">
-                <span>🔒</span> {language === 'en' ? 'Managed by Google' : language === 'pt' ? 'Gerenciado pelo Google' : 'Gestionado por Google'}
+                <CustomIcon name="ICON-068" /> {language === 'en' ? 'Managed by Google' : language === 'pt' ? 'Gerenciado pelo Google' : 'Gestionado por Google'}
               </p>
             )}
           </div>

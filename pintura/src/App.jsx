@@ -82,7 +82,7 @@ export default function App() {
       });
       const data = await res.json();
       if (res.ok) {
-        const emojiMap = { 'Perro': '🐶', 'Gato': '🐱', 'Conejo': '🐰', 'Tortuga': '🐢', 'Ave': '🦜', 'Hamster': '🐹' };
+        const emojiMap = { 'Perro': '🐶', 'Gato': '🐱', 'Conejo': '🐰', 'Tortuga': '🐢', 'Ave': '🦜', 'Hamster': '🐹', 'Pez': '🐟' };
         const mapped = data.map(p => ({
           ...p,
           realAvatar: emojiMap[p.tipo] || '🐾',

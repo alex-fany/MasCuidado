@@ -177,6 +177,7 @@ const PetManagementModal = ({ isOpen, onClose, onRefreshPets, pet }) => {
                   <option value="Tortuga">{t('pet_tortuga')}</option>
                   <option value="Ave">{t('pet_ave')}</option>
                   <option value="Hamster">{t('pet_hamster')}</option>
+                  <option value="Pez">{t('pet_pez')}</option>
                   <option value="Otro">{t('pet_otro')}</option>
                 </select>
               </div>
