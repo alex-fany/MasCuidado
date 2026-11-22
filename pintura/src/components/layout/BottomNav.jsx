@@ -5,7 +5,7 @@ export default function BottomNav({ navItems, currentView, onNavigate }) {
   const { t } = useSettings();
 
   return (
-    <footer className="w-full flex justify-center z-40 flex-shrink-0 px-2 sm:px-4 pb-2 sm:pb-4">
+    <footer data-tour-anchor="navigation" className="w-full flex justify-center z-40 flex-shrink-0 px-2 sm:px-4 pb-2 sm:pb-4">
       <div className="w-full max-w-3xl relative">
 
         {/* Nav Principal */}
@@ -32,7 +32,7 @@ export default function BottomNav({ navItems, currentView, onNavigate }) {
                     )}
 
                     <button
-                      aria-label={item.label}
+                      data-tour-anchor={`nav-${item.id}`} aria-label={item.label}
                       aria-current={isActive ? 'page' : undefined}
                       onClick={() => onNavigate(item.id)}
                       className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex flex-col items-center justify-center transition-all duration-500 border-2 sm:border-4 relative z-10 group
@@ -54,7 +54,7 @@ export default function BottomNav({ navItems, currentView, onNavigate }) {
             return (
               <button
                 key={item.id}
-                aria-label={item.label}
+                data-tour-anchor={`nav-${item.id}`} aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
                 onClick={() => onNavigate(item.id)}
                 className={`flex-1 flex flex-col items-center justify-center py-2 sm:py-3 px-0.5 sm:px-1 rounded-2xl sm:rounded-3xl transition-all duration-300 relative group

@@ -74,7 +74,7 @@ export default function NutricionHub({ activePet, onClick, onWaterClick, refresh
         </svg>
 
         <button 
-          onClick={onClick}
+          data-tour-anchor="nutrition" onClick={onClick}
           className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border-4 border-[var(--brand-border-strong)] shadow-lg relative z-10 
             bg-gradient-to-br from-[var(--brand-accent)] to-[var(--brand-primary)] hover:shadow-xl hover:scale-105 active:scale-95`}
           title={t('home_nutrition_hub')}
@@ -104,7 +104,7 @@ export default function NutricionHub({ activePet, onClick, onWaterClick, refresh
       {/* Control Rápido de Agua */}
       <div className="flex flex-col items-center gap-2 h-10 relative">
         <button 
-          onClick={handleWaterClickInternal}
+          data-tour-anchor="water" onClick={handleWaterClickInternal}
           className={`w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center transition-all active:scale-90 hover:bg-white/20 relative group/water ${isShaking ? 'animate-shake' : ''}`}
         >
           <div className={`group-hover/water:scale-110 transition-transform`}>

@@ -129,7 +129,7 @@ export default function BackupSection({ pets = [], activePetId, onPetImported, o
   const buttonClass = 'w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 bg-[var(--brand-primary)] text-[var(--brand-button-text)] hover:bg-[var(--brand-secondary)] disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none';
 
   return <SectionWrapper>
-    <section className="flex flex-col gap-4 pb-6 text-left" aria-busy={busy}>
+    <section data-tour-window="backup" className="flex flex-col gap-4 pb-6 text-left" aria-busy={busy}>
       <div className="flex p-1.5 bg-[var(--brand-surface-muted)] rounded-2xl border border-[var(--brand-border)]" role="group">
         {['export', 'import'].map(item => <button key={item} type="button" disabled={busy} aria-pressed={tab === item}
           onClick={() => { if (!operationRef.current) setTab(item); }}

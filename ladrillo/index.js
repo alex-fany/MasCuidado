@@ -21,6 +21,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Rutas
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/tutorials', require('./src/routes/tutorialRoutes'));
 app.use('/api/mascotas', mascotaRoutes);
 app.use('/api/recordatorios', recordatorioRoutes);
 app.use('/api/google-calendar', googleCalendarRoutes);

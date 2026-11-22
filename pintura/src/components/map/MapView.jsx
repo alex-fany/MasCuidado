@@ -217,7 +217,7 @@ export default function MapView({ activePet, onPetUpdated }) {
           </div>
         ) : locationError ? (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4 animate-in zoom-in duration-300 h-full">
-             <div className="text-red-500 text-5xl opacity-80">📍</div>
+             <div className="text-red-500 text-5xl opacity-80"><CustomIcon name="ICON-075" /></div>
              <h3 className="text-[#2d9b96] font-black text-xl">{language === 'en' ? 'Location required' : language === 'pt' ? 'Localização necessária' : 'Ubicación necesaria'}</h3>
              <p className="text-gray-500 font-medium max-w-xs">{locationError}</p>
              <button onClick={() => window.location.reload()} className="mt-2 px-8 py-2.5 bg-[#2d9b96] text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">

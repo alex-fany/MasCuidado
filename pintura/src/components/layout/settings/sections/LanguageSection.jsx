@@ -13,7 +13,7 @@ export default function LanguageSection() {
 
   return (
     <SectionWrapper>
-      <div className="grid grid-cols-1 gap-3 pb-6">
+      <div data-tour-anchor="language-options" className="grid grid-cols-1 gap-3 pb-6">
         {languages.map((l) => (
           <button
             key={l.id}

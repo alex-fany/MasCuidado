@@ -24,7 +24,7 @@ export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEd
     <header className="w-full px-3 xs:px-4 py-2.5 xs:py-3 sm:py-4 flex justify-between items-center relative z-[100] shrink-0 text-left">
       <div className="flex items-center gap-2 xs:gap-3 min-w-0">
         <button 
-          aria-label={t('settings_title')}
+          data-tour-anchor="settings" aria-label={t('settings_title')}
           onClick={onConfigClick}
           className="w-10 h-10 xs:w-11 xs:h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all shadow-lg active:scale-95 group shrink-0"
         >
@@ -42,7 +42,7 @@ export default function DashboardHeader({ onConfigClick, onAddMascotaClick, onEd
 
       <div className="relative shrink-0" ref={dropdownRef}>
         <button 
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          data-tour-anchor="pets" onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className={`h-10 xs:h-11 sm:h-12 px-2.5 xs:px-3 sm:px-4 rounded-xl sm:rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/20 flex items-center gap-2 sm:gap-3 hover:bg-white/20 transition-all shadow-lg active:scale-95 group relative ${pets.length === 0 ? 'ripple-effect' : ''}`}
         >
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[var(--brand-primary)] flex items-center justify-center text-base sm:text-lg shadow-inner group-hover:scale-110 transition-transform shrink-0">

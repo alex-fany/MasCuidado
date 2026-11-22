@@ -227,7 +227,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
   const purpleInputClass = "[&_input]:bg-purple-600/10 [&_input]:border-purple-500/20 [&_input]:focus:bg-purple-600/15 [&_input]:focus:border-purple-500 [&_label]:text-purple-600";
 
   return (
-    <div ref={fieldsRef} className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-xl animate-in fade-in duration-300 text-left">
+    <div ref={fieldsRef} data-tour-window="medical" className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-xl animate-in fade-in duration-300 text-left">
       <div className="absolute inset-0" onClick={onClose}></div>
       
       {errorMsg && (
@@ -421,7 +421,7 @@ export default function EditCartillaModal({ isOpen, onClose, pet, onSave, prefil
         </div>
 
         <div className="p-8 border-t border-[var(--brand-primary)]/10 bg-gradient-to-t from-[var(--brand-primary)]/5 to-transparent shrink-0">
-          <button onClick={handleSave} disabled={loading} className="w-full py-5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-full shadow-2xl hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-3 active:translate-y-0.5 border-b-4 border-black/10">
+          <button data-tour-anchor="medical-save" onClick={handleSave} disabled={loading} className="w-full py-5 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-full shadow-2xl hover:shadow-emerald-500/20 transition-all flex items-center justify-center gap-3 active:translate-y-0.5 border-b-4 border-black/10">
             {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <span className="text-sm uppercase tracking-widest italic">{t('form_update_cartilla')}</span>}
           </button>
         </div>

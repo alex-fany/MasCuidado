@@ -212,7 +212,7 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
   const optionStyle = "bg-[var(--brand-modal-bg)] text-[var(--brand-text)]";
 
   return (
-    <div ref={fieldsRef} className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
+    <div ref={fieldsRef} data-tour-window="nutrition" className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
       <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-md p-8 shadow-2xl border-4 border-[var(--brand-primary)]/20 animate-in zoom-in-95 duration-300 relative overflow-hidden flex flex-col max-h-[90vh]">
         
         {!conflictData && !success && (
@@ -232,15 +232,15 @@ export default function NutricionModal({ isOpen, onClose, pet, onSave }) {
               </button>
             </div>
 
-            <div className="flex gap-2 p-1.5 bg-[var(--brand-surface-muted)] rounded-2xl mb-8 shrink-0">
+            <div data-tour-anchor="nutrition-tabs" className="flex gap-2 p-1.5 bg-[var(--brand-surface-muted)] rounded-2xl mb-8 shrink-0">
                 <button 
-                    onClick={() => setActivePetTab('config')}
+                    data-tour-anchor="nutrition-config" onClick={() => setActivePetTab('config')}
                     className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'config' ? 'bg-[var(--brand-primary)] text-white shadow-lg' : 'text-[var(--brand-text)] opacity-40 hover:opacity-100'}`}
                 >
                     {t('nutri_config')}
                 </button>
                 <button 
-                    onClick={() => setActivePetTab('compra')}
+                    data-tour-anchor="nutrition-purchase" onClick={() => setActivePetTab('compra')}
                     className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'compra' ? 'bg-[var(--brand-primary)] text-white shadow-lg' : 'text-[var(--brand-text)] opacity-40 hover:opacity-100'}`}
                 >
                     {t('nutri_register_buy')}

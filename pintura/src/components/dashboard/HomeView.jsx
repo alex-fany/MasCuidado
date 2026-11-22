@@ -178,8 +178,8 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
 
       {/* Modal Agenda Semanal */}
       {isRemindersModalOpen && (
-        <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-md z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-[320px] p-6 shadow-2xl relative animate-in zoom-in-95 slide-in-from-top-4 duration-500 border border-[var(--brand-primary)]/20 flex flex-col max-h-[70vh]">
+        <div data-tour-window="agenda" className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-md z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div data-tour-anchor="weekly-agenda" className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] w-full max-w-[320px] p-6 shadow-2xl relative animate-in zoom-in-95 slide-in-from-top-4 duration-500 border border-[var(--brand-primary)]/20 flex flex-col max-h-[70vh]">
             <button onClick={() => setIsRemindersModalOpen(false)} className="absolute top-5 right-5 hover:scale-110 active:scale-90 transition-transform duration-200">
               <CloseIcon />
             </button>
@@ -213,13 +213,13 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
 
       {/* Cartilla Médica */}
       {isCartillaOpen && (
-        <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div data-tour-window="record" className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-300">
            <div 
              className="bg-[var(--brand-modal-bg)] rounded-[2rem] sm:rounded-[3rem] w-full max-w-lg p-5 sm:p-8 shadow-2xl relative border-2 sm:border-4 border-[var(--brand-border-strong)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300 overflow-hidden"
              style={{ background: 'var(--brand-modal-gradient)' }}
            >
               <div className="absolute top-5 sm:top-8 right-5 sm:right-8 flex items-center gap-2 sm:gap-3 z-50">
-                <PDFDownloadLink 
+                <PDFDownloadLink data-tour-anchor="record-pdf"
                   document={<PetRecordPDF pet={activePet} t={t} language={language} />} 
                   fileName={`Cartilla_${activePet?.nombre || 'Mascota'}.pdf`}
                   className="px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-500/10 hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-full border-2 border-emerald-500/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-1.5 sm:gap-2 shadow-sm"
@@ -245,7 +245,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 text-left">
                  
                  {/* Sección: Información General */}
-                 <section className="bg-[var(--brand-surface-muted)] p-6 rounded-[2rem] border border-[var(--brand-primary)]/5 relative group shadow-inner">
+                 <section data-tour-anchor="record-general" className="bg-[var(--brand-surface-muted)] p-6 rounded-[2rem] border border-[var(--brand-primary)]/5 relative group shadow-inner">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setIsEditCartillaOpen(true); }}
                       className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[var(--brand-primary)]/10 text-[var(--brand-primary)] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95 shadow-sm cursor-pointer z-20"
@@ -283,7 +283,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
 
                  {/* Sección: Fotos de Cartilla Física */}
                  {activePet.fotosCartilla?.length > 0 && (
-                   <section className="space-y-3">
+                   <section data-tour-anchor="record-photos" className="space-y-3">
                       <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-2 italic opacity-80 ml-2">{t('form_vac_physical')}</h3>
                       <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2 px-1">
                          {activePet.fotosCartilla.map((f, i) => (
@@ -296,7 +296,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                  )}
 
                  {/* Sección: Vacunas */}
-                 <section className="space-y-3">
+                 <section data-tour-anchor="record-vaccines" className="space-y-3">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-2 italic opacity-80 ml-2">{t('form_vac_title')}</h3>
                     <div className="grid grid-cols-1 gap-2">
                        {Object.keys(vaccineGroups).length > 0 ? Object.entries(vaccineGroups).map(([name, records], i) => (
@@ -323,7 +323,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                  </section>
 
                  {/* Sección: Datos Médicos */}
-                 <section className="bg-gradient-to-br from-purple-500/10 to-purple-600/20 p-6 rounded-[2rem] border border-purple-500/20 shadow-inner">
+                 <section data-tour-anchor="record-health" className="bg-gradient-to-br from-purple-500/10 to-purple-600/20 p-6 rounded-[2rem] border border-purple-500/20 shadow-inner">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-purple-600 mb-4 italic opacity-80">{t('form_medical_data')}</h3>
                     <div className="space-y-4">
                        <div>
@@ -342,7 +342,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
                  </section>
 
                  {/* Sección: Clínica Favorita */}
-                 <section className="bg-gradient-to-br from-[var(--brand-primary)]/5 to-[var(--brand-secondary)]/5 p-6 rounded-[2rem] border border-[var(--brand-primary)]/10">
+                 <section data-tour-anchor="record-clinic" className="bg-gradient-to-br from-[var(--brand-primary)]/5 to-[var(--brand-secondary)]/5 p-6 rounded-[2rem] border border-[var(--brand-primary)]/10">
                     <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--brand-primary)] mb-3 ml-1 italic opacity-80">{t('form_fav_clinic')}</h3>
                     {favoriteClinic ? (
                       <div className="p-4 bg-[var(--brand-surface)] rounded-2xl border border-[var(--brand-primary)]/10 flex items-start gap-3 shadow-sm">
@@ -437,7 +437,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
 
       {/* Modal Confirmación Agua */}
       {isWaterConfirmOpen && (
-        <div className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
+        <div data-tour-window="water" className="fixed inset-0 z-[11000] flex items-center justify-center p-4 bg-[var(--brand-backdrop)] backdrop-blur-md animate-in fade-in duration-200">
            <div className="bg-[var(--brand-modal-bg)] rounded-[2.5rem] p-8 shadow-2xl border-4 border-cyan-500/20 max-w-sm w-full animate-in zoom-in-95 duration-200 text-center">
               <div className="w-20 h-20 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-cyan-500/10">
                 <span className="text-4xl animate-bounce"><CustomIcon name="ICON-041" /></span>
@@ -449,7 +449,7 @@ export default function HomeView({ activePet, reminders, onPetUpdated }) {
               <div className="flex flex-col gap-3">
                 <button 
                   onClick={handleAddWaterConfirm} 
-                  disabled={isWaterLoading}
+                  data-tour-anchor="water-confirm" disabled={isWaterLoading}
                   className="w-full py-4 bg-cyan-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-cyan-700 transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
                 >
                   {isWaterLoading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : '✓'}

@@ -58,6 +58,12 @@ export const AVATAR_OPTIONS = [
 ];
 
 export const PREMIUM_COLORS = [
-  '#2d9b96', '#4ebfba', '#ff6333', '#b48dff', '#73b6ff',
-  '#f87171', '#00eb8f', '#a0ec06', '#3aaba5', '#1a5d5a'
+  // Tonos cálidos: coral, melocotón, ámbar, dorado y crema.
+  '#ff6333', '#f87171', '#ff9f43', '#ffbf69', '#ffd166', '#ffe8a3',
+  // Rosas y violetas, desde tonos suaves hasta colores intensos.
+  '#ff8fab', '#ffb3c6', '#f472b6', '#ec4899', '#e879f9', '#d8b4fe',
+  '#b48dff', '#8b5cf6', '#6d28d9', '#3f2439',
+  // Azules, tonos neutros y los verdes vivos que ya estaban disponibles.
+  '#73b6ff', '#a5c8ff', '#dbeafe', '#1e3a5f', '#172554', '#fff1dc',
+  '#00eb8f', '#a0ec06'
 ];

@@ -47,6 +47,7 @@ import icon071 from '../../assets/icons/icon-071.svg';
 import icon072 from '../../assets/icons/icon-072.svg';
 import icon073 from '../../assets/icons/icon-073.svg';
 import icon074 from '../../assets/icons/icon-074.svg';
+import icon075 from '../../assets/icons/icon-075.svg';
 
 // Los elementos repetidos comparten el mismo archivo SVG.
 export const customIconSources = Object.freeze({
@@ -55,6 +56,7 @@ export const customIconSources = Object.freeze({
   'ICON-072': icon072,
   'ICON-073': icon073,
   'ICON-074': icon074,
+  'ICON-075': icon075,
 
   'ICON-002': icon002,
   'ICON-003': icon003,

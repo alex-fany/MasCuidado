@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { LogoutIcon, CheckIcon, ShieldIcon, CalendarIcon, TrophyIcon, SettingsIcon, UsersIcon, CloseIcon, PhoneIcon } from '../common/Icons';
 import Input from '../Input';
 import AvatarSelector from './AvatarSelector';
-import { AVATAR_OPTIONS } from '../../constants/avatars';
+import { avatarImageSource } from '../../utils/avatarImage';
 import { useSettings } from '../../context/SettingsContext';
 
 const LADAS = [
@@ -154,13 +154,13 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
   };
 
   const renderAvatar = () => {
-    if (user?.imagen) {
-      const avatarObj = AVATAR_OPTIONS.find(a => a.id === user.imagen);
-      if (avatarObj) {
-        return <div className="w-full h-full p-6" dangerouslySetInnerHTML={{ __html: avatarObj.svg.replace(/{{COLOR}}/g, user.colorAvatar || '#2d9b96') }} />;
-      }
+    const source = avatarImageSource(user?.imagen, user?.colorAvatar);
+    if (source) {
+      return <div className="w-full h-full p-4">
+        <img src={source} alt={t('avatar_title')} className="w-full h-full object-contain" />
+      </div>;
     }
-    return user?.googleId ? <CustomIcon name="ICON-059" /> : <CustomIcon name="ICON-043" />;
+    return <CustomIcon name="ICON-043" />;
   };
 
   if (loading && !user) {
@@ -207,7 +207,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 pb-6">
         
         {/* Identidad */}
-        <div className="lg:col-span-4 flex flex-col gap-5">
+        <div data-tour-anchor="profile-identity" className="lg:col-span-4 flex flex-col gap-5">
           <CardWrapper className="justify-center p-6 sm:p-8 text-center relative overflow-hidden">
             <div className="absolute top-4 sm:top-6 left-1/2 -translate-x-1/2">
                <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-3.5 sm:px-4 py-1 rounded-full text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] shadow-sm">
@@ -268,7 +268,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         </div>
 
         {/* Datos Detallados */}
-        <div className="lg:col-span-4 flex flex-col">
+        <div data-tour-anchor="profile-details" className="lg:col-span-4 flex flex-col">
           <CardWrapper className="p-6 sm:p-8 relative">
             <div className="flex items-center justify-between mb-6 sm:mb-8 border-b border-[var(--brand-primary)]/10 pb-4">
               <div className="flex items-center gap-2">
@@ -365,7 +365,7 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         </div>
 
         {/* Manada */}
-        <div className="lg:col-span-4 flex flex-col">
+        <div data-tour-anchor="profile-pets" className="lg:col-span-4 flex flex-col">
           <CardWrapper className="p-5 sm:p-6">
             <div className="flex items-center justify-between mb-4 sm:mb-6 border-b border-[var(--brand-primary)]/10 pb-3 sm:pb-4">
               <div className="flex items-center gap-2">
@@ -419,19 +419,24 @@ export default function ProfileView({ onLogout, onEditPet, pets, onUserUpdate })
         <AvatarSelector 
           currentAvatar={form.imagen}
           currentColor={form.colorAvatar}
-          onSelect={(avatarId, avatarColor) => {
-            setForm({...form, imagen: avatarId, colorAvatar: avatarColor});
+          onSelect={async (avatarId, avatarColor) => {
             const token = localStorage.getItem("token");
-            fetch("/api/users/me", {
+            const response = await fetch("/api/users/me", {
               method: "PUT",
               headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
               body: JSON.stringify({ imagen: avatarId, colorAvatar: avatarColor })
-            }).then(res => res.json()).then(data => {
-               setUser(data);
-               if (onUserUpdate) onUserUpdate(data);
-               const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
-               localStorage.setItem("user", JSON.stringify({ ...savedUser, ...data }));
             });
+            const data = await response.json();
+            if (!response.ok || !data.id || data.imagen !== avatarId) {
+              throw new Error(data.error || 'No se pudo guardar el avatar');
+            }
+            setForm(previous => ({ ...previous, imagen: data.imagen, colorAvatar: data.colorAvatar }));
+            setUser(data);
+            if (onUserUpdate) onUserUpdate(data);
+            try {
+              const savedUser = JSON.parse(localStorage.getItem("user") || "{}");
+              localStorage.setItem("user", JSON.stringify({ ...savedUser, ...data }));
+            } catch { /* El servidor ya confirmó el guardado aunque no se pueda actualizar la caché local. */ }
           }}
           onClose={() => setIsAvatarSelectorOpen(false)}
         />

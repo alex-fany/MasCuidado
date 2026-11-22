@@ -1,3 +1,4 @@
+import GuidedTutorials from './components/tutorials/GuidedTutorials';
 import CustomIcon from './components/common/CustomIcon';
 import { useState, useEffect, useCallback } from "react"
 import Card from "./components/Card"
@@ -32,6 +33,7 @@ import { useSettings } from "./context/SettingsContext"
 
 export default function App() {
   const { t } = useSettings();
+  const [tutorialRevision, setTutorialRevision] = useState(0);
   const [page, setPage] = useState("login")
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(null)
@@ -195,6 +197,7 @@ export default function App() {
       {page === "dashboard" ? (
         <div className="h-full w-full bg-transparent font-sans flex flex-col overflow-hidden relative selection:bg-[var(--brand-accent)]/30 no-scrollbar">
           
+          <GuidedTutorials key={`${user?.id}:${tutorialRevision}`} userId={user?.id} view={currentView} hasPets={pets.length > 0} loading={loadingPets} />
           <DashboardHeader 
             onConfigClick={() => setIsConfigModalOpen(true)}
             onAddMascotaClick={() => setIsAddMascotaOpen(true)}
@@ -205,7 +208,7 @@ export default function App() {
             user={user}
           />
 
-          <main className="flex-1 w-full overflow-hidden relative flex flex-col">
+          <main data-tour-view={currentView} className="flex-1 w-full overflow-hidden relative flex flex-col">
             {currentView === 'home' && (
               <HomeView activePet={activePet} reminders={reminders} onPetUpdated={(showToast) => fetchPets(token, 'updated', showToast)} />
             )}
@@ -221,7 +224,11 @@ export default function App() {
           </div>
 
           <SettingsModal isOpen={isConfigModalOpen} onClose={() => setIsConfigModalOpen(false)} onLogout={handleLogout}
-            pets={pets} activePetId={activePet?.id} onPetImported={handlePetImported} />
+            pets={pets} activePetId={activePet?.id} onPetImported={handlePetImported} onReplayTutorials={async () => {
+              const response = await fetch('/api/tutorials', { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+              if (!response.ok) throw new Error('tutorials');
+              setTutorialRevision(n => n + 1);
+            }} />
           
           <AddMascotaModal 
             isOpen={isAddMascotaOpen} 

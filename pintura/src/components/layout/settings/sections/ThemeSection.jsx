@@ -29,7 +29,7 @@ export default function ThemeSection() {
 
   return (
     <SectionWrapper>
-      <div className="grid grid-cols-1 gap-4 pb-8">
+      <div data-tour-anchor="theme-options" className="grid grid-cols-1 gap-4 pb-8">
         {themes.map((tItem, index) => (
           <motion.button
             key={tItem.id}

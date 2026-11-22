@@ -94,7 +94,7 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
   };
 
   return (
-    <div className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[9999] flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-300">
+    <div data-tour-window="add" className="fixed inset-0 bg-[var(--brand-backdrop)] backdrop-blur-xl z-[9999] flex items-center justify-center p-4 overflow-hidden animate-in fade-in duration-300">
       <div 
         className="rounded-[3rem] w-full max-w-lg p-8 shadow-2xl relative border-4 border-[var(--brand-primary)]/20 flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300"
         style={{ background: 'var(--brand-modal-gradient)' }}
@@ -197,7 +197,7 @@ export default function AddMascotaModal({ isOpen, onClose, onRefreshPets, active
             </div>
           </div>
 
-          <div className="pt-4 shrink-0">
+          <div data-tour-anchor="register-pet" className="pt-4 shrink-0">
             <Button type="submit" loading={loading} className="w-full py-5 rounded-[1.5rem] text-lg shadow-2xl shadow-[var(--brand-primary)]/40 font-black uppercase tracking-widest italic">
               {t('form_register_pet')}
             </Button>

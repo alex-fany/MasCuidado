@@ -2,12 +2,13 @@ import CustomIcon from '../common/CustomIcon';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CloseIcon, LogoutIcon } from '../common/Icons';
+import HelpSection from './settings/sections/HelpSection';
 import ThemeSection from './settings/sections/ThemeSection';
 import LanguageSection from './settings/sections/LanguageSection';
 import BackupSection from './settings/sections/BackupSection';
 import { useSettings } from '../../context/SettingsContext';
 
-export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], activePetId, onPetImported }) {
+export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], activePetId, onPetImported, onReplayTutorials }) {
   const { t, language } = useSettings();
   const [activeSection, setActiveSection] = useState('main');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -28,11 +29,12 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
     { id: 'security', label: language === 'en' ? "Security" : language === 'pt' ? "Segurança" : "Seguridad", icon: <CustomIcon name="ICON-068" />, desc: language === 'en' ? "Change password and access" : language === 'pt' ? "Alterar senha e acessos" : "Cambiar contraseña y accesos", active: false },
     { id: 'language', label: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", icon: <CustomIcon name="ICON-069" />, desc: language === 'en' ? "Regional preferences" : language === 'pt' ? "Preferências regionais" : "Preferencias regionales", active: true },
     { id: 'privacy', label: language === 'en' ? "Privacy" : language === 'pt' ? "Privacidade" : "Privacidad", icon: <CustomIcon name="ICON-047" />, desc: language === 'en' ? "Control shared data" : language === 'pt' ? "Controle de dados compartilhados" : "Control de datos compartidos", active: false },
-    { id: 'help', label: language === 'en' ? "Help" : language === 'pt' ? "Ajuda" : "Ayuda", icon: <CustomIcon name="ICON-070" />, desc: language === 'en' ? "FAQ and support" : language === 'pt' ? "Perguntas frequentes e suporte" : "Preguntas frecuentes y soporte", active: false },
+    { id: 'help', label: language === 'en' ? "Help" : language === 'pt' ? "Ajuda" : "Ayuda", icon: <CustomIcon name="ICON-070" />, desc: language === 'en' ? "FAQ and support" : language === 'pt' ? "Perguntas frequentes e suporte" : "Preguntas frecuentes y soporte", active: true },
   ];
 
   const getHeaderInfo = () => {
     switch (activeSection) {
+      case 'help': return { title: language === 'en' ? 'Help' : language === 'pt' ? 'Ajuda' : 'Ayuda', subtitle: '+Cuidado' };
       case 'backup': return { title: language === 'en' ? "Backup" : language === 'pt' ? "Cópia de Segurança" : "Copia de Seguridad", subtitle: language === 'en' ? "Independent copies" : language === 'pt' ? "Cópias independentes" : "Copias independientes" };
       case 'theme': return { title: language === 'en' ? "Theme & Style" : language === 'pt' ? "Tema e Estilo" : "Tema y Estilo", subtitle: language === 'en' ? "Visual Customization" : language === 'pt' ? "Personalização Visual" : "Personalización Visual" };
       case 'language': return { title: language === 'en' ? "Language" : language === 'pt' ? "Idioma" : "Idioma", subtitle: language === 'en' ? "Regional Preferences" : language === 'pt' ? "Preferências Regionais" : "Preferencias Regionales" };
@@ -44,7 +46,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div data-tour-window="settings" data-tour-section={activeSection} className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div 
           initial={{ opacity: 0 }}
@@ -59,7 +61,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
           initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
+          data-tour-anchor="settings-panel" transition={{ type: "spring", damping: 25, stiffness: 300 }}
           className="relative w-full max-w-md bg-[var(--brand-modal-bg)] shadow-[0_32px_64px_-15px_rgba(0,0,0,0.3)] rounded-[2.5rem] overflow-hidden border border-[var(--brand-primary)]/20 flex flex-col min-h-0 max-h-[85vh] supports-[height:100dvh]:max-h-[85dvh] backdrop-blur-xl"
         >
           {/* Header */}
@@ -118,7 +120,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
                   <div className="space-y-1.5 pb-4">
                     {settingsItems.map((item) => (
                       <button 
-                        key={item.id} 
+                        key={item.id} data-settings-section={item.id}
                         onClick={() => item.active && setActiveSection(item.id)}
                         className={`w-full flex items-center gap-4 p-4 rounded-3xl transition-all duration-300 group text-left border border-transparent active:scale-[0.98] ${
                           item.active 
@@ -144,6 +146,7 @@ export default function SettingsModal({ isOpen, onClose, onLogout, pets = [], ac
                 </motion.div>
               ) : (
                 <div key="detail" className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                  {activeSection === 'help' && <HelpSection onReplay={async () => { await onReplayTutorials?.(); handleClose(); }} />}
                   {activeSection === 'theme' && <ThemeSection />}
                   {activeSection === 'language' && <LanguageSection />}
                   {activeSection === 'backup' && <BackupSection pets={pets} activePetId={activePetId} onPetImported={onPetImported} onBusyChange={setBackupBusy} />}

@@ -189,13 +189,13 @@ export default function AchievementsView({ user, pets, reminders }) {
             </div>
           </div>
         </div>
-        <div className="flex-1 max-w-lg w-full flex flex-col gap-1.5 sm:gap-2 relative z-10">
+        <div data-tour-anchor="achievements-progress" className="flex-1 max-w-lg w-full flex flex-col gap-1.5 sm:gap-2 relative z-10">
            <div className="flex justify-between items-end mb-0.5 px-1"><span className="text-[8px] font-black text-white/30 uppercase tracking-[0.3em]">{language === 'en' ? 'Journey Progress' : 'Senda de Maestría'}</span><span className="text-base sm:text-lg font-black text-white italic tracking-widest">{Math.round(progress)}%</span></div>
            <div className="h-2.5 sm:h-3 bg-black/60 rounded-full overflow-hidden border-2 border-white/5 shadow-inner p-0.5"><motion.div initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 1.5, ease: "circOut" }} className={`h-full rounded-full bg-gradient-to-r ${currentRank.color} relative shadow-[0_0_15px_rgba(255,255,255,0.2)]`} /></div>
         </div>
       </header>
 
-      <div className="flex-1 space-y-6 sm:space-y-8 pb-8 relative z-10">
+      <div data-tour-anchor="achievements-list" className="flex-1 space-y-6 sm:space-y-8 pb-8 relative z-10">
         {categories.map((cat, catIdx) => (
           <motion.div key={cat.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: catIdx * 0.05 }} className="space-y-4 sm:space-y-6">
             <div className="flex items-center gap-3 sm:gap-4 border-l-4 border-[var(--brand-primary)] pl-3 sm:pl-4">

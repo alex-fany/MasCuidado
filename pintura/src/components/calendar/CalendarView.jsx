@@ -190,7 +190,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 relative z-[10] pb-4">
-        <div className="lg:col-span-7 bg-[var(--brand-surface-glass)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-3.5 sm:p-5 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col animate-in zoom-in-95 duration-500 relative overflow-hidden">
+        <div data-tour-anchor="calendar-grid" className="lg:col-span-7 bg-[var(--brand-surface-glass)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-3.5 sm:p-5 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col animate-in zoom-in-95 duration-500 relative overflow-hidden">
           <div className="grid grid-cols-7 gap-1 sm:gap-1.5 mb-2.5 sm:mb-4 mt-1 shrink-0 px-0.5 sm:px-1">
             {dayNames.map((d, index) => (
               <div key={index} className="text-center text-[var(--brand-primary)] font-black text-[8px] sm:text-[9px] opacity-40 uppercase tracking-[0.1em] italic">{d}</div>
@@ -226,7 +226,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
           </div>
         </div>
 
-        <div className="lg:col-span-5 flex flex-col gap-6 overflow-visible">
+        <div data-tour-anchor="calendar-events" className="lg:col-span-5 flex flex-col gap-6 overflow-visible">
           <div className="bg-[var(--brand-modal-gradient)] backdrop-blur-xl rounded-[2rem] sm:rounded-[2.5rem] p-4 sm:p-5 border-2 sm:border-4 border-[var(--brand-border-strong)] shadow-2xl flex flex-col border-dashed border-[var(--brand-secondary)]/30 overflow-hidden relative min-h-[280px]">
             <div className="flex items-center justify-between mb-3 sm:mb-4 shrink-0 px-1 relative z-10">
                <div className="flex items-center gap-2 sm:gap-2.5">
@@ -272,7 +272,7 @@ export default function CalendarView({ activePet, pets, onRefreshRemindersGlobal
 
             <div className="px-1 pt-2 shrink-0">
               <button 
-                onClick={() => { setEditingReminder(null); setIsAddModalOpen(true); }}
+                data-tour-anchor="calendar-add" onClick={() => { setEditingReminder(null); setIsAddModalOpen(true); }}
                 className="w-full py-3 bg-gradient-to-r from-[var(--brand-accent)] to-[var(--brand-primary)] text-[var(--brand-button-text)] font-black rounded-2xl sm:rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 group active:translate-y-0.5 border-b-4 border-black/10"
               >
                 <div className="w-5 h-5 bg-white/20 rounded-full flex items-center justify-center relative overflow-hidden transition-transform duration-500">

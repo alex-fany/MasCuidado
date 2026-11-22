@@ -22,7 +22,7 @@ export default function PetDisplay({ activePet, onCartillaClick, onRemindersClic
       {/* Visualización de la Mascota */}
       <div 
         className="relative group cursor-pointer shrink-0"
-        onClick={onCartillaClick}
+        data-tour-anchor="record" onClick={onCartillaClick}
       >
         <div className="absolute inset-0 bg-[var(--brand-primary)]/20 rounded-full blur-2xl sm:blur-3xl group-hover:bg-[var(--brand-primary)]/30 transition-colors duration-700 scale-125 sm:scale-150 animate-pulse"></div>
         
@@ -51,7 +51,7 @@ export default function PetDisplay({ activePet, onCartillaClick, onRemindersClic
 
       {/* Botón derecho: Recordatorios */}
       <div className="shrink-0 z-20 scale-85 xs:scale-90 sm:scale-100 origin-center">
-        <button onClick={onRemindersClick} className={sideButtonStyle} title={t('cal_events')}>
+        <button data-tour-anchor="reminders" onClick={onRemindersClick} className={sideButtonStyle} title={t('cal_events')}>
           <div className="group-hover:-rotate-6 transition-transform relative z-10 scale-90 sm:scale-100">
             <BellIcon />
           </div>

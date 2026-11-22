@@ -161,6 +161,7 @@ model Usuario {
   estado             String         @default("Activo") @map("estado") @db.VarChar(20)
   mascotas           Mascota[]
   recordatorios      Recordatorio[]
+  tutorialProgress   TutorialProgress[]
   settings           UserSettings?
   reset_token       String?
   reset_token_exp   DateTime?
@@ -191,4 +192,14 @@ model Vacuna {
 
   @@index([mascotaId], map: "idx_vacuna_mascota")
   @@map("vacuna")
+}
+
+// Cada cuenta conserva su progreso independientemente del dispositivo.
+model TutorialProgress {
+  userId String @map("id_usuario")
+  tourId String @map("id_tutorial") @db.VarChar(30)
+  user Usuario @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, tourId])
+  @@map("tutorial_progress")
 }
